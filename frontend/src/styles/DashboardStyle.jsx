@@ -1,76 +1,68 @@
-import { styled } from 'styled-components'
+import { styled } from "styled-components";
 
 export const DashboardStyled = styled.div`
-.stats-con{
+  .amount-con {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 2rem;
-    .chart-con{
-        grid-column: 1 / 4;
-        height: 400px;
-        .amount-con{
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 2rem;
-            margin-top: 2rem;
-            .income, .expense{
-                grid-column: span 2;
-            }
-            .income, .expense, .balance{
-                background: #FCF6F9;
-                border: 2px solid #FFFFFF;
-                box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
-                border-radius: 20px;
-                padding: 1rem;
-                p{
-                    font-size: 3.5rem;
-                    font-weight: 700;
-                }
-            }
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin: 1.25rem 0;
+  }
+  .income,
+    .saving,
+    .expense,
+    .monthly-saving,
+    .history-con,
+    .history-overview {
+      background: var(--component-color);
+      border: 2px solid #191a16;
+      box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
+      border-radius: 20px;
+      padding: 1rem 1.25rem;
+  }
 
-            .balance{
-                grid-column: 2 / 4;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                p{
-                    color: var(--color-green);
-                    opacity: 0.6;
-                    font-size: 4.5rem;
-                }
-            }
-        }
-    }
+  .table, th, td {
+    --bs-table-bg: transparent;
+    border: none;
+  }
 
-    .history-con{
-        grid-column: 4 / -1;
-        h2{
-            margin: 1rem 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .salary-title{
-            font-size: 1.2rem;
-            span{
-                font-size: 1.8rem;
-            }
-        }
-        .salary-item{
-            background: #FCF6F9;
-            border: 2px solid #FFFFFF;
-            box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
-            padding: 1rem;
-            border-radius: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            p{
-                font-weight: 600;
-                font-size: 1.6rem;
-            }
-        }
+  .histories-con {
+    display: grid;
+    grid-template-columns: 4fr 2fr;
+    gap: 1rem;
+    .history-title {
+      display: flex;
+      justify-content: space-between;
     }
-}
+    .history-detail {
+        text-decoration: none;
+    }
+    .history-detail h2 {
+        text-decoration: none;
+        color: var(--color-yellow);
+        font-weight: 500;
+    }
+    .history-table {
+      thead {
+        span {
+          font-weight: 600;
+          color: white;
+        }
+      }
+      tbody > tr {
+        background-color: var(--table-row);
+        border-radius: 0.5rem; 
+      }
+    }
+    .edit-btn {
+      color: var(--edit-btn);
+    }
+    .del-btn {
+      color: var(--delete-btn); 
+    }
+    .history-overview {
+      thead > tr {
+        background-color: rgba(39, 39, 42, 1);
+      }
+    }
+  }
 `;

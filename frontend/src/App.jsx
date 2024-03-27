@@ -1,45 +1,23 @@
-import React, {useState, useMemo} from 'react'
+import React, { useMemo } from 'react'
 import styled from "styled-components";
-import {MainLayout} from './styles/Layouts'
+import { MainLayout } from './styles/Layouts'
 import Orb from './components/orbit/Orbit'
 import Navigation from './components/navigation/Navigation'
-import Dashboard from './pages/Dashboard';
-import Income from './components/income/Income'
-import Expenses from './components/expenses/Expense';
-import { useGlobalContext } from './context/GlobalContext';
+import { Outlet } from 'react-router-dom';
 
-function App() {
-  const [active, setActive] = useState(1)
-
-  const global = useGlobalContext()
-  console.log(global);
-
-  const displayData = () => {
-    switch(active){
-      case 1:
-        return <Dashboard />
-      case 2:
-        return <Dashboard />
-      case 3:
-        return <Income />
-      case 4: 
-        return <Expenses />
-      default: 
-        return <Dashboard />
-    }
-  }
+const App = () => {
 
   const orbMemo = useMemo(() => {
     return <Orb />
-  },[])
+  }, [])
 
   return (
     <AppStyled className="App">
       {orbMemo}
       <MainLayout>
-        <Navigation active={active} setActive={setActive} />
+        <Navigation />
         <main>
-          {displayData()}
+          <Outlet/>
         </main>
       </MainLayout>
     </AppStyled>
