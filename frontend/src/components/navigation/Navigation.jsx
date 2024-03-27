@@ -1,65 +1,95 @@
-import React from 'react'
-import styled from 'styled-components'
-import { signout } from '../../utils/Icons'
-import { menuItems } from '../../utils/MenuItems'
-import { accountItems } from '../../utils/MenuItems'
-import BoxSx from '../../utils/BoxSx'
+import React from "react";
+import styled from "styled-components";
+import { NavLink } from "react-router-dom";
+import {
+    budgeting,
+    categories,
+    customize,
+    dashboard,
+    expenses,
+    income,
+    piggy,
+    profile,
+    signout,
+} from "../../utils/Icons";
+import BoxSx from "../box/BoxSx";
 
-function Navigation({ active, setActive }) {
-
+const Navigation = () => {
     return (
         <NavStyled>
             <div className="app-name">
                 <img src="../../img/logo_bee" alt="logo_bee" />
-                <h2>SmartFinancer</h2>
+                <h1>SmartFinancer</h1>
             </div>
             <ul className="menu-items">
-                <div className='menu-name'>
+                <div className="menu-name">
                     <BoxSx mainColor={"#FACC15"} />
-                    <h2>Main Menu</h2>
+                    <h1>Main Menu</h1>
                 </div>
-                {menuItems.map((item) => {
-                    return <li
-                        key={item.id}
-                        onClick={() => setActive(item.id)}
-                        className={active === item.id ? 'active' : ''}
-                    >
-                        {item.icon}
-                        <span>{item.title}</span>
-                    </li>
-                })}
+                <li>
+                    <NavLink to="/dashboard-page" activeClassName="active">
+                        {dashboard} <span>Dashboard</span>
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink to="/category-page" activeClassName="active">
+                        {categories} <span>Category</span>
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink to="/income-page" activeClassName="active">
+                        {income} <span>Income</span>
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink to="budgeting-page" activeClassName="active">
+                        {budgeting} <span>Budgeting</span>
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink to="/saving-page" activeClassName="active">
+                        {piggy} <span>Savings</span>
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink to="/expense-page" activeClassName="active">
+                        {expenses} <span>Expenses</span>
+                    </NavLink>
+                </li>
             </ul>
             <ul className="menu-items">
-                <div className='menu-name'>
+                <div className="menu-name">
                     <BoxSx mainColor={"#FACC15"} />
-                    <h2>Account</h2>
+                    <h1>Account</h1>
                 </div>
-                {accountItems.map((item) => {
-                    return <li
-                        key={item.id}
-                        onClick={() => setActive(item.id)}
-                        className={active === item.id ? 'active' : ''}
-                    >
-                        {item.icon}
-                        <span>{item.title}</span>
-                    </li>
-                })}
+                {/* Account List */}
+                <li>
+                    <NavLink to="/customize-page" activeClassName="active">
+                        {customize} <span>Customize</span>
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink to="/profile-page" activeClassName="active">
+                        {profile} <span>Profile</span>
+                    </NavLink>
+                </li>
             </ul>
             <div className="bottom-nav">
-                <li>
-                    {signout} Sign Out
-                </li>
+                <li>{signout} Sign Out</li>
             </div>
         </NavStyled>
-    )
+    );
 }
 
 const NavStyled = styled.nav`
-    padding: 1.5rem 1rem 0;
+    padding: 0 1rem;
     height: 100%; 
     display: flex;
     flex-direction: column;
     color: var(--color-white);
+    span {
+            font-weight: 400;
+    }
     .app-name {
         height: 100px;
         display: flex;
@@ -71,7 +101,7 @@ const NavStyled = styled.nav`
             padding: .2rem;
             box-shadow: 0px 1px 17px rgba(0, 0, 0, 0.06);
         }
-        h2 {
+        h1 {
             color: var(--color-yellow);
             font-size: 1.25rem;
             font-weight: 700;
@@ -85,17 +115,23 @@ const NavStyled = styled.nav`
         display: flex;
         flex-direction: column;
         padding: 0;
+        h1 {
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            font-weight: 600;
+        }
         .menu-name {
             display: flex;
-            align-items: center;s
+            align-items: center;
         }
         .menu-name h2 {
             font-size: 1rem;
             margin: 0 
         }
-        li {
+        li a {
             display: grid;
             grid-template-columns: 40px auto;
+            text-decoration: none;
             align-items: center;
             margin: .5rem 2rem;
             font-weight: 500;
@@ -114,7 +150,10 @@ const NavStyled = styled.nav`
     }
     
     .active {
-        color: var(--color-yellow) !important;
+        span {
+            color: var(--color-yellow);
+            font-weight: 600;
+        }
         i {
             color: var(--color-yellow) !important;
         }
@@ -149,5 +188,4 @@ const NavStyled = styled.nav`
     }
 `;
 
-
-export default Navigation
+export default Navigation;

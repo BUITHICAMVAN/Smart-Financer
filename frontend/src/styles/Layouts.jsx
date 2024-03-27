@@ -3,7 +3,7 @@ import styled from "styled-components";
 export const MainLayout = styled.div`
     height: 100%;
     display: flex;
-    gap: 2rem;
+    gap: 1rem;
 `;
 
 export const InnerLayout = styled.div`

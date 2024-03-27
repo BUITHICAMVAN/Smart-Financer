@@ -1,0 +1,11 @@
+npm axios
+Cai dat thu vien:
+- cdn bootstrap 
+- cdn fontawesome
+- react-router-dom: cau hinh route
+- redux:  npm i redux react-redux @reduxjs/toolkit
+- axios
+- lodash
+- antd: npm i antd npm install @ant-design/icons --save
+- formik yup 
+- history: chuyen huong nhung trang khong phai component
