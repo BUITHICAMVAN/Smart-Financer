@@ -1,62 +1,87 @@
-import React, {useState } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import { InnerLayout } from '../styles/Layouts';
+import TransactionModal from '../components/modals/incomeModal';
 
 const IncomePage = () => {
   const [month, setMonth] = useState('March')
-
   const [amount, setAmount] = useState("100")
 
-  return (
-    <IncomePageStyled>
-      <InnerLayout>
-        <div className="container">
-          <div className="content-container text-center">
-            {/* <h3>{month} Income Entries</h3> */}
-            <div className="income-total">
-              <p>$ {amount}</p>
-              <h2>Total Income</h2>
-            </div>
-            <div className="btn-con">
-              {/* <button className="btn btn-dark">Export</button> */}
-              <button className="btn btn-warning">Add Entry</button>
-            </div>
-            <hr />
-            <div className="income-content">
-              <table className='table'>
-                <thead>
-                  <tr>
-                    <th><span>Date & Time</span></th>
-                    <th><span>Income type</span></th>
-                    <th><span>Amount</span></th>
-                    <th><span>Note</span></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><span>1</span></td>
-                    <td><span>2</span></td>
-                    <td><span>3</span></td>
-                    <td><span>4</span></td>
-                    <td><span className='edit-btn'>Edit</span></td>
-                    <td><span className='del-btn'>Delete</span></td>
-                  </tr>
-                  <tr>
-                    <td><span>1</span></td>
-                    <td><span>2</span></td>
-                    <td><span>3</span></td>
-                    <td><span>4</span></td>
-                    <td><span className='edit-btn'>Edit</span></td>
-                    <td><span className='del-btn'>Delete</span></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+  const [open, setOpen] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false)
+
+  const showModal = () => {
+    setOpen(true)
+  };
+
+  const handleCancel = () => {
+    setOpen(false)
+  }
+
+  const handleCreate = (formData) => {
+    setConfirmLoading(true);
+    setTimeout(() => {
+      console.log("Transaction added:", formData);
+      setConfirmLoading(false);
+      setOpen(false);
+    }, 2000);
+  };
+
+return (
+  <IncomePageStyled>
+    <InnerLayout>
+      <div className="container">
+        <div className="content-container text-center">
+          <div className="income-total">
+            <p>$ {amount}</p>
+            <h2>Total Income</h2>
+          </div>
+          <div className="btn-con">
+            <button className="btn btn-warning" onClick={showModal}>Add Entry</button>
+          </div>
+          <TransactionModal
+            title="Add Income"
+            type="income"
+            open={open}
+            onCreate={handleCreate}
+            onCancel={handleCancel}
+          />
+          <hr />
+          <div className="income-content">
+            <table className='table'>
+              <thead>
+                <tr>
+                  <th><span>Date & Time</span></th>
+                  <th><span>Income type</span></th>
+                  <th><span>Amount</span></th>
+                  <th><span>Note</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span>1</span></td>
+                  <td><span>2</span></td>
+                  <td><span>3</span></td>
+                  <td><span>4</span></td>
+                  <td><span className='edit-btn'>Edit</span></td>
+                  <td><span className='del-btn'>Delete</span></td>
+                </tr>
+                <tr>
+                  <td><span>1</span></td>
+                  <td><span>2</span></td>
+                  <td><span>3</span></td>
+                  <td><span>4</span></td>
+                  <td><span className='edit-btn'>Edit</span></td>
+                  <td><span className='del-btn'>Delete</span></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
-      </InnerLayout>
-    </IncomePageStyled>
-  )
+      </div>
+    </InnerLayout>
+  </IncomePageStyled>
+)
 }
 
 const IncomePageStyled = styled.div`
