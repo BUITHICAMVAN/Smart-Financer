@@ -1,234 +1,241 @@
-import React from 'react';
-import { InnerLayout } from '../styles/Layouts';
-import styled from 'styled-components';
-
-const incomeColumns = [
-  {
-    title: 'Source',
-    dataIndex: 'source',
-    key: 'source',
-  }
-];
-
-const incomeData = [
-  {
-    key: '1',
-    source: 'CSE salary'
-  },
-  {
-    key: '2',
-    source: 'Freelance Income'
-  },
-  {
-    key: '3',
-    source: 'Bouygues Contrucstion IT'
-  },
-];
-
-const savingColumns = [
-  {
-    title: 'Source',
-    dataIndex: 'source',
-    key: 'source',
-  }
-];
-
-const savingData = [
-  {
-    key: '1',
-    source: 'CSE salary'
-  },
-  {
-    key: '2',
-    source: 'Freelance Income'
-  },
-  {
-    key: '3',
-    source: 'Bouygues Contrucstion IT'
-  },
-];
-
-const expenseColumns = [
-  {
-    title: 'Needs',
-    dataIndex: 'needs',
-    key: 'need',
-  },
-  {
-    title: 'Wants',
-    dataIndex: 'wants',
-    key: 'want'
-  }
-];
-
-const expenseData = [
-  {
-    key: '1',
-    expense: 'Rent',
-    type: 'Needs'
-  },
-  {
-    key: '2',
-    expense: 'Groceries',
-    type: 'Needs'
-  },
-  {
-    key: '3',
-    expense: 'Dining Out',
-    type: 'Wants'
-  },
-  {
-    key: '4',
-    expense: 'Gaming Subscription',
-    type: 'Wants'
-  },
-];
-
-const preprocessExpenseData = (expenseData) => {
-  const needsData = expenseData.filter(item => item.type === 'Needs').map(item => item.expense);
-  const wantsData = expenseData.filter(item => item.type === 'Wants').map(item => item.expense);
-
-  // Determine the longest length to ensure both columns align
-  const maxLength = Math.max(needsData.length, wantsData.length);
-
-  // Prepare the dataSource for the table
-  const dataSource = Array.from({ length: maxLength }).map((_, index) => ({
-    key: index,
-    needs: needsData[index] || '', // Use an empty string if there's no corresponding item
-    wants: wantsData[index] || '', // Use an empty string if there's no corresponding item
-  }));
-
-  return dataSource;
-};
-
-const processedExpenseData = preprocessExpenseData(expenseData);
+import React, { useState } from "react";
+import { InnerLayout } from "../styles/Layouts";
+import styled from "styled-components";
+import { useFormik } from "formik";
+import CategoryTable from "../components/tables/CategoryTable";
+import { Button } from "antd";
+import * as yup from 'yup';
 
 const CategoryPage = () => {
+  const [showCustomRatio, setShowCustomRatio] = useState(false);
+  const handleRadioChange = (event) => {
+    setShowCustomRatio(event.target.value === "custom");
+  };
+
+  const [count, setCount] = useState(2);
+
+  const categoryForm = useFormik({
+    initialValues: {
+      currency: "VND",
+      expectedIncome: "",
+      customRatio: {
+        needRatio: '',
+        savingRatio: '',
+        wantRatio: ''
+      },
+      incomeType: [
+        { type: "freelance" }
+      ],
+      expenseType: {
+        needs: [{ type: "rent" }],
+        wants: [{ type: "shoes" }],
+      },
+      savingType: [{ type: "car" }],
+    },
+    onSubmit: (values) => {
+      console.log(values);
+    },
+  });
+
+  const getCurrencySymbol = (currency) => {
+    switch (currency) {
+      case "USD":
+        return "$";
+      case "EUR":
+        return "€";
+      case "VND":
+        return "₫";
+      default:
+        return "";
+    }
+  };
+
+  const incomeColumns = [
+    {
+      title: "Income",
+      dataIndex: "income",
+      key: "income",
+      children: [
+        {
+          title: "",
+          dataIndex: "type",
+          key: "type",
+        },
+      ],
+    },
+  ];
+
+  const savingColumns = [
+    {
+      title: "Saving",
+      dataIndex: "saving",
+      key: "saving",
+      children: [
+        {
+          title: "",
+          dataIndex: "type",
+          key: "type",
+        },
+      ],
+    },
+  ];
+
+  const expenseColumns = [
+    {
+      title: "Expenses",
+      dataIndex: "expenses",
+      key: "expenses",
+      children: [
+        {
+          title: "Needs",
+          dataIndex: "needs",
+          key: "needs",
+        },
+        {
+          title: "Wants",
+          dataIndex: "wants",
+          key: "wants",
+        },
+      ],
+    },
+  ];
+
   return (
     <CategoryStyle>
       <InnerLayout>
-        <div className="container">
-          <div className="content-container category-container">
-            <form className='category-form '>
-              <h3>Tailor My Budget</h3>
+        <div className="container content-container">
+          <form
+            onSubmit={categoryForm.handleSubmit}
+            className="category-container category-form"
+          >
+            <h3>Tailor My Budget</h3>
+            <div className="form-group">
+              <label htmlFor="currency">Currency <i class="fa-solid fa-money-check-dollar"></i></label>
+              <select
+                className="form-select form-select-lg border-shadow mb-3"
+                id="currency"
+                onChange={categoryForm.handleChange} onBlur={categoryForm.handleBlur}
+              >
+                <option selected>Open this select menu</option>
+                <option value="USD">USD</option>
+                <option value="VND">VND</option>
+                <option value="EUR">EUR</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="expectedIncome">Expected monthly income</label>
+              <div className="input-group input-group-sm border-shadow">
+                <span className="input-group-text">{getCurrencySymbol(categoryForm.values.currency)}</span>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="expectedIncome"
+                  placeholder="Fill in income" onChange={categoryForm.handleChange} onBlur={categoryForm.handleBlur}
+                />
+              </div>
+            </div>
+            <div className="form-group expense-ratio">
+              <div className="form-check px-4">
+                <input
+                  className="form-check-input"
+                  type="radio"
+                  name="expense-ratio"
+                  id="standard-ratio"
+                  value="standard"
+                  onChange={handleRadioChange}
+                />
+                <div className="form-check-title">
+                  <label className="form-check-label" htmlFor="standard-ratio">
+                    50-30-20
+                  </label>
+                  <span>Continue with the standard ratio.</span>
+                </div>
+              </div>
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  type="radio"
+                  name="expense-ratio"
+                  id="custom-ratio"
+                  value="custom"
+                  onChange={handleRadioChange}
+                />
+                <div className="form-check-title">
+                  <label className="form-check-label" htmlFor="custom-ratio">
+                    Custom
+                  </label>
+                  <span>Customize my ratio.</span>
+                </div>
+              </div>
+            </div>
+            {showCustomRatio && (
               <div className="form-group">
-                <p>Currency</p>
-                <select class="form-select form-select-lg border-shadow mb-3">
-                  <option selected>Open this select menu</option>
-                  <option value="1">USD</option>
-                  <option value="2">VND</option>
-                  <option value="3">EUR</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <p>Expected monthly income</p>
-                <input type="text" className='form-control form-control-sm border-shadow mb-3' id='currency' name='currency' placeholder='Fill in income' />
-              </div>
-              <div className="form-group">
-                <p>Expense Ratio</p>
-                <div className="form-check form-check-inline">
-                  <input className="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" defaultValue="option1" />
-                  <label className="form-check-label" htmlFor="inlineRadio1"><span>Standard</span></label>
-                </div>
-                <div className="form-check form-check-inline">
-                  <input className="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" defaultValue="option2" />
-                  <label className="form-check-label" htmlFor="inlineRadio2"><span>Custom</span></label>
-
+                <div className="custom-ratio border-shadow">
+                  <div className="input-group input-group-sm">
+                    <label htmlFor="need-ratio">Need ratio</label>
+                    <input id="need-ratio" type="text" className="form-control" onChange={categoryForm.handleChange} onBlur={categoryForm.handleBlur} />
+                    <span className="input-group-text">%</span>
+                  </div>
+                  <div className="input-group input-group-sm">
+                    <label htmlFor="saving-ratio">Saving ratio</label>
+                    <input id="saving-ratio" type="text" className="form-control" onChange={categoryForm.handleChange} onBlur={categoryForm.handleBlur} />
+                    <span className="input-group-text">%</span>
+                  </div>
+                  <div className="input-group input-group-sm">
+                    <label htmlFor="want-ratio">Want ratio</label>
+                    <input type="text" className="form-control" onChange={categoryForm.handleChange} onBlur={categoryForm.handleBlur} />
+                    <span className="input-group-text">%</span>
+                  </div>
                 </div>
               </div>
-              <div className="custom-ratio border-shadow">
-                <div className="input-group input-group-sm">
-                  <input type="text" className="form-control" />
-                  <span className="input-group-text">%</span>
-                </div>
-                <div className="input-group input-group-sm">
-                  <input type="text" className="form-control" />
-                  <span className="input-group-text">%</span>
-                </div>
-                <div className="input-group input-group-sm">
-                  <input type="text" className="form-control" />
-                  <span className="input-group-text">%</span>
-                </div>
-              </div>
-            </form>
+            )}
             <hr />
-            <div className="category-table">
+            <div className="form-group category-table">
               <h3 className="text-center">Set up Category</h3>
               <div className="category-content">
                 <div className="income-table">
-                  <table className='table table-responsive'>
-                    <thead>
-                      <tr>
-                        <th colspan='2'><h3>Income</h3></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td><span></span></td>
-                      </tr>
-                      <tr>
-                        <td><span>1</span></td>
-                      </tr>
-                      <tr>
-                        <td><span>3</span></td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  <CategoryTable
+                    columns={incomeColumns}
+                    dataSource={categoryForm.values.incomeType}
+                  />
                 </div>
                 <div className="saving-table">
-                  <table className='table table-responsive'>
-                    <thead>
-                      <tr>
-                        <th colspan='2'><h3>Saving</h3></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td><span></span></td>
-                      </tr>
-                      <tr>
-                        <td><span>1</span></td>
-                      </tr>
-                      <tr>
-                        <td><span>3</span></td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  <CategoryTable
+                    columns={savingColumns}
+                    dataSource={categoryForm.values.savingType}
+                    rowClassName={() => 'editable-row'}
+                  />
                 </div>
                 <div className="expense-table">
-                  <table className='table table-responsive expense-table'>
-                    <thead>
-                      <tr>
-                        <th colspan='2'><h3>Expenses</h3></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td><span>Needs</span></td>
-                        <td><span>Wants</span></td>
-                      </tr>
-                      <tr>
-                        <td><span>1</span></td>
-                        <td><span>2</span></td>
-                      </tr>
-                      <tr>
-                        <td><span>3</span></td>
-                        <td><span>4</span></td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  <CategoryTable
+                    columns={expenseColumns}
+                    dataSource={[
+                      {
+                        key: "1",
+                        expenses: "Expenses",
+                        needs: categoryForm.values.expenseType.needs.map(
+                          (item) => item.type
+                        ),
+                        wants: categoryForm.values.expenseType.wants.map(
+                          (item) => item.type
+                        ),
+                      },
+                    ]}
+                  />
                 </div>
               </div>
             </div>
-            <div className='btn-submit'>
-              <button className='btn btn-warning w-100'>Save</button>
+            <div className="form-group btn-submit">
+              <button type="submit" className="btn btn-warning w-100">
+                Save
+              </button>
             </div>
-          </div>
+          </form>
         </div>
       </InnerLayout>
     </CategoryStyle>
-  )
-}
+  );
+};
 
 const CategoryStyle = styled.div`
   p {
@@ -245,41 +252,73 @@ const CategoryStyle = styled.div`
     border: 2px solid #1d1a11;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
   }
+  input,
+  select,
+  span {
+    background-color: var(--input-color);
+    border-radius: 10px;
+    border: none;
+    color: rgba(113, 113, 122, 1);
+  }
+
   .category-form {
     .form-group {
       margin: 1.6rem 0;
-      .form-select, .form-control {
-        font-weight: 400;
-        font-size: 0.875rem;
-        text-align: left;
-        color: var(--color-white);
-        border: none;
-        background-color: var(--input-color);
+      label {
+        margin-bottom: 1rem;
+        line-height: 1;
+        font-weight: 500;
+        font-size: .875rem;
       }
-      .form-check-input:checked {
-        background-color: var(--color-yellow);
-        border-color: var(--color-yellow);
-      }
-      span {
-        font-weight: 400;
-        color: white;
+      i {
+        font-size: 1rem;
       }
     }
+    .form-check-title {
+      .form-check-label {
+        margin: 0;
+        font-size: 1rem;
+        display: flex;
+        flex-direction: column;
+      }
+      span {
+        background-color: transparent;
+        font-size: 0.875rem;
+        color: rgba(113, 113, 122, 1);
+      }
+    }
+    .expense-ratio {
+      display: flex;
+      flex-direction: row;
+    }
+    .form-select,
+    .form-control {
+      font-weight: 400;
+      font-size: 0.875rem;
+      text-align: left;
+      color: var(--color-white);
+      border: none;
+      border-radius: 10px;
+      background-color: var(--input-color);
+    }
+    .form-check-input:checked {
+      background-color: var(--color-yellow);
+      border-color: var(--color-yellow);
+    }
+    span {
+      font-weight: 400;
+      color: white;
+    }
     .custom-ratio {
+      margin: 0.5rem;
       display: flex;
       flex-direction: row;
       justify-content: space-between;
+      background-color: var(--select-color);
+      padding: 0.5rem;
       .input-group {
         width: 30%;
-        input, span {
-          background-color: var(--input-color);
-          border-radius: 10px;
-          border: none;
-          color: rgba(113, 113, 122, 1)
-        }
       }
-      background-color: var(--select-color);
-      padding: 1.25rem;
     }
   }
   .category-content {
@@ -287,7 +326,9 @@ const CategoryStyle = styled.div`
     grid-template-columns: repeat(3, 1fr) repeat(3, 1fr) repeat(6, 1fr);
     gap: 2rem;
     margin: 1.6rem 0;
-    .income-table, .saving-table, .expense-table {
+    .income-table,
+    .saving-table,
+    .expense-table {
       background-color: var(--select-color);
       padding: 1rem 1.25rem;
       border-radius: 20px;
@@ -301,44 +342,7 @@ const CategoryStyle = styled.div`
     .expense-table {
       grid-column: span 6;
     }
-    .table {
-      text-align: center;
-      h3 {
-        font-size: 0.875rem;
-        font-weight: 600;
-        padding-bottom: .5rem;
-      }
-      span {
-        font-weight: 500;
-        font-size: 0.875rem;
-        line-height: 1.25rem;
-        font-style: normal;
-      }
-    }
-    .table, th, td {
-      --bs-table-bg: transparent;
-      border: none;
-      tbody {
-        span {
-          padding: 0 1rem;
-          font-family: "Courier Prime", monospace;
-          font-weight: 400;
-        }
-        tr {
-          height: 35px;
-        }
-        tr:first-child {
-          background-color: rgba(39, 39, 42, 1);
-          span {
-            font-weight: 500;
-            font-size: 0.875rem;
-            line-height: 1.25rem;
-            font-style: normal;
-          }
-        }
-      }
-    }
   }
 `;
 
-export default CategoryPage
+export default CategoryPage;

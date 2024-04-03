@@ -9,3 +9,5 @@ Cai dat thu vien:
 - antd: npm i antd npm install @ant-design/icons --save
 - formik yup 
 - history: chuyen huong nhung trang khong phai component
+- styled component
+- moment 

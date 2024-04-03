@@ -3,8 +3,6 @@ import ReactDOM from 'react-dom/client';
 import { GlobalProvider } from './context/GlobalContext';
 import { GlobalStyle } from './styles/GlobalStyles';
 import { Routes, Route, unstable_HistoryRouter as HistoryRouter } from 'react-router-dom'
-// import { Provider } from 'react-redux';
-// import { store } from './redux/store'
 import App from './App';
 import DashboardPage from './pages/DashboardPage';
 import CategoryPage from './pages/CategoryPage';
