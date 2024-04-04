@@ -5,10 +5,9 @@ exports.createAccount = async (req, res) => {
     const { account_type, account_expires_at } = req.body; // Add other necessary fields
     try {
         const account = await Account.create({
-            account_user_id: req.user.id, // Assuming you have middleware to set req.user
+            account_user_id: req.user.id, 
             account_type,
-            account_expires_at,
-            // Other fields as necessary
+            account_expires_at
         });
 
         res.status(201).json({ message: 'Account created successfully', account });

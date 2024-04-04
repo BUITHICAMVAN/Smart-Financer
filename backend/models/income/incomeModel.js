@@ -1,6 +1,6 @@
 // models/incomeModel.js
 const { Model, DataTypes } = require('sequelize');
-const sequelize = require('../db/db'); // Ensure this path is correct for your project setup
+const sequelize = require('../../db/db'); // Ensure this path is correct for your project setup
 
 class Income extends Model {}
 

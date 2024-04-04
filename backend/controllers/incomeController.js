@@ -1,9 +1,12 @@
 const Income = require("../models/income/incomeModel");
 
-const Income = require("../models/income/incomeModel");
-
 exports.addIncome = async (req, res) => {
     const { income_amount, income_type_id, income_note, income_created_at } = req.body;
+
+    console.log(req.user); 
+    if (!req.user || !req.user.user_id) {
+        return res.status(401).json({ message: 'Unauthorized: No user found.' });
+    }
 
     // Corrected data validations to match the model fields
     if (!income_amount || !income_type_id) {
@@ -15,7 +18,7 @@ exports.addIncome = async (req, res) => {
     }
 
     const income = new Income({
-        income_user_id: req.user.id, // Assuming req.user.id is available through middleware
+        income_user_id: req.user.user_id,
         income_amount,
         income_type_id,
         income_note, // Added support for income_note
@@ -26,7 +29,8 @@ exports.addIncome = async (req, res) => {
         await income.save();
         res.status(201).json({ message: 'Income Added', data: income });
     } catch (error) {
-        res.status(500).json({ message: 'Server Error', error });
+        console.error(error);
+        res.status(500).json({ message: 'Server Error', error: error.message });
     }
 };
 
@@ -48,7 +52,7 @@ exports.deleteIncome = async (req, res) => {
 
     try {
         const result = await Income.destroy({
-            where: { 
+            where: {
                 income_id: id,
                 income_user_id: req.user.id // Ensure ownership
             }

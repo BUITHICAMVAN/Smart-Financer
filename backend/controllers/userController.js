@@ -2,7 +2,6 @@ const User = require("../models/userModel"); // Adjust the path as necessary
 
 exports.createUser = async (req, res) => {
     const { user_fullname, user_email, user_password_hash, user_image, user_currency_unit } = req.body;
-
     try {
         // Here, you might want to hash the password before saving
         const newUser = await User.create({
@@ -24,15 +23,12 @@ exports.createUser = async (req, res) => {
 };
 
 exports.getUserDetails = async (req, res) => {
-    const { user_id } = req.params; // Assuming user_id is passed as a URL parameter
-
+    const { id } = req.params;
     try {
-        const user = await User.findByPk(user_id);
-
+        const user = await User.findByPk(id)
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-
         res.status(200).json(user);
     } catch (error) {
         console.error(error);
@@ -40,17 +36,26 @@ exports.getUserDetails = async (req, res) => {
     }
 };
 
+exports.getAllUsers = async (req, res) => {
+    try {
+        const users = await User.findAll()
+        res.status(200).json(users); // users and status as response
+    } catch {
+        console.error('Failed to fetch users:', error);
+        res.status(500).json({ message: 'Failed to fetch users' });
+    }
+}
+
 exports.updateUser = async (req, res) => {
-    const { user_id } = req.params;
+    const { id } = req.params;
     const { user_fullname, user_image, user_currency_unit } = req.body;
 
     try {
-        const user = await User.findByPk(user_id);
+        const user = await User.findByPk(id);
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-
         user.user_fullname = user_fullname || user.user_fullname;
         user.user_image = user_image || user.user_image;
         user.user_currency_unit = user_currency_unit || user.user_currency_unit;
@@ -78,7 +83,7 @@ exports.deleteUser = async (req, res) => {
 
         res.status(200).json({ message: 'User deleted successfully' });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server Error', error });
+        console.error('Error deleting user:', error);
+        res.status(500).json({ message: 'Server Error', error: error.message });
     }
 };

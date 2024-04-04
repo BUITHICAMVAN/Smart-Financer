@@ -1,6 +1,6 @@
 // models/expenseModel.js
 const { Model, DataTypes } = require('sequelize');
-const sequelize = require('../db/db');
+const sequelize = require('../../db/db');
 
 class Expense extends Model {}
 

@@ -14,10 +14,10 @@ exports.addExpense = async (req, res) => {
 
     try {
         const expense = await Expense.create({ // Use Sequelize create method
-            expense_user_id: req.user.id, // Assuming you have user ID from request
+            expense_user_id: req.user.id, 
             expense_amount,
             expense_type_id,
-            expense_note, // Assuming your model includes a note field
+            expense_note, 
             expense_created_at: expense_created_at || new Date()
         });
 
@@ -31,7 +31,7 @@ exports.addExpense = async (req, res) => {
 exports.getExpenses = async (req, res) => {
     try {
         const expenses = await Expense.findAll({ // Use Sequelize findAll method
-            where: { expense_user_id: req.user.id }, // Assuming you want to filter by user
+            where: { expense_user_id: req.user.id }, 
             order: [['expense_created_at', 'DESC']] // Sort by creation date
         });
         res.status(200).json(expenses);

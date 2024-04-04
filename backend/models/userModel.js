@@ -2,7 +2,7 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../db/db'); // Adjust the path according to your project structure
 
-class User extends Model {}
+class User extends Model { }
 
 User.init({
   user_id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
@@ -18,7 +18,17 @@ User.init({
   sequelize,
   modelName: 'User',
   tableName: 'user',
-  timestamps: false
+  timestamps: false,
+  // Define the default scope
+  defaultScope: {
+    attributes: { exclude: ['user_password_hash'] },
+  },
+  // Optionally, define other scopes to include the password hash when needed
+  scopes: {
+    withPassword: {
+      attributes: {},
+    },
+  },
 });
 
 module.exports = User;

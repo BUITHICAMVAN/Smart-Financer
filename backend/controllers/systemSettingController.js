@@ -1,9 +1,9 @@
-const SystemSettings = require("../models/systemSettingsModel"); // Ensure correct path
+const SystemSetting = require("../models/systemSettingModel"); // Ensure correct path
 
 // Get system settings
-exports.getSystemSettings = async (req, res) => {
+exports.getSystemSetting = async (req, res) => {
     try {
-        const settings = await SystemSettings.findAll(); // Assuming single or multiple settings
+        const settings = await SystemSetting.findAll(); 
         res.status(200).json(settings);
     } catch (error) {
         console.error(error);
@@ -12,12 +12,12 @@ exports.getSystemSettings = async (req, res) => {
 };
 
 // Update system settings
-exports.updateSystemSettings = async (req, res) => {
-    const { setting_id } = req.params; // Assuming you're updating specific settings by ID
+exports.updateSystemSetting = async (req, res) => {
+    const { setting_id } = req.params; 
     const { currency_unit, default_language } = req.body; // And other fields as necessary
 
     try {
-        const settings = await SystemSettings.findByPk(setting_id);
+        const settings = await SystemSetting.findByPk(setting_id);
         if (!settings) {
             return res.status(404).json({ message: 'Settings not found' });
         }

@@ -1,4 +1,4 @@
-const Saving = require("../models/savingModel"); // Adjust the path as necessary
+const Saving = require("../models/saving/savingModel"); // Adjust the path as necessary
 
 exports.addSaving = async (req, res) => {
     const { saving_amount, saving_type_id, saving_note, saving_created_at } = req.body;
