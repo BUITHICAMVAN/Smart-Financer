@@ -26,7 +26,7 @@ User.init({
   // Optionally, define other scopes to include the password hash when needed
   scopes: {
     withPassword: {
-      attributes: {},
+      attributes: { include: ['user_password_hash'] },
     },
   },
 });

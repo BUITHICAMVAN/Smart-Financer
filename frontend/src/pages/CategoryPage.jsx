@@ -110,7 +110,7 @@ const CategoryPage = () => {
           >
             <h3>Tailor My Budget</h3>
             <div className="form-group">
-              <label htmlFor="currency">Currency <i class="fa-solid fa-money-check-dollar"></i></label>
+              <label htmlFor="currency">Currency <i className="fa-solid fa-money-check-dollar"></i></label>
               <select
                 className="form-select form-select-lg border-shadow mb-3"
                 id="currency"

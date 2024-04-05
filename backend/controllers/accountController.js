@@ -5,7 +5,7 @@ exports.createAccount = async (req, res) => {
     const { account_type, account_expires_at } = req.body; // Add other necessary fields
     try {
         const account = await Account.create({
-            account_user_id: req.user.id, 
+            account_user_id: req.user.user_id, 
             account_type,
             account_expires_at
         });

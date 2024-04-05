@@ -3,11 +3,6 @@ const Income = require("../models/income/incomeModel");
 exports.addIncome = async (req, res) => {
     const { income_amount, income_type_id, income_note, income_created_at } = req.body;
 
-    console.log(req.user); 
-    if (!req.user || !req.user.user_id) {
-        return res.status(401).json({ message: 'Unauthorized: No user found.' });
-    }
-
     // Corrected data validations to match the model fields
     if (!income_amount || !income_type_id) {
         return res.status(400).json({ message: 'Amount and type are required!' });
@@ -18,7 +13,7 @@ exports.addIncome = async (req, res) => {
     }
 
     const income = new Income({
-        income_user_id: req.user.user_id,
+        income_user_id: req.user.user_id, 
         income_amount,
         income_type_id,
         income_note, // Added support for income_note
@@ -29,15 +24,14 @@ exports.addIncome = async (req, res) => {
         await income.save();
         res.status(201).json({ message: 'Income Added', data: income });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server Error', error: error.message });
+        res.status(500).json({ message: 'Server Error', error });
     }
 };
 
 exports.getIncomes = async (req, res) => {
     try {
         const incomes = await Income.findAll({
-            where: { income_user_id: req.user.id },
+            where: { income_user_id: req.user.user_id },
             order: [['income_created_at', 'DESC']]
         });
         res.status(200).json(incomes);
@@ -48,13 +42,12 @@ exports.getIncomes = async (req, res) => {
 
 
 exports.deleteIncome = async (req, res) => {
-    const { id } = req.params;
-
+    const { income_id } = req.params;
     try {
         const result = await Income.destroy({
-            where: {
-                income_id: id,
-                income_user_id: req.user.id // Ensure ownership
+            where: { 
+                income_id: income_id,
+                income_user_id: req.user.user_id // Ensure ownership
             }
         });
         if (result === 0) {
@@ -68,15 +61,14 @@ exports.deleteIncome = async (req, res) => {
 
 
 exports.updateIncome = async (req, res) => {
-    const { id } = req.params;
+    const { income_id } = req.params;
     const { income_amount, income_type_id, income_note, income_created_at } = req.body;
 
     try {
-        const income = await Income.findOne({ where: { income_id: id, income_user_id: req.user.id } });
+        const income = await Income.findOne({ where: { income_id: income_id, income_user_id: req.user.user_id } });
         if (!income) {
             return res.status(404).json({ message: 'Income not found' });
         }
-
         income.income_amount = income_amount;
         income.income_type_id = income_type_id;
         income.income_note = income_note;

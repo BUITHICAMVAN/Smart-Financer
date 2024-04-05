@@ -30,5 +30,5 @@ export const circle = <i className="fa-solid fa-circle-dot"></i>
 export const income = <i className="fa-solid fa-money-bill-trend-up"></i>
 export const customize = <i className="fa-regular fa-gear"></i>
 export const profile = <i className="fa-regular fa-user"></i>
-export const budgeting = <i class="fa-solid fa-comments-dollar"></i>
-export const bracket = <i class="fa-solid fa-bracket-curly-right"></i>
+export const budgeting = <i className="fa-solid fa-comments-dollar"></i>
+export const bracket = <i className="fa-solid fa-bracket-curly-right"></i>

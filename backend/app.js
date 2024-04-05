@@ -4,11 +4,14 @@ const cors = require('cors');
 const pool = require('./db/db'); 
 const { readdirSync } = require('fs');
 
+const cookieParser = require('cookie-parser')
+
 require('dotenv').config(); //library to get what inside .env
 const PORT = process.env.PORT || 3000; // Provide a default value for PORT
 
 app.use(express.json());
 app.use(cors());
+app.use(cookieParser())
 
 // Setup base URL for API and load routes dynamically
 readdirSync('./routes').forEach((route) => {

@@ -41,6 +41,7 @@ export const GlobalStyle = createGlobalStyle`
         --bracket-color: rgba(168, 162, 158, 1);
         --table-row: rgba(40, 41, 35, 1);
         --select-color: rgba(24, 24, 27, 1);
+        --modal-color: rgba(24, 24, 27, 1);
     }
 
     h1, h2, h3, h4, h5, h6{

@@ -1,27 +1,5 @@
 const User = require("../models/userModel"); // Adjust the path as necessary
 
-exports.createUser = async (req, res) => {
-    const { user_fullname, user_email, user_password_hash, user_image, user_currency_unit } = req.body;
-    try {
-        // Here, you might want to hash the password before saving
-        const newUser = await User.create({
-            user_fullname,
-            user_email,
-            user_password_hash, // Ensure this is hashed
-            user_image,
-            user_currency_unit
-        });
-
-        res.status(201).json({ message: 'User created successfully', user: newUser });
-    } catch (error) {
-        if (error.name === 'SequelizeUniqueConstraintError') {
-            return res.status(400).json({ message: 'Email already exists' });
-        }
-        console.error(error);
-        res.status(500).json({ message: 'Server Error', error });
-    }
-};
-
 exports.getUserDetails = async (req, res) => {
     const { id } = req.params;
     try {

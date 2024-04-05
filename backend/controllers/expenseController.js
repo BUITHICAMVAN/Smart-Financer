@@ -14,7 +14,7 @@ exports.addExpense = async (req, res) => {
 
     try {
         const expense = await Expense.create({ // Use Sequelize create method
-            expense_user_id: req.user.id, 
+            expense_user_id: req.user.user_id, 
             expense_amount,
             expense_type_id,
             expense_note, 
@@ -31,7 +31,7 @@ exports.addExpense = async (req, res) => {
 exports.getExpenses = async (req, res) => {
     try {
         const expenses = await Expense.findAll({ // Use Sequelize findAll method
-            where: { expense_user_id: req.user.id }, 
+            where: { expense_user_id: req.user.user_id }, 
             order: [['expense_created_at', 'DESC']] // Sort by creation date
         });
         res.status(200).json(expenses);
@@ -42,13 +42,13 @@ exports.getExpenses = async (req, res) => {
 };
 
 exports.deleteExpense = async (req, res) => {
-    const { id } = req.params;
+    const { expense_id } = req.params;
 
     try {
         const result = await Expense.destroy({ // Use Sequelize destroy method
             where: { 
-                expense_id: id,
-                expense_user_id: req.user.id // Ensure the expense belongs to the user
+                expense_id: expense_id,
+                expense_user_id: req.user.user_id// Ensure the expense belongs to the user
             }
         });
 
@@ -64,7 +64,7 @@ exports.deleteExpense = async (req, res) => {
 };
 
 exports.updateExpense = async (req, res) => {
-    const { id } = req.params; // ID of the expense to update
+    const { expense_id } = req.params; // ID of the expense to update
     const { expense_amount, expense_type_id, expense_note, expense_created_at } = req.body;
 
     // Basic validations
@@ -80,8 +80,8 @@ exports.updateExpense = async (req, res) => {
         // Find the expense record by ID and user ID to ensure ownership
         const expense = await Expense.findOne({
             where: {
-                expense_id: id,
-                expense_user_id: req.user.id
+                expense_id: expense_id,
+                expense_user_id: req.user.user_id
             }
         });
 
