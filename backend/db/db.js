@@ -1,11 +1,14 @@
-const Pool = require("pg").Pool // add pg library inside Pool
+const { Sequelize } = require('sequelize');
 
-const db = async () => new Pool({ 
-  user: "postgres", 
-  password: "0812", 
-  host: "localhost", 
-  port: 5432, 
-  database: "smart-financer" 
-}) 
+const sequelize = new Sequelize('smartfinancer', 'postgres', '0812', {
+    host: 'localhost',
+    dialect: 'postgres',
+    port: 5432,
+    logging: false, 
+});
 
-module.exports = { db };
+sequelize.authenticate()
+  .then(() => console.log('Database connected.'))
+  .catch(err => console.error('Unable to connect to the database:', err));
+  
+module.exports = sequelize;

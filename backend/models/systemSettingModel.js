@@ -1,20 +1,19 @@
-// models/accountModel.js
+// models/systemSettingsModel.js
 const { Model, DataTypes } = require('sequelize');
-const sequelize = require('../db/db');
+const sequelize = require('../db/db'); // Adjust the import path as needed
 
-class Account extends Model {}
+class SystemSetting extends Model {}
 
-Account.init({
-  account_id: { type: DataTypes.STRING(255), primaryKey: true },
-  account_user_id: { type: DataTypes.INTEGER, allowNull: false, references: { model: 'user', key: 'user_id' }},
-  account_type: { type: DataTypes.STRING(255), allowNull: false },
-  account_expires_at: { type: DataTypes.DATE, allowNull: true }, 
-  account_created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
+SystemSetting.init({
+  setting_id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+  currency: { type: DataTypes.CHAR(3), allowNull: false },
+  default_language: { type: DataTypes.STRING(50), allowNull: false },
+  created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
 }, {
   sequelize,
-  modelName: 'Account',
-  tableName: 'account',
+  modelName: 'SystemSetting',
+  tableName: 'system_settings',
   timestamps: false
 });
 
-module.exports = Account;
+module.exports = SystemSetting;
