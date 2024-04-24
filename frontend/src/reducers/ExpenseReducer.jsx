@@ -5,11 +5,11 @@ const initialState = {
 }
 
 const ExpenseReducer = createSlice({
-  name: 'expenseReducer',
-  initialState,
-  reducers: {}
+    name: 'expenseReducer',
+    initialState,
+    reducers: {}
 });
 
-export const {} = ExpenseReducer.actions
+export const { } = ExpenseReducer.actions
 
 export default ExpenseReducer.reducer

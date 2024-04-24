@@ -1,53 +1,62 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { InnerLayout } from '../styles/Layouts';
-import TestPage from './TestPage'
-import TransactionModal from '../components/modals/IncomeModal';
+import { http } from '../utils/Config';
+import { useDispatch, useSelector } from 'react-redux'
+import useTransaction from '../customHooks/TransactionHook';
+import TransactionModal from '../components/modals/TransactionModal';
 
 const IncomePage = () => {
-  const [month, setMonth] = useState('March')
-  const [amount, setAmount] = useState("100")
 
-  const [open, setOpen] = useState(false);
+  const { fetchTransactions, addTransaction, removeTransaction } = useTransaction('incomes')
+  const dispatch = useDispatch()
   const [confirmLoading, setConfirmLoading] = useState(false)
+  const [open, setOpen] = useState(false);
 
-  const showModal = () => {
-    setOpen(true)
-  };
+  const incomes = useSelector(state => state.transactionReducer.transactions.incomes);
+  console.log(incomes)
 
-  const handleCancel = () => {
-    setOpen(false)
+  const showModal = () => setOpen(true)
+
+  const handleCancel = () => setOpen(false)
+
+  const handleCreate = async (formData) => {
+    setConfirmLoading(true)
+    try {
+      await addTransaction(formData)
+      setOpen(false)
+    } catch (error) {
+      console.error('Failed to add transaction:', error);
+      alert('Failed to add transaction.');
+    } finally {
+      setConfirmLoading(false);
+    }
   }
 
-  const handleCreate = (formData) => {
-    setConfirmLoading(true);
-    setTimeout(() => {
-      console.log("Transaction added:", formData);
-      setConfirmLoading(false);
-      setOpen(false);
-    }, 2000);
-  };
+  const handleDelete = (incomeId) => removeTransaction(incomeId)
 
+  useEffect(() => {
+    fetchTransactions()
+  }, []); // Don't forget to add dispatch to the dependency array
+  
   return (
     <IncomePageStyled>
       <InnerLayout>
         <div className="container">
           <div className="content-container text-center">
             <div className="income-total">
-              <p>$ {amount}</p>
+              <p>$100</p>
               <h2>Total Income</h2>
             </div>
             <div className="btn-con">
               <button className="btn btn-warning" onClick={showModal}>Add Entry</button>
             </div>
             <TransactionModal
-              title="Add Income"
               type="income"
               open={open}
               onCreate={handleCreate}
               onCancel={handleCancel}
             />
-
             <hr />
             <div className="income-content">
               <table className='table'>
@@ -60,22 +69,16 @@ const IncomePage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td><span>1</span></td>
-                    <td><span>2</span></td>
-                    <td><span>3</span></td>
-                    <td><span>4</span></td>
-                    <td><span className='edit-btn'>Edit</span></td>
-                    <td><span className='del-btn'>Delete</span></td>
-                  </tr>
-                  <tr>
-                    <td><span>1</span></td>
-                    <td><span>2</span></td>
-                    <td><span>3</span></td>
-                    <td><span>4</span></td>
-                    <td><span className='edit-btn'>Edit</span></td>
-                    <td><span className='del-btn'>Delete</span></td>
-                  </tr>
+                  {incomes.map((income) => (
+                    <tr key={income.income_id}>
+                      <td><span>{income.income_created_at}</span></td>
+                      <td><span>{income.income_type_id}</span></td>
+                      <td><span>{income.income_amount}</span></td>
+                      <td><span>{income.income_note}</span></td>
+                      <td><span className='edit-btn'>Edit</span></td>
+                      <td><span className='del-btn' onClick={() => handleDelete(income.income_id)}>Delete</span></td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { useGlobalContext } from '../context/GlobalContext';
 import { InnerLayout } from '../styles/Layouts';
 import { dollar } from '../utils/Icons';
 import { NavLink } from 'react-router-dom';
@@ -12,12 +11,6 @@ const DashboardPage = () => {
     const [user, setUser] = useState("Van")
     const [dateLeft, setDayLeft] = useState("12")
     const [useMonth, setMonth] = useState("March")
-    const { totalExpenses, incomes, expenses, totalIncome, totalSaving, getIncomes, getExpenses } = useGlobalContext()
-
-    useEffect(() => {
-        getIncomes()
-        getExpenses()
-    }, [])
 
     return (
         <DashboardStyled>
@@ -29,25 +22,25 @@ const DashboardPage = () => {
                         <div className="income text-sm">
                             <h2>Total Income</h2>
                             <p>
-                                {dollar} {totalIncome()}
+                                {dollar} 
                             </p>
                         </div>
                         <div className="saving">
                             <h2>Saving Account</h2>
                             <p>
-                                {dollar} {totalSaving()}
+                                {dollar}
                             </p>
                         </div>
                         <div className="expense">
                             <h2>Total Expense</h2>
                             <p>
-                                {dollar} {totalExpenses()}
+                                {dollar} 
                             </p>
                         </div>
                         <div className="monthly-saving">
                             <h2>March Savings</h2>
                             <p>
-                                {dollar} {totalSaving()}
+                                {dollar} 
                             </p>
                         </div>
                     </div>

@@ -1,6 +1,6 @@
 import axios from "axios";
-import { history } from "..";
-import { jwtDecode } from 'jwt-decode'
+import { history } from ".."
+import { jwtDecode } from "jwt-decode"
 
 export const TOKEN = 'token'
 export const DOMAIN_BACKEND = ''
@@ -18,7 +18,8 @@ http.interceptors.request.use((config) => {
     // Tat ca cac request gui di se duoc chua trong phan header la token dang nhap
     config.headers = {
         ...config.headers,
-        Authorization: `Bearer ${localStorage.getItem(TOKEN)}`
+        // Authorization: `Bearer ${localStorage.getItem(TOKEN)}`
+        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3LCJpYXQiOjE3MTM5NzU5MjF9.nOSYpZZ7sE0AhDVtAWfD9NvmzH6wgHEFdnWsD4zV8fE`
     }
     return config
 }, error => {
