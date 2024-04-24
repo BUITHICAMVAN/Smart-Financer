@@ -2,15 +2,19 @@ const User = require("../models/userModel");
 const bcrypt = require('bcrypt')
 const jwt = require("jsonwebtoken");
 
-// const getSurname = (fullname) => {
-//     // first word is surname for vietnamese name
-//     return fullname.split(" ")[0];
-// }
+exports.refreshToken = (req, res) => {
+    const refreshToken = req.cookies.refresh_token;
+    if (!refreshToken) return res.status(401).json({ message: "Refresh Token is required." });
 
-// const getFirstname = (fullname) => {
-//     // last word is firstname for vietnamese name
-//     return fullname.split(" ").slice(-1)[0];
-// }
+    jwt.verify(refreshToken, process.env.REFRESH_SECRET_KEY, (err, user) => {
+        if (err) return res.status(403).json({ message: "Invalid or expired refresh token." });
+
+        const newAccessToken = jwt.sign({ user_id: user.user_id }, process.env.SECRET_KEY, { expiresIn: '15m' });
+        res.status(200).json({
+            accessToken: newAccessToken,
+        });
+    });
+};
 
 exports.signup = async (req, res) => {
     const { user_fullname, user_email, user_password_hash, user_image, user_currency_unit } = req.body;
@@ -83,12 +87,11 @@ exports.forgotpassword = async (req, res) => {
     }
 };
 
-
 exports.resetpassword = async (req, res) => {
     try {
         const { id, token } = req.params;
         const { password } = req.body;
-        
+
         // Verify the token first
         jwt.verify(token, process.env.SECRET_KEY, async (err, decoded) => {
             if (err) {
@@ -99,11 +102,11 @@ exports.resetpassword = async (req, res) => {
 
             // Now update the user's password
             const update = await User.update({ user_password_hash: hashPassword }, { where: { user_id: id } });
-            
+
             if (update[0] === 0) { // Check if the update operation affected any rows
                 return res.status(500).json({ message: "Update failed, please try again later." });
             }
-            
+
             res.status(200).json({ message: "You have successfully changed your password." });
         });
     } catch (err) {
@@ -112,10 +115,10 @@ exports.resetpassword = async (req, res) => {
     }
 };
 
-
 exports.signout = (req, res) => {
     // Clear the authentication cookie
     res.clearCookie('access_token');
+    res.clearCookie('refresh_token');
     // Respond to the client that the sign-out was successful
     res.status(200).json({ message: 'Successfully signed out' });
 };

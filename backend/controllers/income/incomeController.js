@@ -1,8 +1,10 @@
-const Income = require("../models/income/incomeModel");
+const Income = require("../../models/income/incomeModel");
 
 exports.addIncome = async (req, res) => {
     const { income_amount, income_type_id, income_note, income_created_at } = req.body;
 
+    console.log(req.body)
+    
     // Corrected data validations to match the model fields
     if (!income_amount || !income_type_id) {
         return res.status(400).json({ message: 'Amount and type are required!' });
@@ -40,7 +42,6 @@ exports.getIncomes = async (req, res) => {
     }
 };
 
-
 exports.deleteIncome = async (req, res) => {
     const { income_id } = req.params;
     try {
@@ -58,7 +59,6 @@ exports.deleteIncome = async (req, res) => {
         res.status(500).json({ message: 'Server Error', error });
     }
 };
-
 
 exports.updateIncome = async (req, res) => {
     const { income_id } = req.params;

@@ -1,4 +1,4 @@
-const Expense = require("../models/expense/expenseModel"); // Correctly import the model
+const Expense = require("../../models/expense/expenseModel"); // Correctly import the model
 
 exports.addExpense = async (req, res) => {
     const { expense_amount, expense_type_id, expense_note, expense_created_at } = req.body;

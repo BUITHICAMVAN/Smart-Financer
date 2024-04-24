@@ -2,7 +2,7 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../../db/db');
 
-class IncomeType extends Model {}
+class IncomeType extends Model { }
 
 IncomeType.init({
   income_type_id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },

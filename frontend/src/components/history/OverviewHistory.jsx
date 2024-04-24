@@ -27,7 +27,7 @@ const OverviewHistory = () => {
                             <td><span>3</span></td>
                         </tr>
                         <tr>
-                            <td colspan="2"><span style={{ color: 'green' }}>Total savings: $10000</span></td>
+                            <td colSpan="2"><span style={{ color: 'green' }}>Total savings: $10000</span></td>
                             <td><span>{dateLeft} days left</span></td>
                         </tr>
                     </tbody>

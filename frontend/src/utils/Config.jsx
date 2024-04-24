@@ -19,8 +19,9 @@ http.interceptors.request.use((config) => {
     config.headers = {
         ...config.headers,
         // Authorization: `Bearer ${localStorage.getItem(TOKEN)}`
-        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3LCJpYXQiOjE3MTM5NzU5MjF9.nOSYpZZ7sE0AhDVtAWfD9NvmzH6wgHEFdnWsD4zV8fE`
+        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3LCJpYXQiOjE3MTM5Nzg5MDR9.WXpPObne0IPEC9rjA5KWukYV3NxEo9F-a2mW2Sr54Yg`
     }
+    console.log(config.headers)
     return config
 }, error => {
     return Promise.reject(error)
@@ -42,7 +43,6 @@ http.interceptors.response.use((res) => {
     } else if (statusCode === 401) {
         // kiem tra token het han hay chua
         // neu het han thi goi api refreshToken
-
         const decodedToken = jwtDecode(localStorage.getItem(TOKEN)) // Lay token va decode
         const date = new Date(decodedToken.exp + 1000)
         console.log(date)

@@ -1,21 +1,30 @@
 const jwt = require("jsonwebtoken");
-const SECRET_KEY = process.env.SECRET_KEY;
 
 const verifyToken = (req, res, next) => {
-    // Extract the token from the Authorization header
-    const token = req.cookies.access_token || req.headers["authorization"];
+  let token;
 
-    if (!token) {
-        return res.status(400).json({ message: 'Unauthorized' })
+  if (req.headers["authorization"] && req.headers["authorization"].startsWith('Bearer')) {
+    token = req.headers["authorization"].split(' ')[1];
+  }
+  // console.log(token)
+
+  if (!token) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
+    if (err) {
+      let errorMessage = 'Forbidden';
+      if (err.name === 'TokenExpiredError') {
+        errorMessage = 'Token expired';
+      } else if (err.name === 'JsonWebTokenError') {
+        errorMessage = 'Invalid token';
       }
-    
-      jwt.verify(token, process.env.SECRET_KEY, (err, user) => {
-        if (err) return res.status(403).json({ message: 'Forbidden' })
-    
-        req.user = user;
-        // console.log(user)
-        next();
-      });
+      return res.status(403).json({ message: errorMessage });
+    }
+    req.user = decoded;
+    next();
+  });
 };
 
 module.exports = { verifyToken };
