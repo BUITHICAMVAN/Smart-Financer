@@ -8,8 +8,10 @@ const initialState = {
 const IncomeTypeReducer = createSlice({
     name: 'incomeTypeReducer',
     initialState,
-    getIncomeTypes: (state, action) => {
-        state.incomeTypes = action.payload
+    reducers: {
+        getIncomeTypes: (state, action) => {
+            state.incomeTypes = action.payload
+        }
     }
 });
 
@@ -18,7 +20,7 @@ export const { getIncomeTypes } = IncomeTypeReducer.actions
 export default IncomeTypeReducer.reducer
 
 
-export const getIncomeTypeAsync = (newType) => async (dispatch) => {
+export const getIncomeTypeAsync = () => async (dispatch) => {
     try {
         const res = await http.get('income-types')
         // console.log(res.data)

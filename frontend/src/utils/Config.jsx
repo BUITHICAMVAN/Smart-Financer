@@ -3,7 +3,7 @@ import { history } from ".."
 import { jwtDecode } from "jwt-decode"
 
 export const TOKEN = 'token'
-export const DOMAIN_BACKEND = ''
+export const DOMAIN_BACKEND = 'http://localhost:5000/api/v1/'
 // Cau hinh cho cac file dung chung cho he thong 
 //  Cau hinh interceptor cho axios (cau hinh cho tat ca request va response khi su dung axios)
 // Tao ra 1 phien ban cua axios (instance axios)
@@ -16,11 +16,8 @@ export const http = axios.create({
 // Cau hinh request
 http.interceptors.request.use((config) => {
     // Tat ca cac request gui di se duoc chua trong phan header la token dang nhap
-    config.headers = {
-        ...config.headers,
-        // Authorization: `Bearer ${localStorage.getItem(TOKEN)}`
-        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3LCJpYXQiOjE3MTM5Nzg5MDR9.WXpPObne0IPEC9rjA5KWukYV3NxEo9F-a2mW2Sr54Yg`
-    }
+    const token = localStorage.getItem(TOKEN)
+    config.headers['Authorization'] = token ? `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3LCJpYXQiOjE3MTM5Nzg5MDR9.WXpPObne0IPEC9rjA5KWukYV3NxEo9F-a2mW2Sr54Yg` : ''
     console.log(config.headers)
     return config
 }, error => {
