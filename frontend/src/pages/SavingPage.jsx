@@ -1,53 +1,114 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
 import { InnerLayout } from '../styles/Layouts';
+import useTransaction from '../customHooks/TransactionHook';
+import { useSelector } from 'react-redux';
+import TransactionModal from '../components/modals/TransactionModal';
 
 const SavingPage = () => {
 
   const [amount, setAmount] = useState("100")
+
+  const { fetchTransactions, addTransaction, removeTransaction, editTransaction } = useTransaction('savings')
+  const [confirmLoading, setConfirmLoading] = useState(false) // loading
+  const [open, setOpen] = useState(false) // open modal
+  const [initialData, setInitialData] = useState(null) // table data for editing modal
+
+  const savings = useSelector(state => state.transactionReducer.transactions.savings)
+  const totalAmount = savings.reduce((total, saving) => total + saving.saving_amount, 0)
+
+  const showModal = () => {
+    setInitialData(null); // Clear initial data for adding
+    setOpen(true);
+  }
+
+  const handleCancel = () => {
+    setOpen(false);
+    setInitialData(null); // Clear initial data when closing modal
+  }
+
+  const handleCreate = async (formData) => {
+    setConfirmLoading(true);
+    try {
+      await addTransaction(formData);
+      setOpen(false);
+    } catch (error) {
+      console.error('Failed to add transaction:', error);
+      alert('Failed to add transaction.');
+    } finally {
+      setConfirmLoading(false);
+    }
+  }
+
+  const handleDelete = (id) => {
+    removeTransaction(id);
+  }
+
+  const handleEdit = (data) => {
+    setInitialData(data); // Set data to edit
+    setOpen(true);
+  }
+
+  const handleSaveEdit = (data, id) => {
+    setConfirmLoading(true);
+    try {
+      editTransaction(data, id);
+      setOpen(false);
+    } catch (error) {
+      console.error('Failed to edit transaction:', error);
+      alert('Failed to edit transaction.');
+    } finally {
+      setConfirmLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [])
 
   return (
     <SavingPageStyled>
       <InnerLayout>
         <div className="container">
           <div className="content-container text-center">
-            {/* <h3>{month} Income Entries</h3> */}
             <div className="income-total">
-              <p>$ {amount}</p>
+              <p>$ {totalAmount}</p>
               <h2>Savings Balance</h2>
             </div>
             <div className="btn-con">
-              {/* <button className="btn btn-dark">Export</button> */}
-              <button className="btn btn-warning">Add Entry</button>
+              <button className="btn btn-dark mx-3">Export</button>
+              <button className="btn btn-warning" onClick={showModal}>Add Entry</button>
             </div>
+            <TransactionModal
+              type="saving"
+              open={open}
+              onCreate={handleCreate}
+              onEdit={handleSaveEdit}
+              onCancel={handleCancel}
+              initialData={initialData}
+            />
             <hr />
             <div className="income-content">
               <table className='table'>
                 <thead>
                   <tr>
                     <th><span>Date & Time</span></th>
-                    <th><span>Income type</span></th>
+                    <th><span>Saving type</span></th>
                     <th><span>Amount</span></th>
                     <th><span>Note</span></th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td><span>1</span></td>
-                    <td><span>2</span></td>
-                    <td><span>3</span></td>
-                    <td><span>4</span></td>
-                    <td><span className='edit-btn'>Edit</span></td>
-                    <td><span className='del-btn'>Delete</span></td>
-                  </tr>
-                  <tr>
-                    <td><span>1</span></td>
-                    <td><span>2</span></td>
-                    <td><span>3</span></td>
-                    <td><span>4</span></td>
-                    <td><span className='edit-btn'>Edit</span></td>
-                    <td><span className='del-btn'>Delete</span></td>
-                  </tr>
+                  {savings.map((saving) => (
+                    <tr key={saving.saving_id}>
+                      <td><span>{saving.saving_created_at}</span></td>
+                      <td><span>{saving.saving_type_id}</span></td>
+                      <td><span>{saving.saving_amount}</span></td>
+                      <td><span>{saving.saving_note}</span></td>
+                      <td><span className='edit-btn' onClick={() => handleEdit(saving)}>Edit</span></td>
+                      <td><span className='del-btn' onClick={() => handleDelete(saving.saving_id)}>Delete</span></td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

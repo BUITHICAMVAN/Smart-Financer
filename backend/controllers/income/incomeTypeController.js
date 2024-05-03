@@ -17,22 +17,14 @@ exports.getUserIncomeTypes = async (req, res) => {
             }],
             order: [['income_type_id', 'ASC']] // Order the results by income_type_id
         });
-
+        
         const incomeTypeAttributes = userIncomesWithTypes.map(income => {
             return income.IncomeType; // This will give you an array of IncomeType objectsj7
         });
         res.json(incomeTypeAttributes);
-        
+
     } catch (error) {
         console.error('Failed to fetch income types:', error);
         res.status(500).json({ message: 'Internal server error' });
-    }
-}
-
-exports.postIncomeType = async (req, res) => {
-    try {
-        
-    } catch (error) {
-        
     }
 }

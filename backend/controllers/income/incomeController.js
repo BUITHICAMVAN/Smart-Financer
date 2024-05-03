@@ -1,10 +1,9 @@
 const Income = require("../../models/income/incomeModel");
+const IncomeType = require("../../models/income/incomeTypeModel");
 
 exports.addIncome = async (req, res) => {
     const { income_amount, income_type_id, income_note, income_created_at } = req.body;
 
-    console.log(req.body)
-    
     // Corrected data validations to match the model fields
     if (!income_amount || !income_type_id) {
         return res.status(400).json({ message: 'Amount and type are required!' });
@@ -14,14 +13,20 @@ exports.addIncome = async (req, res) => {
         return res.status(400).json({ message: 'Amount must be a positive number!' });
     }
 
+    const incomeTypeExist = await IncomeType.findOne({
+        where: { income_type_id: income_type_id }
+    });
+    console.log(incomeTypeExist)
+    if (!incomeTypeExist) {
+        return res.status(404).json({ message: 'Income type does not exist!' });
+    }
     const income = new Income({
-        income_user_id: req.user.user_id, 
+        income_user_id: req.user.user_id,
         income_amount,
         income_type_id,
         income_note, // Added support for income_note
         income_created_at: income_created_at || new Date()
     });
-
     try {
         await income.save();
         res.status(201).json({ message: 'Income Added', data: income });
@@ -46,7 +51,7 @@ exports.deleteIncome = async (req, res) => {
     const { income_id } = req.params;
     try {
         const result = await Income.destroy({
-            where: { 
+            where: {
                 income_id: income_id,
                 income_user_id: req.user.user_id // Ensure ownership
             }
@@ -62,7 +67,7 @@ exports.deleteIncome = async (req, res) => {
 
 exports.updateIncome = async (req, res) => {
     const { income_id } = req.params;
-    const { income_amount, income_type_id, income_note, income_created_at } = req.body;
+    const { income_amount, income_created_at, income_note, income_type_id } = req.body;
 
     try {
         const income = await Income.findOne({ where: { income_id: income_id, income_user_id: req.user.user_id } });

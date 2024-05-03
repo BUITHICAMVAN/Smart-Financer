@@ -6,7 +6,7 @@ const { addSaving, getSavings, updateSaving, deleteSaving } = require('../contro
 const { getUserDetails, updateUser, deleteUser, getAllUsers } = require('../controllers/userController');
 const {verifyToken} = require('../utils/verifyToken');
 const { signup, signin, forgotpassword, signout } = require('../controllers/authController');
-const { getUserIncomeTypes, postIncomeType } = require('../controllers/income/incomeTypeController');
+const { getUserIncomeTypes, postIncomeType, deleteIncomeType } = require('../controllers/income/incomeTypeController');
 
 const router = require('express').Router();
 

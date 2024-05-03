@@ -46,10 +46,12 @@ exports.signin = async (req, res) => {
     try {
         const validUser = await User.scope('withPassword').findOne({ where: { user_email } });
         // console.log(validUser)
-        if (!validUser) return next(errorHandler(404, "User not found!"));
-        const validPassword = bcrypt.compareSync(user_password, validUser.user_password_hash);
+        if (!validUser) return res.status(404).json({ message: 'User not found' })
+        const validPassword = bcrypt.compareSync(user_password, validUser.user_password_hash)
         // console.log(validPassword)
-        if (!validPassword) return next(errorHandler(401, "Wrong password!"));
+        // console.log(user_password)
+        // console.log(validUser.user_password_hash)
+        if (!validPassword) return res.status(401).json({ message: 'Wrong password!' })
         const token = jwt.sign({ user_id: validUser.user_id }, process.env.SECRET_KEY);
         res.cookie('access_token', token, { httpOnly: true }).status(200).json({
             validUser,

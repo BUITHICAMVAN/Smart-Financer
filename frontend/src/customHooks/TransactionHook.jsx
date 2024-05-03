@@ -1,5 +1,5 @@
 import { useDispatch } from 'react-redux'
-import { addTransactionActionAsync, deleteTransactionActionAsync, getTransactionsActionAsync } from '../reducers/TransactionReducer'
+import { addTransactionActionAsync, deleteTransactionActionAsync, editTransactionActionAsync, getTransactionsActionAsync } from '../reducers/TransactionReducer'
 
 const useTransaction = (type) => {
     const dispatch = useDispatch()
@@ -19,8 +19,9 @@ const useTransaction = (type) => {
         dispatch(action)
     }
 
-    const editTransaction = (id) => {
-
+    const editTransaction = (incomeEdit, id) => {
+        const action = editTransactionActionAsync(type, incomeEdit, id)
+        dispatch(action)
     }
 
     return { fetchTransactions, addTransaction, removeTransaction, editTransaction }

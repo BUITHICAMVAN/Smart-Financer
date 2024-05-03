@@ -1,10 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
 import TransactionReducer from '../TransactionReducer'
-import IncomeTypeReducer from '../IncomeTypeReducer'
+import TransactionTypeReducer from '../TransactionTypeReducer'
 
 export const store = configureStore({
     reducer: {
-        incomeTypeReducer: IncomeTypeReducer,
+        transactionTypeReducer: TransactionTypeReducer,
         transactionReducer: TransactionReducer
     }
 })

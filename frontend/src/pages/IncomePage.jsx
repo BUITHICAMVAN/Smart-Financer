@@ -1,30 +1,35 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import { InnerLayout } from '../styles/Layouts';
-import { http } from '../utils/Config';
-import { useDispatch, useSelector } from 'react-redux'
-import useTransaction from '../customHooks/TransactionHook';
-import TransactionModal from '../components/modals/TransactionModal';
+import { InnerLayout } from '../styles/Layouts'
+import { useSelector } from 'react-redux'
+import useTransaction from '../customHooks/TransactionHook'
+import TransactionModal from '../components/modals/TransactionModal'
 
 const IncomePage = () => {
 
-  const { fetchTransactions, addTransaction, removeTransaction } = useTransaction('incomes')
-  const dispatch = useDispatch()
+  const { fetchTransactions, addTransaction, removeTransaction, editTransaction } = useTransaction('incomes')
   const [confirmLoading, setConfirmLoading] = useState(false)
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
+  const [initialData, setInitialData] = useState(null) // For editing
 
-  const incomes = useSelector(state => state.transactionReducer.transactions.incomes);
-  console.log(incomes)
+  const incomes = useSelector(state => state.transactionReducer.transactions.incomes)
+  const totalAmount = incomes.reduce((total, income) => total += income.income_amount, 0)
 
-  const showModal = () => setOpen(true)
+  const showModal = () => {
+    setInitialData(null); // Clear initial data for adding
+    setOpen(true);
+  }
 
-  const handleCancel = () => setOpen(false)
+  const handleCancel = () => {
+    setOpen(false);
+    setInitialData(null); // Clear initial data when closing modal
+  }
 
-  const handleCreate = async (formData) => {
-    setConfirmLoading(true)
+  const handleCreate = async (data) => {
+    setConfirmLoading(true);
     try {
-      await addTransaction(formData)
-      setOpen(false)
+      await addTransaction(data);
+      setOpen(false);
     } catch (error) {
       console.error('Failed to add transaction:', error);
       alert('Failed to add transaction.');
@@ -33,19 +38,39 @@ const IncomePage = () => {
     }
   }
 
-  const handleDelete = (incomeId) => removeTransaction(incomeId)
+  const handleDelete = (id) => {
+    removeTransaction(id);
+  }
+
+  const handleEdit = (data) => {
+    setInitialData(data); // Set data to edit
+    setOpen(true);
+  }
+
+  const handleSaveEdit = (data, id) => {
+    setConfirmLoading(true);
+    try {
+      editTransaction(data, id);
+      setOpen(false);
+    } catch (error) {
+      console.error('Failed to edit transaction:', error);
+      alert('Failed to edit transaction.');
+    } finally {
+      setConfirmLoading(false);
+    }
+  }
 
   useEffect(() => {
-    fetchTransactions()
-  }, []); // Don't forget to add dispatch to the dependency array
-  
+    fetchTransactions();
+  }, [])
+
   return (
     <IncomePageStyled>
       <InnerLayout>
         <div className="container">
           <div className="content-container text-center">
             <div className="income-total">
-              <p>$100</p>
+              <p>${totalAmount}</p>
               <h2>Total Income</h2>
             </div>
             <div className="btn-con">
@@ -55,7 +80,9 @@ const IncomePage = () => {
               type="income"
               open={open}
               onCreate={handleCreate}
+              onEdit={handleSaveEdit}
               onCancel={handleCancel}
+              initialData={initialData}
             />
             <hr />
             <div className="income-content">
@@ -75,7 +102,7 @@ const IncomePage = () => {
                       <td><span>{income.income_type_id}</span></td>
                       <td><span>{income.income_amount}</span></td>
                       <td><span>{income.income_note}</span></td>
-                      <td><span className='edit-btn'>Edit</span></td>
+                      <td><span className='edit-btn' onClick={() => handleEdit(income)}>Edit</span></td>
                       <td><span className='del-btn' onClick={() => handleDelete(income.income_id)}>Delete</span></td>
                     </tr>
                   ))}
@@ -88,6 +115,9 @@ const IncomePage = () => {
     </IncomePageStyled>
   )
 }
+
+export default IncomePage
+
 
 const IncomePageStyled = styled.div`
   p {
@@ -111,7 +141,7 @@ const IncomePageStyled = styled.div`
     thead {
       span {
         font-weight: 600;
-        color: white;
+        color: white
       }
     }
   }
@@ -119,8 +149,6 @@ const IncomePageStyled = styled.div`
     color: var(--edit-btn);
   }
   .del-btn {
-    color: var(--delete-btn); 
+    color: var(--delete-btn);
   }
-`;
-
-export default IncomePage
+`
