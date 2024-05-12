@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import { InnerLayout } from '../styles/Layouts'
+import { InnerLayout } from '../../styles/Layouts'
 import { useSelector } from 'react-redux'
-import useTransaction from '../customHooks/TransactionHook'
-import TransactionModal from '../components/modals/TransactionModal'
+import useTransaction from '../../customHooks/TransactionHook'
+import TransactionModal from '../../components/modals/TransactionModal'
 
 const IncomePage = () => {
 

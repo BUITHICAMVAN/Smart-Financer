@@ -5,15 +5,18 @@ import { store } from './reducers/store/ConfigureStore'
 import { GlobalStyle } from './styles/GlobalStyles';
 import { Routes, Route, unstable_HistoryRouter as HistoryRouter } from 'react-router-dom'
 import App from './App';
-import DashboardPage from './pages/DashboardPage';
-import CategoryPage from './pages/CategoryPage';
-import IncomePage from './pages/IncomePage';
-import ExpensePage from './pages/ExpensePage';
-import CustomizePage from './pages/CustomizePage';
-import ProfilePage from './pages/ProfilePage';
-import SavingPage from './pages/SavingPage';
+import DashboardPage from './pages/main-menu/DashboardPage';
+import CategoryPage from './pages/main-menu/CategoryPage';
+import IncomePage from './pages/main-menu/IncomePage';
+import ExpensePage from './pages/main-menu/ExpensePage';
+import ProfilePage from './pages/account/ProfilePage';
+import SavingPage from './pages/main-menu/SavingPage';
 import { createBrowserHistory } from 'history'
-import BudgetingPage from './pages/BudgetingPage';
+import BudgetingPage from './pages/main-menu/BudgetingPage';
+import SignInPage from './pages/authenticate/SignInPage';
+import SignUpPage from './pages/authenticate/SignUpPage';
+import { LandingPage } from './pages/LandingPage';
+import CustomizePage from './pages/account/CustomizePage';
 
 export const history = createBrowserHistory()
 
@@ -34,6 +37,9 @@ root.render(
             <Route path='/customize-page' element={<CustomizePage />}></Route>
             <Route path='/profile-page' element={<ProfilePage />}></Route>
             <Route path='/budgeting-page' element={<BudgetingPage />}></Route>
+            <Route path='/signin-page' element={<SignInPage/>}></Route>
+            <Route path='/signup-page' element={<SignUpPage/>}></Route>
+            <Route path='/landing-page' element={<LandingPage/>}></Route>
           </Route>
         </Routes>
       </Provider>

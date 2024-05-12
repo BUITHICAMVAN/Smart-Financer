@@ -4,7 +4,11 @@ import { http } from '../utils/Config'
 const initialState = {
     transactionTypes: {
         incomeTypes: [],
-        savingTypes: []
+        savingTypes: [],
+        expenseTypes: {
+            nonEssentials: [],
+            essentials: []
+        }
     }
 }
 
@@ -28,7 +32,6 @@ export const getTransactionTypesActionAsync = (type) => async (dispatch) => {
     try {
         const res = await http.get(`${type}-types`)
         dispatch(getTransactionTypes({ type: `${type}Types`, data: res.data })) // Ensure to send both type and data
-        console.log(initialState.transactionTypes.incomeTypes)
     } catch (error) {
         console.error(`Failed to fetch ${type} types: `, error)
     }

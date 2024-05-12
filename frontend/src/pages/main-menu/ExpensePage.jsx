@@ -1,13 +1,62 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import { InnerLayout } from '../styles/Layouts'
-import { bracket } from '../utils/Icons'
+import { InnerLayout } from '../../styles/Layouts'
+import ExpenseModal from '../../components/modals/ExpenseModal'
 
 const ExpensePage = () => {
   const [month, setMonth] = useState('March')
 
   const [amount, setAmount] = useState("100")
   const [currency, setCurrency] = useState("$")
+
+  const [confirmLoading, setConfirmLoading] = useState(false) // loading
+  const [open, setOpen] = useState(false) // open modal
+  const [initialData, setInitialData] = useState(null) // table data for editing modal
+
+  const showModal = () => {
+    setInitialData(null); // Clear initial data for adding
+    setOpen(true);
+  }
+
+  const handleCancel = () => {
+    setOpen(false);
+    setInitialData(null); // Clear initial data when closing modal
+  }
+
+  const handleCreate = async (formData) => {
+    setConfirmLoading(true);
+    try {
+      // await addTransaction(formData);
+      setOpen(false);
+    } catch (error) {
+      console.error('Failed to add transaction:', error);
+      alert('Failed to add transaction.');
+    } finally {
+      setConfirmLoading(false);
+    }
+  }
+
+  const handleDelete = (id) => {
+    // removeTransaction(id);
+  }
+
+  const handleEdit = (data) => {
+    setInitialData(data); // Set data to edit
+    setOpen(true);
+  }
+
+  const handleSaveEdit = (data, id) => {
+    setConfirmLoading(true);
+    try {
+      // editTransaction(data, id);
+      setOpen(false);
+    } catch (error) {
+      console.error('Failed to edit transaction:', error);
+      alert('Failed to edit transaction.');
+    } finally {
+      setConfirmLoading(false);
+    }
+  }
   return (
     <ExpensePageStyled>
       <InnerLayout>
@@ -19,8 +68,16 @@ const ExpensePage = () => {
               <div className="expense-content">
                 <div className="btn-con">
                   <button className="btn btn-dark">Export</button>
-                  <button className="btn btn-warning">Add Entry</button>
+                  <button className="btn btn-warning" onClick={showModal}>Add Entry</button>
                 </div>
+                <ExpenseModal
+                  type="expense"
+                  open={open}
+                  onCreate={handleCreate}
+                  onEdit={handleSaveEdit}
+                  onCancel={handleCancel}
+                  initialData={initialData}
+                />
                 <table className='table'>
                   <thead>
                     <tr>
@@ -41,15 +98,6 @@ const ExpensePage = () => {
                       <td><span className='edit-btn'>Edit</span></td>
                       <td><span className='del-btn'>Delete</span></td>
                     </tr>
-                    <tr>
-                      <td><span>1</span></td>
-                      <td><span>2</span></td>
-                      <td><span>3</span></td>
-                      <td><span>4</span></td>
-                      <td><span>5</span></td>
-                      <td><span className='edit-btn'>Edit</span></td>
-                      <td><span className='del-btn'>Delete</span></td>
-                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -58,18 +106,6 @@ const ExpensePage = () => {
               <h1 className='text-center'>Expense Insights</h1>
               <hr />
               <div className='insight'>
-                {/* <div className="allotment">
-                  <span className='insight-title'>Allotment</span>
-                  <div className="main">
-                    <div className="amount">
-                      <span>Needs: ${amount}</span>
-                      <span>Wants: ${amount}</span>
-                    </div>
-                    <div className="bracket">
-                      <span>{currency}{amount}</span>
-                    </div>
-                  </div>
-                </div> */}
                 <div className="spending">
                   <span className='insight-title'>Spendings</span>
                   <div className="main">

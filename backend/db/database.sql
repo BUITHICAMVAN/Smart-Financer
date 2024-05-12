@@ -27,6 +27,10 @@ CREATE TABLE IF NOT EXISTS public.account (
     REFERENCES public.user(user_id)
 );
 
+ALTER TABLE public.account
+ADD COLUMN account_language VARCHAR(50),
+ADD COLUMN account_currency CHAR(3),
+ADD COLUMN account_timezone TIMESTAMP WITH TIME ZONE;
 
 -- Income Types
 CREATE TABLE IF NOT EXISTS public.income_type (
@@ -48,7 +52,6 @@ CREATE TABLE IF NOT EXISTS public.income(
 );
 
 ALTER TABLE public.income ADD COLUMN income_note TEXT;
-
 
 -- Saving Types
 CREATE TABLE IF NOT EXISTS public.saving_type (
@@ -102,9 +105,11 @@ CREATE TABLE IF NOT EXISTS public.system_settings (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Populate the System Settings table with initial data including VND
+-- Populate the Sstem Settings table with initial data including VND
 INSERT INTO public.system_settings (currency_unit, default_language) 
 VALUES 
     ('USD', 'English'),
     ('VND', 'Vietnamese'),
-    ('EUR', 'English')
+    ('EUR', 'English')y
+
+

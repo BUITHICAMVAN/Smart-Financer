@@ -11,6 +11,8 @@ exports.addSaving = async (req, res) => {
         return res.status(400).json({ message: 'Amount must be a positive number!' });
     }
 
+    console.log(saving_created_at)
+
     try {
         const saving = await Saving.create({
             saving_user_id: req.user.user_id,

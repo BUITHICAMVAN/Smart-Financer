@@ -15,8 +15,8 @@ exports.addIncome = async (req, res) => {
 
     const incomeTypeExist = await IncomeType.findOne({
         where: { income_type_id: income_type_id }
-    });
-    console.log(incomeTypeExist)
+    })
+
     if (!incomeTypeExist) {
         return res.status(404).json({ message: 'Income type does not exist!' });
     }
@@ -27,6 +27,7 @@ exports.addIncome = async (req, res) => {
         income_note, // Added support for income_note
         income_created_at: income_created_at || new Date()
     });
+
     try {
         await income.save();
         res.status(201).json({ message: 'Income Added', data: income });

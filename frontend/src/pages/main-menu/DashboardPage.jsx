@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { InnerLayout } from '../styles/Layouts';
-import { dollar } from '../utils/Icons';
+import { InnerLayout } from '../../styles/Layouts';
+import { dollar } from '../../utils/Icons';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
-import History from '../components/history/History';
-import OverviewHistory from '../components/history/OverviewHistory';
+import History from '../../components/history/History';
+import OverviewHistory from '../../components/history/OverviewHistory';
 
 const DashboardPage = () => {
 

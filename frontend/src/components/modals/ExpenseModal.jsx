@@ -6,16 +6,16 @@ import { useSelector } from 'react-redux'
 import useTransactionType from '../../customHooks/TransactionTypeHook'
 import { getApiType } from '../../utils/TypeMapping'
 
-const TransactionModal = ({ type, open, onCreate, onCancel, onEdit, initialData }) => {
+const ExpenseModal = ({ type, open, onCreate, onCancel, onEdit, initialData }) => {
     const { fetchTransactionTypes } = useTransactionType(type) // pass in the type to retrive 
     const [form] = Form.useForm()
     const [loading, setLoading] = useState(false)
 
     // Selector for transaction types with a shallow comparison for performance
-    const transactionTypes = useSelector(state => state.transactionTypeReducer.transactionTypes[`${type}Types`])
+    const expenseName = useSelector(state => state.transactionTypeReducer.transactionTypes[`${type}Types`])
 
     useEffect(() => {
-        if (open && !transactionTypes[`${type}Types`]) { // Only fetch if there are no types
+        if (open && !expenseName[`${type}Types`]) { // Only fetch if there are no types
             fetchTransactionTypes() 
         }
         if (open && initialData) { // if there is initial data - edit 
@@ -54,7 +54,7 @@ const TransactionModal = ({ type, open, onCreate, onCancel, onEdit, initialData 
     }
 
     return (
-        <TransactionalModalStyled>
+        <ExpenseModalStyled>
             <Modal
                 open={open}
                 title={`${initialData ? 'Edit' : 'Add'} ${type.charAt(0).toUpperCase() + type.slice(1)}`}
@@ -117,11 +117,11 @@ const TransactionModal = ({ type, open, onCreate, onCancel, onEdit, initialData 
                     </Form.Item>
                 </Form>
             </Modal>
-        </TransactionalModalStyled>
+        </ExpenseModalStyled>
     )
 }
 
-export default TransactionModal
+export default ExpenseModal
 
-const TransactionalModalStyled = styled.div`
+const ExpenseModalStyled = styled.div`
 `

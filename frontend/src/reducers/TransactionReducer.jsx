@@ -1,14 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { http } from '../utils/Config';
 import moment from 'moment';
+import { getApiType } from '../utils/TypeMapping';
 
 const initialState = {
     transactions: {
         incomes: [],
         savings: [],
         expenses: {
-            needs: [],
-            wants: []
+            nonEssentials: [],
+            Essentials: []
         }
     }
 }
@@ -25,7 +26,7 @@ const TransactionReducer = createSlice({
             const { transType, transId } = action.payload
             state.transactions[transType] = state.transactions[transType].filter(
                 item => item.id !== transId // Assumes each transaction has a unique `id`
-            );
+            )
         },
         addTransactionAction: (state, action) => {
             const { transType, transForm } = action.payload
@@ -37,7 +38,7 @@ const TransactionReducer = createSlice({
             state.transactions[transType][index] = transNew
         }
     }
-});
+})
 
 export const { getTransactionsAction, deleteTransactionAction, addTransactionAction, editTransactionAction } = TransactionReducer.actions
 
@@ -46,7 +47,7 @@ export default TransactionReducer.reducer
 export const getTransactionsActionAsync = (type) => async (dispatch) => {
     try {
         const res = await http.get(`${type}`)
-        dispatch(getTransactionsAction({ type, data: res.data }));
+        dispatch(getTransactionsAction({ type, data: res.data }))
     } catch (error) {
         console.error(`Failed to fetch ${type}:`, error)
     }
@@ -67,12 +68,16 @@ export const deleteTransactionActionAsync = (type, id) => async (dispatch) => {
 
 export const addTransactionActionAsync = (type, formData) => async (dispatch) => {
     try {
+        const apiType = getApiType(type) // convert be to fe 
+
         const dateFormat = 'YYYY-MM-DD'
-        if (typeof formData.income_created_at === 'string') {
-            formData.income_created_at = moment(formData.income_created_at);
+
+        console.log(formData[`${apiType})c`])
+        if (typeof formData[`${apiType}_created_at`] === 'string') {
+            formData[`${apiType}_created_at`] = moment(formData[`${apiType}_created_at`])
         }
-        if (formData.income_created_at && formData.income_created_at.format) {
-            formData.income_created_at = formData.income_created_at.format(dateFormat);
+        if (formData[`${apiType}_created_at`] && formData[`${apiType}_created_at`].format) {
+            formData[`${apiType}_created_at`] = formData[`${apiType}_created_at`].format(dateFormat)
         } else {
             console.error("Date is undefined or not a moment object")
             throw new Error("Invalid date")
@@ -87,14 +92,14 @@ export const addTransactionActionAsync = (type, formData) => async (dispatch) =>
     }
 }
 
-export const editTransactionActionAsync = (type, newData, incomeId) => async (dispatch) => {
+export const editTransactionActionAsync = (type, newData, id) => async (dispatch) => {
     try {
-        const res = await http.put(`${type}/${incomeId}`, newData)
-        dispatch(editTransactionAction({ transType: type, transId: incomeId, transNew: newData }))
+        const res = await http.put(`${type}/${id}`, newData)
+        dispatch(editTransactionAction({ transType: type, transId: id, transNew: newData }))
         alert('Transaction updated successfully!')
         dispatch(getTransactionsActionAsync(`${type}`))
     } catch (error) {
-        console.error('Failed to edit transaction:', error);
+        console.error('Failed to edit transaction:', error)
         alert('Failed to edit transaction.')
     }
 }

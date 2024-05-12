@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
-import { InnerLayout } from '../styles/Layouts';
-import useTransaction from '../customHooks/TransactionHook';
+import { InnerLayout } from '../../styles/Layouts';
+import useTransaction from '../../customHooks/TransactionHook';
 import { useSelector } from 'react-redux';
-import TransactionModal from '../components/modals/TransactionModal';
+import TransactionModal from '../../components/modals/TransactionModal';
 
 const SavingPage = () => {
 
@@ -96,7 +96,7 @@ const SavingPage = () => {
                     <th><span>Saving type</span></th>
                     <th><span>Amount</span></th>
                     <th><span>Note</span></th>
-                  </tr>
+                  </tr> 
                 </thead>
                 <tbody>
                   {savings.map((saving) => (

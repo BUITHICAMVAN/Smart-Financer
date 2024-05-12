@@ -4,9 +4,10 @@ const { createAccount, getAccountDetails, updateAccount, deleteAccount } = requi
 const { getSystemSetting, updateSystemSetting } = require('../controllers/systemSettingController');
 const { addSaving, getSavings, updateSaving, deleteSaving } = require('../controllers/saving/savingController');
 const { getUserDetails, updateUser, deleteUser, getAllUsers } = require('../controllers/userController');
-const {verifyToken} = require('../utils/verifyToken');
+const { verifyToken } = require('../utils/verifyToken');
 const { signup, signin, forgotpassword, signout } = require('../controllers/authController');
-const { getUserIncomeTypes, postIncomeType, deleteIncomeType } = require('../controllers/income/incomeTypeController');
+const { getUserIncomeTypes } = require('../controllers/income/incomeTypeController');
+const { getUserSavingTypes } = require('../controllers/saving/savingTypeController');
 
 const router = require('express').Router();
 
@@ -25,6 +26,8 @@ router.post('/incomes', verifyToken, addIncome) // Create a new income
 // Income Type
 router.get('/income-types', verifyToken, getUserIncomeTypes)
 
+// Saving Type
+router.get('/saving-types', verifyToken, getUserSavingTypes)
 // Expense Routes
 router.post('/expenses', verifyToken, addExpense) // Create a new expense
     .get('/expenses', verifyToken, getExpenses) // Get all expenses for a user

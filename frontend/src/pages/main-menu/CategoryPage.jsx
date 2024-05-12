@@ -1,18 +1,21 @@
-import React, { useState } from "react";
-import { InnerLayout } from "../styles/Layouts";
+import React, { useEffect, useState } from "react";
+import { InnerLayout } from "../../styles/Layouts";
 import styled from "styled-components";
 import { useFormik } from "formik";
-import CategoryTable from "../components/tables/CategoryTable";
+import CategoryTable from "../../components/tables/CategoryTable";
+import { transactionTypeReducer } from "../../reducers/TransactionTypeReducer"
 import { Button } from "antd";
-import * as yup from 'yup';
+import * as yup from "yup";
+import { useSelector } from "react-redux";
 
 const CategoryPage = () => {
-  const [showCustomRatio, setShowCustomRatio] = useState(false);
+  const [showCustomRatio, setShowCustomRatio] = useState(false)
   const handleRadioChange = (event) => {
-    setShowCustomRatio(event.target.value === "custom");
-  };
+    setShowCustomRatio(event.target.value === "custom")
+  }
 
-  const [count, setCount] = useState(2);
+  const incomeTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.incomeTypes)
+  const savingTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.savingTypes)
 
   const categoryForm = useFormik({
     initialValues: {
@@ -23,32 +26,30 @@ const CategoryPage = () => {
         savingRatio: '',
         wantRatio: ''
       },
-      incomeType: [
-        { type: "freelance" }
-      ],
+      incomeType: incomeTypes.map(type => ({ type })),
       expenseType: {
         needs: [{ type: "rent" }],
         wants: [{ type: "shoes" }],
       },
-      savingType: [{ type: "car" }],
+      savingType: savingTypes.map(type => ({ type })),
     },
     onSubmit: (values) => {
-      console.log(values);
+      console.log(values)
     },
-  });
+  })
 
   const getCurrencySymbol = (currency) => {
     switch (currency) {
       case "USD":
-        return "$";
+        return "$"
       case "EUR":
-        return "€";
+        return "€"
       case "VND":
-        return "₫";
+        return "₫"
       default:
-        return "";
+        return ""
     }
-  };
+  }
 
   const incomeColumns = [
     {
@@ -63,7 +64,7 @@ const CategoryPage = () => {
         },
       ],
     },
-  ];
+  ]
 
   const savingColumns = [
     {
@@ -78,7 +79,7 @@ const CategoryPage = () => {
         },
       ],
     },
-  ];
+  ]
 
   const expenseColumns = [
     {
@@ -98,7 +99,7 @@ const CategoryPage = () => {
         },
       ],
     },
-  ];
+  ]
 
   return (
     <CategoryStyle>
@@ -234,8 +235,8 @@ const CategoryPage = () => {
         </div>
       </InnerLayout>
     </CategoryStyle>
-  );
-};
+  )
+}
 
 const CategoryStyle = styled.div`
   p {
