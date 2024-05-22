@@ -10,6 +10,7 @@ import {
     income,
     piggy,
     profile,
+    report,
     signout,
 } from "../../utils/Icons";
 import BoxSx from "../box/BoxSx";
@@ -27,33 +28,38 @@ const Navigation = () => {
                     <h1>Main Menu</h1>
                 </div>
                 <li>
-                    <NavLink to="/dashboard-page" activeClassName="active">
+                    <NavLink to="/dashboard-page">
                         {dashboard} <span>Dashboard</span>
                     </NavLink>
                 </li>
                 <li>
-                    <NavLink to="/category-page" activeClassName="active">
+                    <NavLink to="/category-page">
                         {categories} <span>Category</span>
                     </NavLink>
                 </li>
                 <li>
-                    <NavLink to="/income-page" activeClassName="active">
+                    <NavLink to="/income-page">
                         {income} <span>Income</span>
                     </NavLink>
                 </li>
                 <li>
-                    <NavLink to="budgeting-page" activeClassName="active">
+                    <NavLink to="budgeting-page">
                         {budgeting} <span>Budgeting</span>
                     </NavLink>
                 </li>
                 <li>
-                    <NavLink to="/saving-page" activeClassName="active">
+                    <NavLink to="/saving-page">
                         {piggy} <span>Savings</span>
                     </NavLink>
                 </li>
                 <li>
-                    <NavLink to="/expense-page" activeClassName="active">
+                    <NavLink to="/expense-page" >
                         {expenses} <span>Expenses</span>
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink to="/report-page" >
+                        {report} <span>Report</span>
                     </NavLink>
                 </li>
             </ul>
@@ -64,12 +70,12 @@ const Navigation = () => {
                 </div>
                 {/* Account List */}
                 <li>
-                    <NavLink to="/customize-page" activeClassName="active">
+                    <NavLink to="/customize-page">
                         {customize} <span>Customize</span>
                     </NavLink>
                 </li>
                 <li>
-                    <NavLink to="/profile-page" activeClassName="active">
+                    <NavLink to="/profile-page">
                         {profile} <span>Profile</span>
                     </NavLink>
                 </li>

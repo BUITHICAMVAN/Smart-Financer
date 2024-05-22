@@ -4,7 +4,6 @@ import moment from 'moment'
 import styled from 'styled-components'
 import { useSelector } from 'react-redux'
 import useTransactionType from '../../customHooks/TransactionTypeHook'
-import { getApiType } from '../../utils/TypeMapping'
 
 const ExpenseModal = ({ type, open, onCreate, onCancel, onEdit, initialData }) => {
     const { fetchTransactionTypes } = useTransactionType(type) // pass in the type to retrive 
@@ -12,11 +11,11 @@ const ExpenseModal = ({ type, open, onCreate, onCancel, onEdit, initialData }) =
     const [loading, setLoading] = useState(false)
 
     // Selector for transaction types with a shallow comparison for performance
-    const expenseName = useSelector(state => state.transactionTypeReducer.transactionTypes[`${type}Types`])
+    const expenseTypes = useSelector(state => state.transactionTypeReducer.transactionTypes[`${type}Types`])
 
     useEffect(() => {
-        if (open && !expenseName[`${type}Types`]) { // Only fetch if there are no types
-            fetchTransactionTypes() 
+        if (open && !expenseTypes[`${type}Types`]) { // if there are no types
+            fetchTransactionTypes()
         }
         if (open && initialData) { // if there is initial data - edit 
             form.setFieldsValue({
@@ -26,7 +25,7 @@ const ExpenseModal = ({ type, open, onCreate, onCancel, onEdit, initialData }) =
                 [`${type}_created_at`]: moment(initialData[`${type}_created_at`])
             })
         } else if (open) {
-            form.resetFields();
+            form.resetFields()
         }
     }, [open, initialData, form])
 
@@ -95,11 +94,11 @@ const ExpenseModal = ({ type, open, onCreate, onCancel, onEdit, initialData }) =
                             placeholder="Select a type"
                             optionFilterProp="children"
                         >
-                            {transactionTypes.map((item) => (
+                            {/* {expenseTypes.map((item) => (
                                 <Select.Option key={item[`${type}_type_id`]} value={item[`${type}_type_id`]}>
                                     {item[`${type}_type_name`]}
                                 </Select.Option>
-                            ))}
+                            ))} */}
                         </Select>
                     </Form.Item>
                     <Form.Item

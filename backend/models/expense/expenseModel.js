@@ -10,7 +10,8 @@ Expense.init({
   expense_amount: { type: DataTypes.DECIMAL(15, 2), allowNull: false },
   expense_note: { type: DataTypes.TEXT },
   expense_created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
-  expense_type_id: { type: DataTypes.INTEGER, allowNull: false, references: { model: 'expense_type', key: 'expense_type_id' } }
+  expense_type_id: { type: DataTypes.INTEGER, allowNull: false, references: { model: 'expense_type', key: 'expense_type_id' } },
+  expense_category: { type: DataTypes.STRING(50) }
 }, {
   sequelize,
   modelName: 'Expense',

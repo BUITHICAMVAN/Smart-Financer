@@ -17,6 +17,7 @@ import SignInPage from './pages/authenticate/SignInPage';
 import SignUpPage from './pages/authenticate/SignUpPage';
 import { LandingPage } from './pages/LandingPage';
 import CustomizePage from './pages/account/CustomizePage';
+import ReportPage from './pages/main-menu/ReportPage';
 
 export const history = createBrowserHistory()
 
@@ -34,6 +35,7 @@ root.render(
             <Route path='/income-page' element={<IncomePage />}></Route>
             <Route path='saving-page' element={<SavingPage />}></Route>
             <Route path='/expense-page' element={<ExpensePage />}></Route>
+            <Route path='/report-page' element={<ReportPage/>}></Route>
             <Route path='/customize-page' element={<CustomizePage />}></Route>
             <Route path='/profile-page' element={<ProfilePage />}></Route>
             <Route path='/budgeting-page' element={<BudgetingPage />}></Route>

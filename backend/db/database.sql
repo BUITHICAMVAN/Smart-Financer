@@ -1,7 +1,5 @@
 -- NAMNING CONVENTION 
-
 CREATE DATABASE smartfinancer; 
-
 
 -- Create User Table 
 CREATE TABLE IF NOT EXISTS public.user(
@@ -15,6 +13,7 @@ CREATE TABLE IF NOT EXISTS public.user(
     user_currency_unit CHAR(3),
     user_created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+ALTER TABLE public.user ADD COLUMN user_default_language VARCHAR(20);
 
 -- Account Table
 CREATE TABLE IF NOT EXISTS public.account (
@@ -26,7 +25,6 @@ CREATE TABLE IF NOT EXISTS public.account (
     CONSTRAINT account_account_user_id FOREIGN KEY (account_user_id) 
     REFERENCES public.user(user_id)
 );
-
 ALTER TABLE public.account
 ADD COLUMN account_language VARCHAR(50),
 ADD COLUMN account_currency CHAR(3),
@@ -37,9 +35,7 @@ CREATE TABLE IF NOT EXISTS public.income_type (
     income_type_id SERIAL PRIMARY KEY,
     income_type_name VARCHAR(100) NOT NULL UNIQUE
 );
-
 INSERT INTO public.income_type (income_type_name) VALUES ('Bouygues Company'), ('Private Tutoring'), ('Mentoring Cybersoft');
-
 -- Income Table
 CREATE TABLE IF NOT EXISTS public.income(
     income_id SERIAL PRIMARY KEY,
@@ -50,7 +46,6 @@ CREATE TABLE IF NOT EXISTS public.income(
     CONSTRAINT income_income_user_id FOREIGN KEY(income_user_id) REFERENCES public.user(user_id),
     income_created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
-
 ALTER TABLE public.income ADD COLUMN income_note TEXT;
 
 -- Saving Types
@@ -58,9 +53,7 @@ CREATE TABLE IF NOT EXISTS public.saving_type (
     saving_type_id SERIAL PRIMARY KEY,
     saving_type_name VARCHAR(255) NOT NULL
 );
-
 INSERT INTO public.saving_type (saving_type_name) VALUES ('Emergency Fund'), ('Housing'), ('Education');
-
 -- Saving Table
 CREATE TABLE IF NOT EXISTS public.saving(
     saving_id SERIAL PRIMARY KEY,
@@ -80,10 +73,8 @@ CREATE TABLE IF NOT EXISTS public.expense_type(
     expense_type_id SERIAL PRIMARY KEY,
     expense_type_name VARCHAR(100) NOT NULL UNIQUE
 );
-
 -- Populate the Expense Types table with initial data
 INSERT INTO public.expense_type (expense_type_name) VALUES ('non-essential'), ('essential');
-
 -- Expense Table
 CREATE TABLE IF NOT EXISTS public.expense(
     expense_id SERIAL PRIMARY KEY,
@@ -96,9 +87,12 @@ CREATE TABLE IF NOT EXISTS public.expense(
 );
 
 ALTER TABLE public.expense ADD COLUMN expense_note TEXT;
+ALTER TABLE public.expense ADD COLUMN expense_category VARCHAR(50);
 
+
+DROP TABLE public.system_settings
 -- System Settings Table
-CREATE TABLE IF NOT EXISTS public.system_settings (
+CREATE TABLE IF NOT EXISTS public.system_setting (
     setting_id SERIAL PRIMARY KEY,
     currency_unit CHAR(3) NOT NULL,
     default_language VARCHAR(50) NOT NULL, 
@@ -106,7 +100,7 @@ CREATE TABLE IF NOT EXISTS public.system_settings (
 );
 
 -- Populate the Sstem Settings table with initial data including VND
-INSERT INTO public.system_settings (currency_unit, default_language) 
+INSERT INTO public.system_setting (currency_unit, default_language) 
 VALUES 
     ('USD', 'English'),
     ('VND', 'Vietnamese'),

@@ -4,7 +4,6 @@ import moment from 'moment'
 import styled from 'styled-components'
 import { useSelector } from 'react-redux'
 import useTransactionType from '../../customHooks/TransactionTypeHook'
-import { getApiType } from '../../utils/TypeMapping'
 
 const TransactionModal = ({ type, open, onCreate, onCancel, onEdit, initialData }) => {
     const { fetchTransactionTypes } = useTransactionType(type) // pass in the type to retrive 

@@ -4,6 +4,7 @@ import { jwtDecode } from "jwt-decode"
 
 export const TOKEN = 'token'
 export const DOMAIN_BACKEND = 'http://localhost:5000/api/v1/'
+
 // Cau hinh cho cac file dung chung cho he thong 
 //  Cau hinh interceptor cho axios (cau hinh cho tat ca request va response khi su dung axios)
 // Tao ra 1 phien ban cua axios (instance axios)
@@ -18,6 +19,8 @@ http.interceptors.request.use((config) => {
     // Tat ca cac request gui di se duoc chua trong phan header la token dang nhap
     const token = localStorage.getItem(TOKEN)
     config.headers['Authorization'] = token ? `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo4LCJpYXQiOjE3MTU0ODY3NjZ9.CbgVbylDnbmmmSzW3TS-avdi9qbY5krKnQWWr4STRpY` : ''
+    // voi cai url nay thi add them param la interceptor 
+    // console.log(config)
     return config
 }, error => {
     return Promise.reject(error)
@@ -26,6 +29,7 @@ http.interceptors.request.use((config) => {
 //Cau hinh response
 http.interceptors.response.use((res) => {
     // Thanh cong
+    // console.log("HTTP response: ", res)
     return res
 }, error => {
     // Xu ly that bai

@@ -12,7 +12,7 @@ const initialState = {
             Essentials: []
         }
     }
-}
+}     
 
 const TransactionReducer = createSlice({
     name: 'transactionReducer',

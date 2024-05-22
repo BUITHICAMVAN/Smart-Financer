@@ -1,19 +1,25 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { InnerLayout } from '../../styles/Layouts'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import useTransaction from '../../customHooks/TransactionHook'
 import TransactionModal from '../../components/modals/TransactionModal'
-
+import { dateFormat } from '../../utils/DateFormat'
+import { fetchCurrencyRates } from '../../reducers/CurrencyReducer'
 const IncomePage = () => {
 
   const { fetchTransactions, addTransaction, removeTransaction, editTransaction } = useTransaction('incomes')
   const [confirmLoading, setConfirmLoading] = useState(false)
   const [open, setOpen] = useState(false)
   const [initialData, setInitialData] = useState(null) // For editing
+  const dispatch = useDispatch()
 
   const incomes = useSelector(state => state.transactionReducer.transactions.incomes)
   const totalAmount = incomes.reduce((total, income) => total += income.income_amount, 0)
+
+  const currencyRate = useSelector(state => state.currencyReducer.currencyUnit)
+  
+  // const userCurrencyUnit = useSelector(state => state.userReducer.userCurrencyUnit)
 
   const showModal = () => {
     setInitialData(null); // Clear initial data for adding
@@ -61,8 +67,14 @@ const IncomePage = () => {
   }
 
   useEffect(() => {
-    fetchTransactions();
+    fetchTransactions()
   }, [])
+
+  useEffect(() => {
+    // if (currencyRate !== userCurrencyUnit) { // different from user_currency_unit
+      fetchCurrencyRates(dispatch)
+    // }
+  }, [currencyRate, dispatch])
 
   return (
     <IncomePageStyled>
@@ -70,7 +82,7 @@ const IncomePage = () => {
         <div className="container">
           <div className="content-container text-center">
             <div className="income-total">
-              <p>${totalAmount}</p>
+            <p>${(totalAmount * currencyRate).toFixed(2)}</p>
               <h2>Total Income</h2>
             </div>
             <div className="btn-con">
@@ -98,9 +110,9 @@ const IncomePage = () => {
                 <tbody>
                   {incomes.map((income) => (
                     <tr key={income.income_id}>
-                      <td><span>{income.income_created_at}</span></td>
+                      <td><span>{dateFormat(income.income_created_at)}</span></td>
                       <td><span>{income.income_type_id}</span></td>
-                      <td><span>{income.income_amount}</span></td>
+                      <td><span>{(income.income_amount * currencyRate).toFixed(2)}</span></td>
                       <td><span>{income.income_note}</span></td>
                       <td><span className='edit-btn' onClick={() => handleEdit(income)}>Edit</span></td>
                       <td><span className='del-btn' onClick={() => handleDelete(income.income_id)}>Delete</span></td>
