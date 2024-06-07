@@ -1,27 +1,27 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+import React from 'react'
+import ReactDOM from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { store } from './reducers/store/ConfigureStore'
-import { GlobalStyle } from './styles/GlobalStyles';
+import { GlobalStyle } from './styles/GlobalStyles'
 import { Routes, Route, unstable_HistoryRouter as HistoryRouter } from 'react-router-dom'
-import App from './App';
-import DashboardPage from './pages/main-menu/DashboardPage';
-import CategoryPage from './pages/main-menu/CategoryPage';
-import IncomePage from './pages/main-menu/IncomePage';
-import ExpensePage from './pages/main-menu/ExpensePage';
-import ProfilePage from './pages/account/ProfilePage';
-import SavingPage from './pages/main-menu/SavingPage';
+import App from './App'
+import DashboardPage from './pages/main-menu/DashboardPage'
+import CategoryPage from './pages/main-menu/CategoryPage'
+import IncomePage from './pages/main-menu/IncomePage'
+import ExpensePage from './pages/main-menu/ExpensePage'
+import ProfilePage from './pages/account/ProfilePage'
+import SavingPage from './pages/main-menu/SavingPage'
 import { createBrowserHistory } from 'history'
-import BudgetingPage from './pages/main-menu/BudgetingPage';
-import SignInPage from './pages/authenticate/SignInPage';
-import SignUpPage from './pages/authenticate/SignUpPage';
-import { LandingPage } from './pages/LandingPage';
-import CustomizePage from './pages/account/CustomizePage';
-import ReportPage from './pages/main-menu/ReportPage';
+import BudgetingPage from './pages/main-menu/BudgetingPage'
+import SignInPage from './pages/authenticate/SignInPage'
+import SignUpPage from './pages/authenticate/SignUpPage'
+import { LandingPage } from './pages/LandingPage'
+import CustomizePage from './pages/account/CustomizePage'
+import ReportPage from './pages/main-menu/ReportPage'
 
 export const history = createBrowserHistory()
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
   <React.StrictMode>
     <GlobalStyle />
@@ -47,4 +47,4 @@ root.render(
       </Provider>
     </HistoryRouter>
   </React.StrictMode>
-);
+)

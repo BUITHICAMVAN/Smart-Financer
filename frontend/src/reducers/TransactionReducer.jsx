@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { http } from '../utils/Config';
-import moment from 'moment';
-import { getApiType } from '../utils/TypeMapping';
+import { http } from '../utils/Config'
+import moment from 'moment'
+import { getTransactionTypeApi } from '../utils/TypeMapping'
 
 const initialState = {
     transactions: {
@@ -12,7 +12,7 @@ const initialState = {
             Essentials: []
         }
     }
-}     
+}
 
 const TransactionReducer = createSlice({
     name: 'transactionReducer',
@@ -68,20 +68,21 @@ export const deleteTransactionActionAsync = (type, id) => async (dispatch) => {
 
 export const addTransactionActionAsync = (type, formData) => async (dispatch) => {
     try {
-        const apiType = getApiType(type) // convert be to fe 
+        const apiType = getTransactionTypeApi(type) // convert type incomes (frontend) to income (backend)
 
-        const dateFormat = 'YYYY-MM-DD'
+        const dateFormat = 'YYYY-MM-DD' // define date format
 
-        console.log(formData[`${apiType})c`])
         if (typeof formData[`${apiType}_created_at`] === 'string') {
             formData[`${apiType}_created_at`] = moment(formData[`${apiType}_created_at`])
         }
+
         if (formData[`${apiType}_created_at`] && formData[`${apiType}_created_at`].format) {
             formData[`${apiType}_created_at`] = formData[`${apiType}_created_at`].format(dateFormat)
         } else {
             console.error("Date is undefined or not a moment object")
             throw new Error("Invalid date")
         }
+
         const res = await http.post(`${type}`, formData) // tells js to pause untill the Promise resolves
         dispatch(addTransactionAction({ transType: type, transForm: formData })) // add payload and dispatch action
         alert('Transaction added successfully!')

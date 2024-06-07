@@ -4,6 +4,7 @@ import { InnerLayout } from '../../styles/Layouts';
 import useTransaction from '../../customHooks/TransactionHook';
 import { useSelector } from 'react-redux';
 import TransactionModal from '../../components/modals/TransactionModal';
+import { dateFormat } from '../../utils/DateFormat';
 
 const SavingPage = () => {
 
@@ -101,7 +102,7 @@ const SavingPage = () => {
                 <tbody>
                   {savings.map((saving) => (
                     <tr key={saving.saving_id}>
-                      <td><span>{saving.saving_created_at}</span></td>
+                      <td><span>{dateFormat(saving.saving_created_at)}</span></td>
                       <td><span>{saving.saving_type_id}</span></td>
                       <td><span>{saving.saving_amount}</span></td>
                       <td><span>{saving.saving_note}</span></td>

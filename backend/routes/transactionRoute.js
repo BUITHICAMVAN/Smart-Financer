@@ -3,7 +3,7 @@ const { addExpense, getExpenses, updateExpense, deleteExpense } = require('../co
 const { createAccount, getAccountDetails, updateAccount, deleteAccount } = require('../controllers/accountController');
 const { getSystemSetting, updateSystemSetting } = require('../controllers/systemSettingController');
 const { addSaving, getSavings, updateSaving, deleteSaving } = require('../controllers/saving/savingController');
-const { getUserDetails, updateUser, deleteUser, getAllUsers } = require('../controllers/userController');
+const { getUserDetails, updateUser, deleteUser, getAllUsers, createUser } = require('../controllers/userController');
 const { verifyToken } = require('../utils/verifyToken');
 const { signup, signin, forgotpassword, signout } = require('../controllers/authController');
 const { getUserIncomeTypes } = require('../controllers/income/incomeTypeController');
@@ -16,6 +16,7 @@ router.get('/users/:id', getUserDetails) // Get user details by ID
     .put('/users/:id', verifyToken, updateUser) // Update a user by ID
     .delete('/users/:user_id', verifyToken, deleteUser) // Delete a user by ID
     .get('/users', getAllUsers)
+    .post('/users', createUser)
 
 // Income Routes
 router.post('/incomes', verifyToken, addIncome) // Create a new income

@@ -20,11 +20,8 @@ exports.signup = async (req, res) => {
     const { user_fullname, user_email, user_password_hash, user_image, user_currency_unit } = req.body;
     try {
         const hashPassword = bcrypt.hashSync(user_password_hash, 15);
-        // Here, you might want to hash the password before saving
         const newUser = await User.create({
             user_fullname,
-            // user_surname: getSurname(user_fullname),
-            // user_firstname: getSurname(user_fullname),
             user_email,
             user_password_hash: hashPassword, // Ensure this is hashed
             user_image,
@@ -42,21 +39,26 @@ exports.signup = async (req, res) => {
 
 exports.signin = async (req, res) => {
     const { user_email, user_password } = req.body;
-    // console.log(req.body);
     try {
         const validUser = await User.scope('withPassword').findOne({ where: { user_email } });
-        // console.log(validUser)
         if (!validUser) return res.status(404).json({ message: 'User not found' })
+
         const validPassword = bcrypt.compareSync(user_password, validUser.user_password_hash)
-        // console.log(validPassword)
-        // console.log(user_password)
-        // console.log(validUser.user_password_hash)
         if (!validPassword) return res.status(401).json({ message: 'Wrong password!' })
+
         const token = jwt.sign({ user_id: validUser.user_id }, process.env.SECRET_KEY);
-        res.cookie('access_token', token, { httpOnly: true }).status(200).json({
-            validUser,
-            cookie: token,
-        });
+
+        // res.cookie('access_token', token, { httpOnly: true }).status(200).json({
+        //     validUser,
+        //     cookie: token,
+        // });
+        res.cookie('access_token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
+
+        res.status(200).json({
+            message: 'Signin succesful',
+            user: validUser,
+            accessToken: token // return access token for client side 
+        })
     } catch (error) {
         console.log("Signin error", error.message);
     }
@@ -78,8 +80,6 @@ exports.forgotpassword = async (req, res) => {
             subject: "Reset password request",
             html: `<p>Your password can be reset by clicking the link below. The link will expire after 15 minutes.</p><p><a href="${link}">Reset Password</a></p><p>If you did not request this, please ignore this email.</p>`,
         };
-
-        // Assuming transporter is defined somewhere in your code.
         transporter.sendMail(resetmail);
         console.log(user_email, validUser.user_id, "reset password");
         res.status(200).json({ message: "A reset password link has been sent to your email to reset your password" });
@@ -121,6 +121,7 @@ exports.signout = (req, res) => {
     // Clear the authentication cookie
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
+    console.log(res)
     // Respond to the client that the sign-out was successful
     res.status(200).json({ message: 'Successfully signed out' });
 };

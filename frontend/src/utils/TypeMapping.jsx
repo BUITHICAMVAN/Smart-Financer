@@ -8,6 +8,6 @@ const TypeMapping = {
   Essentials: 'essential'
 }
 
-const getApiType = (type) => TypeMapping[type] || type
+const getTransactionTypeApi = (type) => TypeMapping[type] || type
 
-export { TypeMapping, getApiType }
+export { TypeMapping, getTransactionTypeApi }

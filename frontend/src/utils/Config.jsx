@@ -1,6 +1,6 @@
-import axios from "axios";
-import { history } from ".."
+import axios from "axios"
 import { jwtDecode } from "jwt-decode"
+import { history } from "../"
 
 export const TOKEN = 'token'
 export const DOMAIN_BACKEND = 'http://localhost:5000/api/v1/'
@@ -10,17 +10,15 @@ export const DOMAIN_BACKEND = 'http://localhost:5000/api/v1/'
 // Tao ra 1 phien ban cua axios (instance axios)
 
 export const http = axios.create({
-    baseURL: DOMAIN_BACKEND, // Correct property name
-    timeout: 30000, // Maximum time for a request
-});
+    baseURL: DOMAIN_BACKEND, 
+    timeout: 30000, 
+})
 
 // Cau hinh request
 http.interceptors.request.use((config) => {
     // Tat ca cac request gui di se duoc chua trong phan header la token dang nhap
     const token = localStorage.getItem(TOKEN)
-    config.headers['Authorization'] = token ? `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo4LCJpYXQiOjE3MTU0ODY3NjZ9.CbgVbylDnbmmmSzW3TS-avdi9qbY5krKnQWWr4STRpY` : ''
-    // voi cai url nay thi add them param la interceptor 
-    // console.log(config)
+    config.headers['Authorization'] = token ? `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo4LCJpYXQiOjE3MTc2MDM5MDZ9.YZYywJtKkf7b5q6qwVa3l-sc-Sgak3O0QzsEzJhLwMY` : ''
     return config
 }, error => {
     return Promise.reject(error)

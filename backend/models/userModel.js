@@ -1,4 +1,3 @@
-// models/userModel.js
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../db/db'); // Adjust the path according to your project structure
 
@@ -13,7 +12,12 @@ User.init({
   user_is_verified: { type: DataTypes.BOOLEAN, defaultValue: false },
   user_image: { type: DataTypes.STRING },
   user_currency_unit: { type: DataTypes.CHAR(3) },
-  user_created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
+  user_created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+  user_default_language: { type: DataTypes.STRING(20) },
+  user_need_ratio: { type: DataTypes.FLOAT, defaultValue: 50.0 },
+  user_want_ratio: { type: DataTypes.FLOAT, defaultValue: 20.0 },
+  user_saving_ratio: { type: DataTypes.FLOAT, defaultValue: 30.0 },
+  user_expected_income: { type: DataTypes.FLOAT }
 }, {
   sequelize,
   modelName: 'User',

@@ -15,6 +15,12 @@ CREATE TABLE IF NOT EXISTS public.user(
 );
 ALTER TABLE public.user ADD COLUMN user_default_language VARCHAR(20);
 
+ALTER TABLE public.user 
+ADD COLUMN IF NOT EXISTS user_need_ratio FLOAT DEFAULT 50.0,
+ADD COLUMN IF NOT EXISTS user_want_ratio FLOAT DEFAULT 20.0,
+ADD COLUMN IF NOT EXISTS user_saving_ratio FLOAT DEFAULT 30.0,
+ADD COLUMN IF NOT EXISTS user_expected_income FLOAT;
+
 -- Account Table
 CREATE TABLE IF NOT EXISTS public.account (
     account_id VARCHAR(255) PRIMARY KEY,

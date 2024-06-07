@@ -1,86 +1,44 @@
-import React, { useEffect, useState } from "react";
-import { InnerLayout } from "../../styles/Layouts";
-import styled from "styled-components";
-import { useFormik } from "formik";
-import CategoryTable from "../../components/tables/CategoryTable";
-import { transactionTypeReducer } from "../../reducers/TransactionTypeReducer"
-import { Button } from "antd";
-import * as yup from "yup";
-import { useSelector } from "react-redux";
+import React, { useEffect, useState } from "react"
+import { InnerLayout } from "../../styles/Layouts"
+import styled from "styled-components"
+import { useFormik } from "formik"
+import CategoryTable from "../../components/tables/CategoryTable"
+import { useDispatch, useSelector } from "react-redux"
+import { calcMoneyRatio } from "../../utils/MoneyRatio"
+import useTransactionType from "../../customHooks/TransactionTypeHook"
+import { getCurrencySymbol } from "../../utils/CurrencySymbol"
+import { getUserRatiosAction } from "../../reducers/UserReducer"
 
-const CategoryPage = () => {
-  const [showCustomRatio, setShowCustomRatio] = useState(false)
-  const handleRadioChange = (event) => {
-    setShowCustomRatio(event.target.value === "custom")
-  }
+const CategoryPage = ({ type }) => {
+  const dispatch = useDispatch()
 
-  const incomeTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.incomeTypes)
-  const savingTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.savingTypes)
+  const [selectedRatio, setSelectedRatio] = useState('')
+  const { fetchTransactionTypes: fetchIncomeTypes } = useTransactionType("income")
+  const { fetchTransactionTypes: fetchSavingTypes } = useTransactionType("saving")
 
-  const categoryForm = useFormik({
-    initialValues: {
-      currency: "VND",
-      expectedIncome: "",
-      customRatio: {
-        needRatio: '',
-        savingRatio: '',
-        wantRatio: ''
-      },
-      incomeType: incomeTypes.map(type => ({ type })),
-      expenseType: {
-        needs: [{ type: "rent" }],
-        wants: [{ type: "shoes" }],
-      },
-      savingType: savingTypes.map(type => ({ type })),
-    },
-    onSubmit: (values) => {
-      console.log(values)
-    },
-  })
+  // unit
+  const currencyUnit = useSelector(state => state.currencyReducer.currencyUnit)
 
-  const getCurrencySymbol = (currency) => {
-    switch (currency) {
-      case "USD":
-        return "$"
-      case "EUR":
-        return "€"
-      case "VND":
-        return "₫"
-      default:
-        return ""
-    }
-  }
+  // types 
+  const incomeTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.incomeTypes || [])
+  const savingTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.savingTypes || [])
+  const customRatio = useSelector((state) => state.userReducer.customRatio)
+  const userId = useSelector(state => state.userReducer.userId)
 
   const incomeColumns = [
     {
       title: "Income",
       dataIndex: "income",
       key: "income",
-      children: [
-        {
-          title: "",
-          dataIndex: "type",
-          key: "type",
-        },
-      ],
     },
   ]
-
   const savingColumns = [
     {
       title: "Saving",
       dataIndex: "saving",
-      key: "saving",
-      children: [
-        {
-          title: "",
-          dataIndex: "type",
-          key: "type",
-        },
-      ],
+      key: "saving"
     },
   ]
-
   const expenseColumns = [
     {
       title: "Expenses",
@@ -101,6 +59,94 @@ const CategoryPage = () => {
     },
   ]
 
+  const calcNeedRatio = (income, ratio) => {
+    return calcMoneyRatio(income, ratio)
+  }
+  const calcSavingRatio = (saving, ratio) => {
+    return calcMoneyRatio(saving, ratio)
+  }
+  const calcWantRatio = (want, ratio) => {
+    return calcMoneyRatio(want, ratio)
+  }
+
+  const categoryForm = useFormik({
+    initialValues: {
+      currency: currencyUnit,
+      expectedIncome: "",
+
+      needRatio: 0,
+      savingRatio: 0,
+      wantRatio: 0,
+
+      incomeType: [],
+      savingType: [],
+      expenseType: {
+        needs: [{ type: "rent" }],
+        wants: [{ type: "shoes" }],
+      },
+    },
+    onSubmit: (values) => {
+      alert(JSON.stringify(values, null, 2))
+    },
+  })
+
+  useEffect(() => {
+    const income = parseFloat(categoryForm.values.expectedIncome) || 0
+    categoryForm.setFieldValue("needRatio", calcNeedRatio(income, categoryForm.values.needRatio))
+    categoryForm.setFieldValue("savingRatio", calcSavingRatio(income, categoryForm.values.savingRatio))
+    categoryForm.setFieldValue("wantRatio", calcWantRatio(income, categoryForm.values.wantRatio))
+  }, [categoryForm.values.expectedIncome])
+
+  useEffect(() => {
+    fetchIncomeTypes()
+    fetchSavingTypes()
+  }, [])
+
+  useEffect(() => {
+    if (incomeTypes.length > 0 && savingTypes.length > 0) {
+      categoryForm.setValues({
+        ...categoryForm.values,
+        incomeType: incomeTypes.map(type => ({ type: type.income_type_name })),
+        savingType: savingTypes.map(type => ({ type: type.saving_type_name })),
+      })
+    }
+  }, [])
+
+  useEffect(() => {
+    dispatch(getUserRatiosAction())
+  }, [])
+
+  useEffect(() => { // first to set the value to the ratio
+    const { needRatio, savingRatio, wantRatio } = customRatio || {}
+
+    if (needRatio === 50 && savingRatio === 30 && wantRatio === 20) { // if have values = 50-30-20 principle
+      setSelectedRatio('standard')
+      categoryForm.setFieldValue("needRatio", 50)
+      categoryForm.setFieldValue("savingRatio", 30)
+      categoryForm.setFieldValue("wantRatio", 20)
+    } else { // if value not equals to
+      setSelectedRatio('custom')
+      categoryForm.setFieldValue("needRatio", needRatio || 0)
+      categoryForm.setFieldValue("savingRatio", savingRatio || 0)
+      categoryForm.setFieldValue("wantRatio", wantRatio || 0)
+    }
+  }, [])
+
+  const handleRadioChange = (event) => {
+    const { value } = event.target
+    if (value === 'standard') {
+      setSelectedRatio('standard')
+      categoryForm.setFieldValue("needRatio", 50)
+      categoryForm.setFieldValue("savingRatio", 30)
+      categoryForm.setFieldValue("wantRatio", 20)
+    } else if (value === 'custom') {
+      setSelectedRatio('custom')
+      categoryForm.setFieldValue("needRatio", 0)
+      categoryForm.setFieldValue("savingRatio", 0)
+      categoryForm.setFieldValue("wantRatio", 0)
+    }
+  }
+
   return (
     <CategoryStyle>
       <InnerLayout>
@@ -116,11 +162,12 @@ const CategoryPage = () => {
                 className="form-select form-select-lg border-shadow mb-3"
                 id="currency"
                 onChange={categoryForm.handleChange} onBlur={categoryForm.handleBlur}
+                defaultValue={currencyUnit}
               >
                 <option selected>Open this select menu</option>
-                <option value="USD">USD</option>
-                <option value="VND">VND</option>
-                <option value="EUR">EUR</option>
+                <option value="USD">{getCurrencySymbol("USD")} USD</option>
+                <option value="VND">{getCurrencySymbol("VND")} VND</option>
+                <option value="EUR">{getCurrencySymbol("USD")} EUR</option>
               </select>
             </div>
             <div className="form-group">
@@ -143,6 +190,7 @@ const CategoryPage = () => {
                   name="expense-ratio"
                   id="standard-ratio"
                   value="standard"
+                  checked={selectedRatio === 'standard'}
                   onChange={handleRadioChange}
                 />
                 <div className="form-check-title">
@@ -159,7 +207,7 @@ const CategoryPage = () => {
                   name="expense-ratio"
                   id="custom-ratio"
                   value="custom"
-                  onChange={handleRadioChange}
+                  checked={selectedRatio === 'custom'}
                 />
                 <div className="form-check-title">
                   <label className="form-check-label" htmlFor="custom-ratio">
@@ -169,27 +217,25 @@ const CategoryPage = () => {
                 </div>
               </div>
             </div>
-            {showCustomRatio && (
-              <div className="form-group">
-                <div className="custom-ratio border-shadow">
-                  <div className="input-group input-group-sm">
-                    <label htmlFor="need-ratio">Need ratio</label>
-                    <input id="need-ratio" type="text" className="form-control" onChange={categoryForm.handleChange} onBlur={categoryForm.handleBlur} />
-                    <span className="input-group-text">%</span>
-                  </div>
-                  <div className="input-group input-group-sm">
-                    <label htmlFor="saving-ratio">Saving ratio</label>
-                    <input id="saving-ratio" type="text" className="form-control" onChange={categoryForm.handleChange} onBlur={categoryForm.handleBlur} />
-                    <span className="input-group-text">%</span>
-                  </div>
-                  <div className="input-group input-group-sm">
-                    <label htmlFor="want-ratio">Want ratio</label>
-                    <input type="text" className="form-control" onChange={categoryForm.handleChange} onBlur={categoryForm.handleBlur} />
-                    <span className="input-group-text">%</span>
-                  </div>
+            <div className="form-group">
+              <div className="custom-ratio border-shadow">
+                <div className="input-group input-group-sm">
+                  <label htmlFor="need-ratio">Need ratio</label>
+                  <input id="need-ratio" type="text" className="form-control" onChange={categoryForm.handleChange} onBlur={categoryForm.handleBlur} value={categoryForm.values.needRatio} />
+                  <span className="input-group-text">%</span>
+                </div>
+                <div className="input-group input-group-sm">
+                  <label htmlFor="saving-ratio">Saving ratio</label>
+                  <input id="saving-ratio" type="text" className="form-control" onChange={categoryForm.handleChange} onBlur={categoryForm.handleBlur} value={categoryForm.values.savingRatio} />
+                  <span className="input-group-text">%</span>
+                </div>
+                <div className="input-group input-group-sm">
+                  <label htmlFor="want-ratio">Want ratio</label>
+                  <input type="text" className="form-control" onChange={categoryForm.handleChange} onBlur={categoryForm.handleBlur} value={categoryForm.values.wantRatio} />
+                  <span className="input-group-text">%</span>
                 </div>
               </div>
-            )}
+            </div>
             <hr />
             <div className="form-group category-table">
               <h3 className="text-center">Set up Category</h3>
@@ -197,13 +243,13 @@ const CategoryPage = () => {
                 <div className="income-table">
                   <CategoryTable
                     columns={incomeColumns}
-                    dataSource={categoryForm.values.incomeType}
+                    dataSource={incomeTypes.length > 0 ? incomeTypes.map(type => ({ key: type.income_type_id, income: type.income_type_name })) : []}
                   />
                 </div>
                 <div className="saving-table">
                   <CategoryTable
                     columns={savingColumns}
-                    dataSource={categoryForm.values.savingType}
+                    dataSource={savingTypes.length > 0 ? savingTypes.map(type => ({ key: type.saving_type_id, saving: type.saving_type_name })) : []}
                     rowClassName={() => 'editable-row'}
                   />
                 </div>
