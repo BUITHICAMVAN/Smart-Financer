@@ -4,11 +4,7 @@ import { http } from '../utils/Config'
 const initialState = {
     transactionTypes: {
         incomeTypes: [],
-        savingTypes: [],
-        expenseTypes: {
-            nonEssentials: [],
-            essentials: []
-        }
+        savingTypes: []
     }
 }
 

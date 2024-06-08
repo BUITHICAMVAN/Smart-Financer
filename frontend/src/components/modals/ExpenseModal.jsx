@@ -1,46 +1,26 @@
 import React, { useEffect, useState } from 'react'
-import { Modal, Form, Input, InputNumber, DatePicker, Select } from 'antd'
+import { Modal, Form, Input, InputNumber, DatePicker, Radio } from 'antd'
 import moment from 'moment'
 import styled from 'styled-components'
-import { useSelector } from 'react-redux'
-import useTransactionType from '../../customHooks/TransactionTypeHook'
+import { getExpenseTypeID, getExpenseTypeName } from '../../utils/ExpenseTypeMapping'
 
-const ExpenseModal = ({ type, open, onCreate, onCancel, onEdit, initialData }) => {
-    const { fetchTransactionTypes } = useTransactionType(type) // pass in the type to retrive 
+const ExpenseModal = ({ open, onCreate, onCancel, onEdit, initialData }) => {
     const [form] = Form.useForm()
     const [loading, setLoading] = useState(false)
-
-    // Selector for transaction types with a shallow comparison for performance
-    const expenseTypes = useSelector(state => state.transactionTypeReducer.transactionTypes[`${type}Types`])
-
-    useEffect(() => {
-        if (open && !expenseTypes[`${type}Types`]) { // if there are no types
-            fetchTransactionTypes()
-        }
-        if (open && initialData) { // if there is initial data - edit 
-            form.setFieldsValue({
-                [`${type}_amount`]: initialData[`${type}_amount`],
-                [`${type}_type_id`]: initialData[`${type}_type_name`],
-                [`${type}_note`]: initialData[`${type}_note`],
-                [`${type}_created_at`]: moment(initialData[`${type}_created_at`])
-            })
-        } else if (open) {
-            form.resetFields()
-        }
-    }, [open, initialData, form])
 
     const handleOk = async () => {
         setLoading(true)
         try {
             const values = await form.validateFields()
+            const expenseTypeId = getExpenseTypeID(values.expense_type_name)
             const transformedValues = {
                 ...values,
-                [`${type}_type_id`]: values[`${type}_type_name`],
-                [`${type}_created_at`]: values[`${type}_created_at`].format('YYYY-MM-DD')
+                expense_type_id: expenseTypeId,
+                expense_created_at: values.expense_created_at.format('YYYY-MM-DD')
             }
-            delete transformedValues[`${type}_type_name`]
+            delete transformedValues.expense_type_name
             if (initialData) {
-                onEdit(transformedValues, initialData[`${type}_id`])
+                onEdit(initialData.expense_id, transformedValues )
             } else {
                 onCreate(transformedValues)
             }
@@ -52,11 +32,30 @@ const ExpenseModal = ({ type, open, onCreate, onCancel, onEdit, initialData }) =
         }
     }
 
+    useEffect(() => {
+        if (open) {
+            if (initialData) { // if it has data
+                const expenseTypeName = getExpenseTypeName(initialData.expense_type_id)
+                form.setFieldsValue({
+                    expense_category: initialData.expense_category,
+                    expense_amount: initialData.expense_amount,
+                    expense_type_name: expenseTypeName,
+                    expense_created_at: moment(initialData.expense_created_at)
+                })
+            } else {
+                form.resetFields()
+                form.setFieldsValue({
+                    expense_created_at: moment()
+                })
+            }
+        }
+    }, [open, initialData, form])
+
     return (
         <ExpenseModalStyled>
             <Modal
                 open={open}
-                title={`${initialData ? 'Edit' : 'Add'} ${type.charAt(0).toUpperCase() + type.slice(1)}`}
+                title={initialData ? 'Edit Expense' : 'Add Expense'}
                 okText={initialData ? 'Save' : 'Add'}
                 cancelText="Close"
                 onCancel={onCancel}
@@ -67,14 +66,14 @@ const ExpenseModal = ({ type, open, onCreate, onCancel, onEdit, initialData }) =
                     form={form}
                     layout="vertical"
                     initialValues={{
-                        [`${type}_amount`]: 0,
-                        [`${type}_type_name`]: '',
-                        [`${type}_note`]: '',
-                        [`${type}_created_at`]: moment()
+                        expense_created_at: moment(),
+                        expense_category: '',
+                        expense_amount: 0,
+                        expense_type_name: ''
                     }}
                 >
                     <Form.Item
-                        name={`${type}_amount`}
+                        name="expense_amount"
                         label="Amount"
                         rules={[{ required: true, message: 'Please input the amount!' }]}
                     >
@@ -85,34 +84,51 @@ const ExpenseModal = ({ type, open, onCreate, onCancel, onEdit, initialData }) =
                         />
                     </Form.Item>
                     <Form.Item
-                        name={`${type}_type_name`}
-                        label="Type"
-                        rules={[{ required: true, message: 'Please select the type!' }]}
+                        name="expense_category"
+                        label="Expense Description"
+                        rules={[{ required: true, message: 'Please input a description!' }]}
                     >
-                        <Select
-                            showSearch
-                            placeholder="Select a type"
-                            optionFilterProp="children"
-                        >
-                            {/* {expenseTypes.map((item) => (
-                                <Select.Option key={item[`${type}_type_id`]} value={item[`${type}_type_id`]}>
-                                    {item[`${type}_type_name`]}
-                                </Select.Option>
-                            ))} */}
-                        </Select>
+                        <Input
+                            placeholder="E.g., Coffee"
+                            style={{ width: '100%' }}
+                        />
                     </Form.Item>
                     <Form.Item
-                        name={`${type}_created_at`} // Ensure the name matches the key used in the state
+                        name="expense_created_at"
                         label="Date"
                         rules={[{ required: true, message: 'Please select the date!' }]}
                     >
-                        <DatePicker style={{ width: '100%' }} />
+                        <DatePicker
+                            style={{ width: '100%' }}
+                            format="YYYY-MM-DD"
+                            disabledDate={(current) => current && current > moment().endOf('day')}
+                        />
                     </Form.Item>
                     <Form.Item
-                        name={`${type}_note`}
-                        label="Note"
+                        name="expense_type_name"
+                        label="Expense Type"
+                        rules={[{ required: true, message: 'Please select the type!' }]}
                     >
-                        <Input.TextArea rows={4} placeholder="Enter any notes here" />
+                        <StyledRadioGroup>
+                            <StyledRadio value="essentials">
+                                <RadioWrapper>
+                                    <RadioContent>
+                                        <span>Needs</span>
+                                        <Description>It's a necessity.</Description>
+                                    </RadioContent>
+                                    <RadioButton />
+                                </RadioWrapper>
+                            </StyledRadio>
+                            <StyledRadio value="nonEssentials">
+                                <RadioWrapper>
+                                    <RadioContent>
+                                        <span>Wants</span>
+                                        <Description>It's a luxury.</Description>
+                                    </RadioContent>
+                                    <RadioButton />
+                                </RadioWrapper>
+                            </StyledRadio>
+                        </StyledRadioGroup>
                     </Form.Item>
                 </Form>
             </Modal>
@@ -122,5 +138,45 @@ const ExpenseModal = ({ type, open, onCreate, onCancel, onEdit, initialData }) =
 
 export default ExpenseModal
 
-const ExpenseModalStyled = styled.div`
-`
+const ExpenseModalStyled = styled.div``;
+
+const StyledRadioGroup = styled(Radio.Group)`
+  display: flex;
+  gap: 20px;
+`;
+
+const StyledRadio = styled(Radio)`
+  display: flex;
+  align-items: center;
+`;
+
+const RadioWrapper = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const RadioContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-right: 10px;
+`;
+
+const RadioButton = styled.div`
+  .ant-radio-inner {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+  }
+
+  .ant-radio-checked .ant-radio-inner {
+    background-color: #52c41a;
+    border-color: #52c41a;
+  }
+`;
+
+const Description = styled.span`
+  font-size: 12px;
+  color: #888;
+  font-weight: lighter;
+`;

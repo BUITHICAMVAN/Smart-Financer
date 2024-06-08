@@ -1,62 +1,72 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { InnerLayout } from '../../styles/Layouts'
 import ExpenseModal from '../../components/modals/ExpenseModal'
+import { useDispatch, useSelector } from 'react-redux'
+import { addExpenseActionAsync, deleteExpenseActionAsync, editExpenseActionAsync, getExpenseActionAsync } from '../../reducers/ExpenseReducer'
+import { dateFormat } from '../../utils/DateFormat'
+import { getCurrencySymbol } from '../../utils/CurrencySymbol'
+import { addTransactionActionAsync } from '../../reducers/TransactionReducer'
 
 const ExpensePage = () => {
+
+  const dispatch = useDispatch()
+
   const [month, setMonth] = useState('March')
 
   const [amount, setAmount] = useState("100")
   const [currency, setCurrency] = useState("$")
 
-  const [confirmLoading, setConfirmLoading] = useState(false) // loading
   const [open, setOpen] = useState(false) // open modal
   const [initialData, setInitialData] = useState(null) // table data for editing modal
 
+  const expenses = useSelector(state => state.expenseReducer.expenses)
+
+  const currencyUnit = useSelector(state => state.currencyReducer.currencyUnit)
+
   const showModal = () => {
-    setInitialData(null); // Clear initial data for adding
-    setOpen(true);
+    setInitialData(null) // Clear initial data for adding
+    setOpen(true)
   }
 
   const handleCancel = () => {
-    setOpen(false);
-    setInitialData(null); // Clear initial data when closing modal
+    setOpen(false)
+    setInitialData(null) // Clear initial data when closing modal
   }
 
   const handleCreate = async (formData) => {
-    setConfirmLoading(true);
     try {
-      // await addTransaction(formData);
-      setOpen(false);
+      await dispatch(addExpenseActionAsync(formData))
+      setOpen(false)
     } catch (error) {
-      console.error('Failed to add transaction:', error);
-      alert('Failed to add transaction.');
-    } finally {
-      setConfirmLoading(false);
+      console.error('Failed to add transaction:', error)
+      alert('Failed to add transaction.')
     }
   }
 
   const handleDelete = (id) => {
-    // removeTransaction(id);
+    dispatch(deleteExpenseActionAsync(id))
   }
 
   const handleEdit = (data) => {
-    setInitialData(data); // Set data to edit
-    setOpen(true);
+    setInitialData(data) // Set data to edit
+    setOpen(true)
   }
 
-  const handleSaveEdit = (data, id) => {
-    setConfirmLoading(true);
+  const handleSaveEdit = async (id, formData) => {
     try {
-      // editTransaction(data, id);
-      setOpen(false);
+      await dispatch(editExpenseActionAsync(id, formData))
+      setOpen(false)
     } catch (error) {
-      console.error('Failed to edit transaction:', error);
-      alert('Failed to edit transaction.');
-    } finally {
-      setConfirmLoading(false);
+      console.error('Failed to edit transaction:', error)
+      alert('Failed to edit transaction.')
     }
   }
+
+  useEffect(() => {
+    dispatch(getExpenseActionAsync())
+  }, [])
+
   return (
     <ExpensePageStyled>
       <InnerLayout>
@@ -71,7 +81,6 @@ const ExpensePage = () => {
                   <button className="btn btn-warning" onClick={showModal}>Add Entry</button>
                 </div>
                 <ExpenseModal
-                  type="expense"
                   open={open}
                   onCreate={handleCreate}
                   onEdit={handleSaveEdit}
@@ -82,22 +91,26 @@ const ExpensePage = () => {
                   <thead>
                     <tr>
                       <th><span>Date & Time</span></th>
-                      <th><span>Expense type</span></th>
+                      <th><span>Details</span></th>
                       <th><span>Needs</span></th>
                       <th><span>Wants</span></th>
-                      <th><span>Evaluate</span></th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td><span>1</span></td>
-                      <td><span>2</span></td>
-                      <td><span>3</span></td>
-                      <td><span>4</span></td>
-                      <td><span>5</span></td>
-                      <td><span className='edit-btn'>Edit</span></td>
-                      <td><span className='del-btn'>Delete</span></td>
-                    </tr>
+                    {expenses.map((expense) => (
+                      <tr key={expense.expense_id}>
+                        <td><span className="white-text">{dateFormat(expense.expense_created_at)}</span></td>
+                        <td><span className="white-text">{expense.expense_category}</span></td>
+                        <td><span className={expense.expense_type_id === 1 ? "white-text" : "na-text"}>
+                          {expense.expense_type_id === 1 ? `${getCurrencySymbol(currencyUnit)}${expense.expense_amount}` : 'N/A'}
+                        </span></td>
+                        <td><span className={expense.expense_type_id === 2 ? "white-text" : "na-text"}>
+                          {expense.expense_type_id === 2 ? `${getCurrencySymbol(currencyUnit)}${expense.expense_amount}` : 'N/A'}
+                        </span></td>
+                        <td><span className='edit-btn' onClick={() => handleEdit(expense)}>Edit</span></td>
+                        <td><span className='del-btn' onClick={() => handleDelete(expense.expense_id)}>Delete</span></td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -191,6 +204,16 @@ const ExpensePageStyled = styled.div`
         color: white;
       }
     }
+  }
+  .white-text {
+    color: white;
+    font-weight: 400;
+  }
+  .edit-btn {
+    color: var(--edit-btn);
+  }
+  .del-btn {
+    color: var(--delete-btn); 
   }
   .edit-btn {
     color: var(--edit-btn);

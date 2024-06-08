@@ -1,7 +1,7 @@
 const Expense = require("../../models/expense/expenseModel"); // Correctly import the model
 
 exports.addExpense = async (req, res) => {
-    const { expense_amount, expense_type_id, expense_note, expense_created_at } = req.body;
+    const { expense_amount, expense_type_id, expense_note, expense_created_at, expense_category } = req.body;
 
     // Correct validations to match model fields
     if (!expense_amount || !expense_type_id) {
@@ -14,10 +14,11 @@ exports.addExpense = async (req, res) => {
 
     try {
         const expense = await Expense.create({ // Use Sequelize create method
-            expense_user_id: req.user.user_id, 
+            expense_user_id: req.user.user_id,
             expense_amount,
+            expense_category,
             expense_type_id,
-            expense_note, 
+            expense_note,
             expense_created_at: expense_created_at || new Date()
         });
 
@@ -31,7 +32,7 @@ exports.addExpense = async (req, res) => {
 exports.getExpenses = async (req, res) => {
     try {
         const expenses = await Expense.findAll({ // Use Sequelize findAll method
-            where: { expense_user_id: req.user.user_id }, 
+            where: { expense_user_id: req.user.user_id },
             order: [['expense_created_at', 'DESC']] // Sort by creation date
         });
         res.status(200).json(expenses);
@@ -46,7 +47,7 @@ exports.deleteExpense = async (req, res) => {
 
     try {
         const result = await Expense.destroy({ // Use Sequelize destroy method
-            where: { 
+            where: {
                 expense_id: expense_id,
                 expense_user_id: req.user.user_id// Ensure the expense belongs to the user
             }
@@ -65,7 +66,7 @@ exports.deleteExpense = async (req, res) => {
 
 exports.updateExpense = async (req, res) => {
     const { expense_id } = req.params; // ID of the expense to update
-    const { expense_amount, expense_type_id, expense_note, expense_created_at } = req.body;
+    const { expense_amount, expense_type_id, expense_note, expense_created_at, expense_category } = req.body;
 
     // Basic validations
     if (!expense_amount || !expense_type_id) {
@@ -93,6 +94,7 @@ exports.updateExpense = async (req, res) => {
         expense.expense_amount = expense_amount;
         expense.expense_type_id = expense_type_id;
         expense.expense_note = expense_note;
+        expense.expense_category = expense_category;
         if (expense_created_at) { // Only update the created_at if provided
             expense.expense_created_at = expense_created_at;
         }

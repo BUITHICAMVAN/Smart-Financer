@@ -1,46 +1,54 @@
+const Expense = require("../../models/expense/expenseModel");
+const ExpenseType = require("../../models/expense/expenseTypeModel");
 
-exports.addExpense = async (req, res) => {
-    const { expense_note, expense_amount, expense_type_id, expense_create_at} = req.body
-
-     // Corrected data validations to match the model fields
-     if (!expense_amount || !expense_type_id) {
-        return res.status(400).json({ message: 'Amount and type are required!' });
-    }
-
-    if (expense_amount <= 0 || typeof expense_amount !== 'number') {
-        return res.status(400).json({ message: 'Amount must be a positive number!' });
-    }
-
-    const expenseTypeExist = await expenseType.findOne({ // check if type exists 
-        where: { expense_type_id: expense_type_id }
-    })
-
-    if (!expenseTypeExist) {
-        return res.status(404).json({ message: 'expense type does not exist!' });
-    }
-    const expense = new expense({
-        expense_user_id: req.user.user_id,
-        expense_amount,
-        expense_type_id,
-        expense_note, // Added support for expense_note
-        expense_created_at: expense_created_at || new Date()
-    });
-
+exports.getUserExpenseTypes = async (req, res) => {
     try {
-        await expense.save();
-        res.status(201).json({ message: 'expense Added', data: expense });
+        // check if user is a passed in a valid id as an integer or not
+        if (!Number.isInteger(req.user.user_id)) {
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+        const userExpensesWithTypes = await Expense.findAll({
+            where: { expense_user_id: req.user.user_id }, // Filter expenses by the logged-in user's ID
+            include: [{
+                model: ExpenseType,
+                attributes: ['expense_type_id', 'expense_type_name'], // Fetch specific attributes of expenseType
+            }],
+            order: [['expense_type_id', 'ASC']] // Order the results by expense_type_id
+        });
+
+        const expenseTypeAttributes = userExpensesWithTypes.map(expense => {
+            return expense.ExpenseType; // This will give you an array of expenseType objects
+        });
+        res.json(expenseTypeAttributes);
+
     } catch (error) {
-        res.status(500).json({ message: 'Server Error', error });
+        console.error('Failed to fetch expense types:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 }
 
-exports.getExpenses = async (req, res) => {
-}
+exports.getExpenseTypeById = async (req, res) => {
+    const { expense_type_id } = req.params;
+    try {
+        // Check if expense_type_id is a valid integer
+        const typeId = parseInt(expense_type_id, 10);
+        if (isNaN(typeId)) {
+            return res.status(400).json({ message: 'Invalid expense type ID' });
+        }
 
-exports.updateExpense = async (req, res) => {
+        // Fetch the expense type
+        const expenseType = await ExpenseType.findOne({
+            where: { expense_type_id: typeId },
+            attributes: ['expense_type_id', 'expense_type_name']
+        });
 
-}
+        if (!expenseType) {
+            return res.status(404).json({ message: 'Expense type not found' });
+        }
 
-exports.deleteExpense = async (req, res) => {
-
-}
+        res.json(expenseType);
+    } catch (error) {
+        console.error('Failed to fetch expense type:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};

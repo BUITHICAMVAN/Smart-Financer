@@ -1,4 +1,4 @@
-const saving = require("../../models/saving/savingModel");
+const Saving = require("../../models/saving/savingModel");
 const SavingType = require("../../models/saving/savingTypeModel");
 
 exports.getUserSavingTypes = async (req, res) => {
@@ -7,7 +7,7 @@ exports.getUserSavingTypes = async (req, res) => {
         if (!Number.isInteger(req.user.user_id)) {
             return res.status(400).json({ message: 'Invalid user ID' });
         }
-        const usersavingsWithTypes = await saving.findAll({
+        const usersavingsWithTypes = await Saving.findAll({
             where: { saving_user_id: req.user.user_id }, // Filter savings by the logged-in user's ID
             include: [{
                 model: SavingType,

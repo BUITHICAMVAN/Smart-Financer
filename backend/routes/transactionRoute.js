@@ -8,6 +8,7 @@ const { verifyToken } = require('../utils/verifyToken');
 const { signup, signin, forgotpassword, signout } = require('../controllers/authController');
 const { getUserIncomeTypes } = require('../controllers/income/incomeTypeController');
 const { getUserSavingTypes } = require('../controllers/saving/savingTypeController');
+const { getUserExpenseTypes, getExpenseTypeById } = require('../controllers/expense/expenseTypeController');
 
 const router = require('express').Router();
 
@@ -29,11 +30,15 @@ router.get('/income-types', verifyToken, getUserIncomeTypes)
 
 // Saving Type
 router.get('/saving-types', verifyToken, getUserSavingTypes)
+
 // Expense Routes
 router.post('/expenses', verifyToken, addExpense) // Create a new expense
     .get('/expenses', verifyToken, getExpenses) // Get all expenses for a user
     .put('/expenses/:expense_id', verifyToken, updateExpense) // Update an expense by ID
     .delete('/expenses/:expense_id', verifyToken, deleteExpense) // Delete an expense by ID
+// Expense Type Routes
+router.get('/expense-types', verifyToken, getUserExpenseTypes)
+    .get('/expense-types/:expense_type_id', verifyToken, getExpenseTypeById)
 
 // Account Routes
 router.post('/accounts', verifyToken, createAccount) // Create a new account

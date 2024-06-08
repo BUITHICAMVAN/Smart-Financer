@@ -6,11 +6,7 @@ import { getTransactionTypeApi } from '../utils/TypeMapping'
 const initialState = {
     transactions: {
         incomes: [],
-        savings: [],
-        expenses: {
-            nonEssentials: [],
-            Essentials: []
-        }
+        savings: []
     }
 }
 
