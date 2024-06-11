@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { addExpenseActionAsync, deleteExpenseActionAsync, editExpenseActionAsync, getExpenseActionAsync } from '../../reducers/ExpenseReducer'
 import { dateFormat } from '../../utils/DateFormat'
 import { getCurrencySymbol } from '../../utils/CurrencySymbol'
-import { addTransactionActionAsync } from '../../reducers/TransactionReducer'
 
 const ExpensePage = () => {
 
@@ -21,6 +20,20 @@ const ExpensePage = () => {
   const [initialData, setInitialData] = useState(null) // table data for editing modal
 
   const expenses = useSelector(state => state.expenseReducer.expenses)
+
+  const needs = expenses.filter(expense => expense.expense_type_id === 1)
+
+  const wants = expenses.filter(expense => expense.expense_type_id === 2);
+
+  const totalNeedsAmount = needs.reduce((total, expense) => {
+    const amount = parseFloat(expense.expense_amount) || 0;
+    return total + amount
+  }, 0)
+
+  const totalWantsAmount = wants.reduce((total, expense) => {
+    const amount = parseFloat(expense.expense_amount) || 0;
+    return total + amount
+  }, 0)
 
   const currencyUnit = useSelector(state => state.currencyReducer.currencyUnit)
 
@@ -123,12 +136,12 @@ const ExpensePage = () => {
                   <span className='insight-title'>Spendings</span>
                   <div className="main">
                     <div className="amount">
-                      <p>Needs: ${amount}</p>
-                      <p>Wants: ${amount}</p>
+                      <p>Needs: ${totalNeedsAmount}</p>
+                      <p>Wants: ${totalWantsAmount}</p>
                     </div>
                     <div className="bracket">
                       <p>{'}'}</p>
-                      <p>{currency}{amount}</p>
+                      <p>{currency}{totalNeedsAmount+totalWantsAmount}</p>
                     </div>
                   </div>
                 </div>
@@ -141,7 +154,7 @@ const ExpensePage = () => {
                     </div>
                     <div className="bracket">
                       <p>{'}'}</p>
-                      <p>{currency}{amount}</p>
+                      <p>{currency}200</p>
                     </div>
                   </div>
                 </div>
@@ -149,8 +162,8 @@ const ExpensePage = () => {
                   <span className='insight-title'>Savings</span>
                   <div className="main">
                     <div className="amount">
-                      <p>Total Savings: ${amount}</p>
-                    </div>
+                      <p>Total Savings: 200</p>
+                    </div>c
                   </div>
                 </div>
               </div>

@@ -62,6 +62,11 @@ const Navigation = () => {
                         {report} <span>Report</span>
                     </NavLink>
                 </li>
+                <li>
+                    <NavLink to="/due-page" >
+                        {report} <span>Dues</span>
+                    </NavLink>
+                </li>
             </ul>
             <ul className="menu-items">
                 <div className="menu-name">

@@ -36,13 +36,13 @@ export const { setCurrencyRates, setCurrencyUnit } = CurrencyReducer.actions
 export default CurrencyReducer.reducer
 
 export const fetchCurrencyRates = () => async (dispatch) => {
-    try {
-        // const res = await axios.get(getApiUrl('latest'))
-        const res = await axios.get(CURRENCY_API)
-        dispatch(setCurrencyRates(res.data.data))
-    } catch(error) {
-        console.log('Failed to fetch currency rate', error)
-    }
+    // try {
+    //     // const res = await axios.get(getApiUrl('latest'))
+    //     const res = await axios.get(CURRENCY_API)
+    //     dispatch(setCurrencyRates(res.data.data))
+    // } catch(error) {
+    //     console.log('Failed to fetch currency rate', error)
+    // }
 }
 
 // which place/layer should this function be used

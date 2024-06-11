@@ -5,6 +5,7 @@ import CurrencyReducer from '../CurrencyReducer'
 import UserReducer from '../UserReducer'
 import ExpenseReducer from '../ExpenseReducer'
 import ExpenseTypeReducer from '../ExpenseTypeReducer'
+import DueReducer from '../DueReducer'
 
 export const store = configureStore({
     reducer: {
@@ -13,7 +14,8 @@ export const store = configureStore({
         currencyReducer: CurrencyReducer, 
         userReducer: UserReducer,
         expenseReducer: ExpenseReducer,
-        expenseTypeReducer: ExpenseTypeReducer
+        expenseTypeReducer: ExpenseTypeReducer,
+        dueReducer: DueReducer
         
     }
 })

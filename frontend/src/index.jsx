@@ -18,6 +18,7 @@ import SignUpPage from './pages/authenticate/SignUpPage'
 import { LandingPage } from './pages/LandingPage'
 import CustomizePage from './pages/account/CustomizePage'
 import ReportPage from './pages/main-menu/ReportPage'
+import DuePage from './pages/main-menu/DuePage'
 
 export const history = createBrowserHistory()
 
@@ -42,6 +43,7 @@ root.render(
             <Route path='/signin-page' element={<SignInPage/>}></Route>
             <Route path='/signup-page' element={<SignUpPage/>}></Route>
             <Route path='/landing-page' element={<LandingPage/>}></Route>
+            <Route path='/due-page' element={<DuePage/>}></Route>
           </Route>
         </Routes>
       </Provider>

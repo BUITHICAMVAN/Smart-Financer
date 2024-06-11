@@ -5,11 +5,11 @@ import { http } from '../utils/Config'
 const initialState = {
   userId: '',
   userCurrencyUnit: '',
-  expectedMonthlyIncome: 0,
-  customRatio: {
-    needRatio: 0,
-    savingRatio: 0,
-    wantRatio: 0
+  expectedIncome: 0,
+  customPercent: {
+    needPercent: 0,
+    savingPercent: 0,
+    wantPercent: 0
   }
 }
 
@@ -20,19 +20,19 @@ const UserReducer = createSlice({
     setUserId: (state, action) => {
       state.userId = action.payload
     },
-    getRatios: (state, action) => {
-      const { userNeedRatio, userSavingRatio, userWantRatio } = action.payload;
-      state.customRatio.needRatio = userNeedRatio
-      state.customRatio.savingRatio = userSavingRatio
-      state.customRatio.wantRatio = userWantRatio
+    getPercent: (state, action) => {
+      const { userNeedPercent, userSavingPercent, userWantPercent } = action.payload;
+      state.customPercent.needPercent = userNeedPercent
+      state.customPercent.savingPercent = userSavingPercent
+      state.customPercent.wantPercent = userWantPercent
     },
-    setRatios: (state, action) => {
-
+    getExpectedIncome: (state, action) => {
+      state.expectedIncome = action.payload
     }
   }
 })
 
-export const { setUserId, getRatios, setRatios } = UserReducer.actions
+export const { setUserId, getPercent, getExpectedIncome } = UserReducer.actions
 
 export default UserReducer.reducer
 
@@ -51,18 +51,30 @@ export const getUserIdAction = () => async (dispatch) => {
   }
 }
 
-export const getUserRatiosAction = () => async (dispatch) => {
+export const getUserPercentAsync = () => async (dispatch) => {
   try {
     const id = await dispatch(getUserIdAction())
     if (id) {
       const res = await http.get(`/users/${id}`)
-      const userNeedRatio = res.data.user_need_ratio
-      const userSavingRatio = res.data.user_saving_ratio
-      const userWantRatio = res.data.user_want_ratio
-      dispatch(getRatios({ userNeedRatio, userSavingRatio, userWantRatio }))
+      const userNeedPercent = res.data.user_need_ratio
+      const userSavingPercent = res.data.user_saving_ratio
+      const userWantPercent = res.data.user_want_ratio
+      dispatch(getPercent({ userNeedPercent, userSavingPercent, userWantPercent }))
     }
   } catch (error) {
     console.log('Failed to fetch user ratio:', error)
   }
 }
 
+export const getUserExpectedIncomeAsync = () => async (dispatch) => {
+  try {
+    const id = await dispatch(getUserIdAction())
+    if (id) {
+      const res = await http.get(`/users/${id}`)
+      const userExpectedIncome = res.data.user_expected_income
+      dispatch(getExpectedIncome(userExpectedIncome))
+    }
+  } catch (error) {
+    console.log('Failed to fetch user ratio:', error)
+  }
+}

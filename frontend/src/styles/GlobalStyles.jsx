@@ -9,15 +9,13 @@ export const GlobalStyle = createGlobalStyle`
         font-family: "Montserrat", sans-serif;
         letter-spacing: .025rem
     }
-    .courier-prime-regular {
-        font-family: "Courier Prime", monospace;
-        font-weight: 400;
-        font-style: normal;
+    .font-mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+        color: red;
     }
-    .courier-prime-bold {
-        font-family: "Courier Prime", monospace;
-        font-weight: 700;
-        font-style: normal;
+    .text-sm {
+        font-size: .875rem;
+        line-height: 1.25rem;
     }
     :root{
         --background-color: rgba(40, 41, 35, 255);

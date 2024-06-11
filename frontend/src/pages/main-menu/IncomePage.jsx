@@ -14,7 +14,12 @@ const IncomePage = () => {
   const [initialData, setInitialData] = useState(null) // For editing
 
   const incomes = useSelector(state => state.transactionReducer.transactions.incomes)
-  const totalAmount = incomes.reduce((total, income) => total += income.income_amount, 0)
+  const totalAmount = incomes.reduce((total, income) => {
+    // Ensure income_amount is a number, defaulting to 0 if it's not
+    const amount = parseFloat(income.income_amount) || 0;
+    return total + amount;
+  }, 0)
+
 
   const currencyRates = useSelector(state => state.currencyReducer.rates)
   console.log(currencyRates)
@@ -74,7 +79,7 @@ const IncomePage = () => {
         <div className="container">
           <div className="content-container text-center">
             <div className="income-total">
-            <p>${totalAmount}</p>
+              <p>${totalAmount}</p>
               <h2>Total Income</h2>
             </div>
             <div className="btn-con">

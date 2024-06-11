@@ -16,7 +16,12 @@ const SavingPage = () => {
   const [initialData, setInitialData] = useState(null) // table data for editing modal
 
   const savings = useSelector(state => state.transactionReducer.transactions.savings)
-  const totalAmount = savings.reduce((total, saving) => total + saving.saving_amount, 0)
+  console.log(savings)
+  const totalAmount = savings.reduce((total, saving) => {
+    // Ensure income_amount is a number, defaulting to 0 if it's not
+    const amount = parseFloat(saving.saving_amount) || 0;
+    return total + amount;
+  }, 0)
 
   const showModal = () => {
     setInitialData(null); // Clear initial data for adding

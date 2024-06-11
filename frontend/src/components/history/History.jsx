@@ -25,18 +25,18 @@ const History = () => {
                         </thead>
                         <tbody>
                             <tr>
-                                <td><span>1</span></td>
+                                <td><span>12, May 24</span></td>
                                 <td><span>2</span></td>
-                                <td><span>3</span></td>
-                                <td><span>4</span></td>
+                                <td><span>10.00</span></td>
+                                <td><span>keke</span></td>
                                 <td><span className='edit-btn'>Edit</span></td>
                                 <td><span className='del-btn'>Delete</span></td>
                             </tr>
                             <tr>
-                                <td><span>1</span></td>
+                                <td><span>3, May 24</span></td>
                                 <td><span>2</span></td>
-                                <td><span>3</span></td>
-                                <td><span>4</span></td>
+                                <td><span>1230000.00</span></td>
+                                <td><span>updated</span></td>
                                 <td><span className='edit-btn'>Edit</span></td>
                                 <td><span className='del-btn'>Delete</span></td>
                             </tr>

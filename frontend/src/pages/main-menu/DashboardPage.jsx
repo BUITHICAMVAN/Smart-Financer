@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { InnerLayout } from '../../styles/Layouts';
 import { dollar } from '../../utils/Icons';
-import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 import History from '../../components/history/History';
 import OverviewHistory from '../../components/history/OverviewHistory';
@@ -22,25 +21,25 @@ const DashboardPage = () => {
                         <div className="income text-sm">
                             <h2>Total Income</h2>
                             <p>
-                                {dollar} 
+                                {dollar} 1000
                             </p>
                         </div>
                         <div className="saving">
                             <h2>Saving Account</h2>
                             <p>
-                                {dollar}
+                                {dollar} 500
                             </p>
                         </div>
                         <div className="expense">
                             <h2>Total Expense</h2>
                             <p>
-                                {dollar} 
+                                {dollar} 200
                             </p>
                         </div>
                         <div className="monthly-saving">
                             <h2>March Savings</h2>
                             <p>
-                                {dollar} 
+                                {dollar} 3000
                             </p>
                         </div>
                     </div>
