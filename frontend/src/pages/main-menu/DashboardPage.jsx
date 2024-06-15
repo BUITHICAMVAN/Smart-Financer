@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { InnerLayout } from '../../styles/Layouts';
-import { dollar } from '../../utils/Icons';
+import { dollar } from '../../utils/icons/Icons';
 import styled from 'styled-components';
 import History from '../../components/history/History';
 import OverviewHistory from '../../components/history/OverviewHistory';

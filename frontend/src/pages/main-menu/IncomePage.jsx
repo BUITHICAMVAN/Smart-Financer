@@ -4,7 +4,7 @@ import { InnerLayout } from '../../styles/Layouts'
 import { useSelector } from 'react-redux'
 import useTransaction from '../../customHooks/TransactionHook'
 import TransactionModal from '../../components/modals/TransactionModal'
-import { dateFormat } from '../../utils/DateFormat'
+import { dateFormat } from '../../utils/format/DateFormat'
 
 const IncomePage = () => {
 
@@ -14,58 +14,57 @@ const IncomePage = () => {
   const [initialData, setInitialData] = useState(null) // For editing
 
   const incomes = useSelector(state => state.transactionReducer.transactions.incomes)
+
   const totalAmount = incomes.reduce((total, income) => {
     // Ensure income_amount is a number, defaulting to 0 if it's not
-    const amount = parseFloat(income.income_amount) || 0;
-    return total + amount;
+    const amount = parseFloat(income.income_amount) || 0
+    return total + amount
   }, 0)
 
-
-  const currencyRates = useSelector(state => state.currencyReducer.rates)
-  console.log(currencyRates)
+  const currencyRates = useSelector(state => state.ratesReducer.rates)
 
   const showModal = () => {
-    setInitialData(null); // Clear initial data for adding
-    setOpen(true);
+    setInitialData(null) // Clear initial data for adding
+    setOpen(true)
   }
 
   const handleCancel = () => {
-    setOpen(false);
-    setInitialData(null); // Clear initial data when closing modal
+    setOpen(false)
+    setInitialData(null) // Clear initial data when closing modal
   }
 
   const handleCreate = async (data) => {
-    setConfirmLoading(true);
+    setConfirmLoading(true)
     try {
-      await addTransaction(data);
-      setOpen(false);
+      await addTransaction(data)
+      setOpen(false)
     } catch (error) {
-      console.error('Failed to add transaction:', error);
-      alert('Failed to add transaction.');
+      console.error('Failed to add transaction:', error)
+      alert('Failed to add transaction.')
     } finally {
-      setConfirmLoading(false);
+      setConfirmLoading(false)
     }
   }
 
   const handleDelete = (id) => {
-    removeTransaction(id);
+    removeTransaction(id)
   }
 
   const handleEdit = (data) => {
-    setInitialData(data); // Set data to edit
-    setOpen(true);
+    setInitialData(data) // Set data to edit
+    setOpen(true)
   }
 
   const handleSaveEdit = (data, id) => {
-    setConfirmLoading(true);
+    setConfirmLoading(true)
     try {
-      editTransaction(data, id);
-      setOpen(false);
+      editTransaction(data, id)
+      setOpen(false)
     } catch (error) {
-      console.error('Failed to edit transaction:', error);
-      alert('Failed to edit transaction.');
+      console.error('Failed to edit transaction:', error)
+      alert('Failed to edit transaction.')
     } finally {
-      setConfirmLoading(false);
+      setConfirmLoading(false)
     }
   }
 

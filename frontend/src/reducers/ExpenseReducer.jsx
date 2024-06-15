@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { http } from '../utils/Config'
 import moment from 'moment'
-import { getTransactionTypeApi } from '../utils/TypeMapping'
-import { getExpenseTypeID } from '../utils/ExpenseTypeMapping'
+import { getTransactionTypeApi } from '../utils/mapping/TypeMapping'
+import { getExpenseTypeID } from '../utils/mapping/ExpenseTypeMapping'
 
 const initialState = {
     expenses: []

@@ -40,6 +40,8 @@ export const GlobalStyle = createGlobalStyle`
         --table-row: rgba(40, 41, 35, 1);
         --select-color: rgba(24, 24, 27, 1);
         --modal-color: rgba(24, 24, 27, 1);
+        --border-color: rgba(39, 39, 42, 1)
+        
     }
 
     h1, h2, h3, h4, h5, h6{
@@ -89,6 +91,7 @@ export const GlobalStyle = createGlobalStyle`
         border-radius: 20px;
         padding: 0.5rem 1rem;
     }
+
     .component {
         background: var(--component-color);
         border: 2px solid var(--component-color);

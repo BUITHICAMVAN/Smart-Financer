@@ -33,3 +33,4 @@ export const profile = <i className="fa-regular fa-user"></i>
 export const budgeting = <i className="fa-solid fa-comments-dollar"></i>
 export const bracket = <i className="fa-solid fa-bracket-curly-right"></i>
 export const report = <i class="fa-solid fa-chart-column"></i>
+export const status = <i class="fa-regular fa-circle-check"></i>

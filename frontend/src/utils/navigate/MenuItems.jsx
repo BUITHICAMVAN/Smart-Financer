@@ -1,4 +1,4 @@
-import {categories, dashboard, expenses, income, piggy} from '../utils/Icons'
+import {categories, dashboard, expenses, income, piggy} from '../Icons'
 
 export const menuItems = [
     {

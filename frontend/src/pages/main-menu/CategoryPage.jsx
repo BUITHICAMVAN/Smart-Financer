@@ -5,9 +5,10 @@ import { useFormik } from "formik"
 import CategoryTable from "../../components/tables/CategoryTable"
 import { useDispatch, useSelector } from "react-redux"
 import useTransactionType from "../../customHooks/TransactionTypeHook"
-import { getCurrencySymbol } from "../../utils/CurrencySymbol"
+import { getCurrencySymbol } from "../../utils/format/CurrencySymbol"
 import { getUserExpectedIncomeAsync, getUserPercentAsync } from "../../reducers/UserReducer"
-import { calcMoneyAllocation } from "../../utils/MoneyAllocation"
+import { calcMoneyAllocation } from "../../utils/calculate/MoneyAllocation"
+import { handleCategoryFormSubmitAsync } from "../../reducers/CategoryFormReducer"
 
 const CategoryPage = () => {
   const dispatch = useDispatch()
@@ -18,7 +19,7 @@ const CategoryPage = () => {
   const { fetchTransactionTypes: fetchSavingTypes } = useTransactionType("saving")
 
   // HANDLE CURRENCY UNI
-  const currencyUnit = useSelector(state => state.currencyReducer.currencyUnit)
+  const currencyUnit = useSelector(state => state.userReducer.userCurrencyUnit)
 
   // HANDLE EXPECTED MONTHLY INCOME
   const expectedIncome = useSelector(state => state.userReducer.expectedIncome)
@@ -90,8 +91,9 @@ const CategoryPage = () => {
         wants: [{ type: "shoes" }],
       },
     },
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       alert(JSON.stringify(values, null, 2))
+      await dispatch(handleCategoryFormSubmitAsync(values))
     },
   })
 
@@ -260,17 +262,17 @@ const CategoryPage = () => {
                 <div className="custom-percent border-shadow">
                   <div className="input-group input-group-sm">
                     <label htmlFor="need-ratio">Need ratio</label>
-                    <input id="needPercent" type="text" className="form-control" onChange={categoryForm.handleChange} onBlur={categoryForm.handleBlur} />
+                    <input id="needPercent" type="text" className="custom-input form-control" onChange={categoryForm.handleChange} onBlur={categoryForm.handleBlur} />
                     <span className="input-group-text">%</span>
                   </div>
                   <div className="input-group input-group-sm">
                     <label htmlFor="saving-ratio">Saving ratio</label>
-                    <input id="savingPercent" type="text" className="form-control" onChange={categoryForm.handleChange} onBlur={categoryForm.handleBlur} />
+                    <input id="savingPercent" type="text" className="form-control custom-input" onChange={categoryForm.handleChange} onBlur={categoryForm.handleBlur} />
                     <span className="input-group-text">%</span>
                   </div>
                   <div className="input-group input-group-sm">
                     <label htmlFor="want-ratio">Want ratio</label>
-                    <input id="wantPercent" type="text" className="form-control" onChange={categoryForm.handleChange} onBlur={categoryForm.handleBlur} />
+                    <input id="wantPercent" type="text" className="form-control custom-input" onChange={categoryForm.handleChange} onBlur={categoryForm.handleBlur} />
                     <span className="input-group-text">%</span>
                   </div>
                 </div>
@@ -279,18 +281,17 @@ const CategoryPage = () => {
             <div className="form-group money-allocation">
               <span className="font-mono">
                 Needs: {getCurrencySymbol(categoryForm.values.currency)}
-                <span>{categoryForm.values.needAllocation}</span>
+                {categoryForm.values.needAllocation}
               </span>
-              <span>
+              <span className="font-mono">
                 Savings: {getCurrencySymbol(categoryForm.values.currency)}
-                <span>{categoryForm.values.savingAllocation}</span>
+                {categoryForm.values.savingAllocation}
               </span>
-              <span>
+              <span className="font-mono">
                 Wants: {getCurrencySymbol(categoryForm.values.currency)}
-                <span>{categoryForm.values.wantAllocation}</span>
+                {categoryForm.values.wantAllocation}
               </span>
             </div>
-
             <hr />
             <div className="form-group category-table">
               <h3 className="text-center">Set up Category</h3>
@@ -413,22 +414,35 @@ const CategoryStyle = styled.div`
       color: white;
     }
     .custom-percent{
-      margin: 0.5rem;
       display: flex;
       flex-direction: row;
       justify-content: space-between;
-      background-color: var(--select-color);
-      padding: 0.5rem;
+      background-color: var(--modal-color);
+      padding: 1.25rem;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      label {
+        width: 100%;
+      }
+      .custom-input{
+        padding: .5rem;
+      }
       .input-group {
         width: 30%;
       }
     }
-    .money-allocation {
+    .money-allocation  {
       display: flex;
       flex-direction: row;
+      background-color: var(--modal-color);
+      padding: .5rem;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
       span {
+        text-align: center;
+        font-weight: 600;
         background-color: transparent;
-        width: 25%;
+        width: 33.3%;
         font-size: .875rem;
         line-height: 1.25rem;
       }

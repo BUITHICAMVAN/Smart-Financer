@@ -12,19 +12,19 @@ const TransactionTypeReducer = createSlice({
     name: 'transactionTypeReducer',
     initialState,
     reducers: {
-        getTransactionTypes: (state, action) => {
+        getTransactionTypesAction: (state, action) => {
             const { type, data } = action.payload // Destructure payload
             state.transactionTypes[type] = data // Update state with new data
         }
     }
 })
 
-export const { getTransactionTypes } = TransactionTypeReducer.actions // Corrected typo here
+export const { getTransactionTypesAction } = TransactionTypeReducer.actions // Corrected typo here
 
 export default TransactionTypeReducer.reducer
 
 // Thunk action to fetch transaction types
-export const getTransactionTypesActionAsync = (type) => async (dispatch) => {
+export const getTransactionTypesAsync = (type) => async (dispatch) => {
     try {
         const res = await http.get(`${type}-types`)
         const lowercaseData = res.data.map(item => ({
@@ -39,7 +39,7 @@ export const getTransactionTypesActionAsync = (type) => async (dispatch) => {
 
         const uniqueData = Object.values(uniqueDataObject)
 
-        dispatch(getTransactionTypes({ type: `${type}Types`, data: uniqueData }))
+        dispatch(getTransactionTypesAction({ type: `${type}Types`, data: uniqueData }))
     } catch (error) {
         console.error(`Failed to fetch ${type} types: `, error)
     }

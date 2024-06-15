@@ -113,3 +113,35 @@ VALUES
     ('EUR', 'English')y
 
 
+-- Due Types Table
+CREATE TABLE IF NOT EXISTS public.due_type (
+    due_type_id SERIAL PRIMARY KEY,
+    due_type_name VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- Populate the Due Types table with initial data
+INSERT INTO public.due_type (due_type_name) VALUES ('receivable'), ('payable');
+
+-- Due Status Table
+CREATE TABLE IF NOT EXISTS public.due_status (
+    due_status_id SERIAL PRIMARY KEY,
+    due_status_name VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- Populate the Due Status table with initial data
+INSERT INTO public.due_status (due_status_name) VALUES ('paid'), ('pending');
+
+-- Due Table
+CREATE TABLE IF NOT EXISTS public.due (
+    due_id SERIAL PRIMARY KEY,
+    due_user_id INTEGER NOT NULL,
+    due_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    due_due_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    due_details TEXT,
+    due_amount DECIMAL(15, 2) NOT NULL,
+    due_type_id INTEGER NOT NULL,
+    due_status_id INTEGER NOT NULL,
+    CONSTRAINT due_due_user_id FOREIGN KEY (due_user_id) REFERENCES public.user(user_id),
+    CONSTRAINT due_due_type_id FOREIGN KEY (due_type_id) REFERENCES public.due_type(due_type_id),
+    CONSTRAINT due_due_status_id FOREIGN KEY (due_status_id) REFERENCES public.due_status(due_status_id)
+);

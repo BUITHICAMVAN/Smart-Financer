@@ -1,4 +1,4 @@
-import { customize, profile } from '../utils/Icons'
+import { customize, profile } from '../Icons'
 
 export const accountItems = [
     {

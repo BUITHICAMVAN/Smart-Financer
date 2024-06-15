@@ -4,7 +4,7 @@ import { InnerLayout } from '../../styles/Layouts';
 import useTransaction from '../../customHooks/TransactionHook';
 import { useSelector } from 'react-redux';
 import TransactionModal from '../../components/modals/TransactionModal';
-import { dateFormat } from '../../utils/DateFormat';
+import { dateFormat } from '../../utils/format/DateFormat';
 
 const SavingPage = () => {
 

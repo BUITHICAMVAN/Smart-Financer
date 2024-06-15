@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Modal, Form, Input, InputNumber, DatePicker, Radio } from 'antd'
 import moment from 'moment'
 import styled from 'styled-components'
-import { getExpenseTypeID, getExpenseTypeName } from '../../utils/ExpenseTypeMapping'
+import { getExpenseTypeID, getExpenseTypeName } from '../../utils/mapping/ExpenseTypeMapping'
 
 const ExpenseModal = ({ open, onCreate, onCancel, onEdit, initialData }) => {
     const [form] = Form.useForm()

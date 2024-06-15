@@ -12,7 +12,7 @@ import {
     profile,
     report,
     signout,
-} from "../../utils/Icons";
+} from "../../utils/icons/Icons";
 import BoxSx from "../box/BoxSx";
 
 const Navigation = () => {

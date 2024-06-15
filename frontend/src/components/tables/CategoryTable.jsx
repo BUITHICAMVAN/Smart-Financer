@@ -29,7 +29,7 @@ const CategoryTableStyled = styled.div`
       border-bottom: none; // Remove border from table cells
     }
     .ant-table-title {
-      font-size: 0.875rem;
+      font-size: 1rem;
       font-weight: 600;
       padding-bottom: 1rem;
     }
@@ -40,11 +40,12 @@ const CategoryTableStyled = styled.div`
         border-radius: 10px;
         color: white;
         text-align: center;
-        height: 40px;
+        height: 20px;
       }
       td {
         font-family: "Courier Prime", monospace;
         font-weight: 400;
+        text-align: center;
       }
       thead > tr:first-child th {
         background-color: transparent;

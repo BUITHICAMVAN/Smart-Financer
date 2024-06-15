@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { http } from '../utils/Config'
 import moment from 'moment'
-import { getTransactionTypeApi } from '../utils/TypeMapping'
+import { getTransactionTypeApi } from '../utils/mapping/TypeMapping'
 
 const initialState = {
     transactions: {

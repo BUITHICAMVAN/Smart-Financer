@@ -9,6 +9,7 @@ const { signup, signin, forgotpassword, signout } = require('../controllers/auth
 const { getUserIncomeTypes } = require('../controllers/income/incomeTypeController');
 const { getUserSavingTypes } = require('../controllers/saving/savingTypeController');
 const { getUserExpenseTypes, getExpenseTypeById } = require('../controllers/expense/expenseTypeController');
+const { addDue, getDues, deleteDue, updateDue } = require('../controllers/dueController');
 
 const router = require('express').Router();
 
@@ -61,5 +62,11 @@ router.post('/signup', signup)
     .post('/signin', signin)
     .post('/forgotpassword', forgotpassword)
     .post('/signout', signout)
+
+// Due Routes 
+router.post('/due', verifyToken, addDue)
+    .get('/dues', verifyToken, getDues)
+    .delete('/due/:due_id', verifyToken, deleteDue)
+    .put('/due/:due_id', verifyToken, updateDue)
 
 module.exports = router

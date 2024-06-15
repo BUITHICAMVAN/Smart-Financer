@@ -10,32 +10,27 @@ const getApiUrl = (endpoint) => `${DOMAIN}/${endpoint}?api_key=${API_KEY}`
 const CURRENCY_API = 'https://api.freecurrencyapi.com/v1/latest?apikey=fca_live_mSMlyDZZriCdU66iACzyq6ci25PQPgTDLabxr8Kl'
 
 const initialState = {
-    currencyUnit: 'VND',
     rates: {
         VND: 1
     }
 }
 
 const CurrencyReducer = createSlice({
-    name: 'currencyReducer',
+    name: 'ratesReducer',
     initialState,
     reducers: {
-        setCurrencyRates: (state, action) => {
+        setCurrencyRatesAction: (state, action) => {
             state.rates = action.payload
-            console.log(action.payload)
-        },
-        setCurrencyUnit: (state, action) => {
-            state.currencyUnit = action.payload
             console.log(action.payload)
         }
     }
 })
 
-export const { setCurrencyRates, setCurrencyUnit } = CurrencyReducer.actions
+export const { setCurrencyRatesAction } = CurrencyReducer.actions
 
 export default CurrencyReducer.reducer
 
-export const fetchCurrencyRates = () => async (dispatch) => {
+export const fetchCurrencyRatesAsync = () => async (dispatch) => {
     // try {
     //     // const res = await axios.get(getApiUrl('latest'))
     //     const res = await axios.get(CURRENCY_API)
@@ -43,17 +38,4 @@ export const fetchCurrencyRates = () => async (dispatch) => {
     // } catch(error) {
     //     console.log('Failed to fetch currency rate', error)
     // }
-}
-
-// which place/layer should this function be used
-export const getCurrentCurrency = (id) => async (dispatch) => {
-    try {
-        if (id) {
-          const res = await http.get(`/users/${id}`)
-          const userCurrentCurrency = res.data.user_currency_unit
-          dispatch(setCurrencyUnit(userCurrentCurrency))
-        }
-      } catch (error) {
-        console.log('Failed to fetch user currency unit:', error)
-      }
 }

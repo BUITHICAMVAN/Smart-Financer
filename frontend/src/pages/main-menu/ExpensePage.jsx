@@ -4,8 +4,8 @@ import { InnerLayout } from '../../styles/Layouts'
 import ExpenseModal from '../../components/modals/ExpenseModal'
 import { useDispatch, useSelector } from 'react-redux'
 import { addExpenseActionAsync, deleteExpenseActionAsync, editExpenseActionAsync, getExpenseActionAsync } from '../../reducers/ExpenseReducer'
-import { dateFormat } from '../../utils/DateFormat'
-import { getCurrencySymbol } from '../../utils/CurrencySymbol'
+import { dateFormat } from '../../utils/format/DateFormat'
+import { getCurrencySymbol } from '../../utils/format/CurrencySymbol'
 
 const ExpensePage = () => {
 
@@ -35,7 +35,7 @@ const ExpensePage = () => {
     return total + amount
   }, 0)
 
-  const currencyUnit = useSelector(state => state.currencyReducer.currencyUnit)
+  const currencyUnit = useSelector(state => state.ratesReducer.currencyUnit)
 
   const showModal = () => {
     setInitialData(null) // Clear initial data for adding
