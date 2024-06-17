@@ -11,14 +11,11 @@ const DueModal = ({ open, onCreate, onCancel, onEdit, initialData, dueType }) =>
         setLoading(true)
         try {
             const values = await form.validateFields()
-            console.log(values)
             const transformedValues = {
                 ...values,
                 due_type_id: dueType, // Map the dueType name to its ID
                 due_due_date: values.due_date.format('YYYY-MM-DD')
             }
-            console.log(dueType)
-            console.log('Transformed Values:', transformedValues)
             if (initialData) {
                 onEdit(initialData.due_id, transformedValues)
             } else {

@@ -4,7 +4,7 @@ import { http } from '../utils/Config'
 const initialState = {
     transactionTypes: {
         incomeTypes: [],
-        savingTypes: []
+        savingTypes: [],
     }
 }
 
@@ -15,11 +15,28 @@ const TransactionTypeReducer = createSlice({
         getTransactionTypesAction: (state, action) => {
             const { type, data } = action.payload // Destructure payload
             state.transactionTypes[type] = data // Update state with new data
-        }
+        },
+        addTransactionTypeAction: (state, action) => {
+            const { type, data } = action.payload
+            state.transactionTypes[type].push(data)
+        },
+        updateTransactionTypeAction: (state, action) => {
+            const { type, id, data } = action.payload
+            const index = state.transactionTypes[type].findIndex(item => item[`${type}_type_id`] === id)
+            if (index !== -1) {
+                state.transactionTypes[type][index] = data
+            }
+        },
+        deleteTransactionTypeAction: (state, action) => {
+            const { type, id } = action.payload
+            state.transactionTypes[type] = state.transactionTypes[type].filter(item => item[`${type}_type_id`] !== id)
+        },
     }
 })
 
-export const { getTransactionTypesAction } = TransactionTypeReducer.actions // Corrected typo here
+export const { getTransactionTypesAction, addTransactionTypeAction,
+    updateTransactionTypeAction,
+    deleteTransactionTypeAction } = TransactionTypeReducer.actions // Corrected typo here
 
 export default TransactionTypeReducer.reducer
 
@@ -42,5 +59,33 @@ export const getTransactionTypesAsync = (type) => async (dispatch) => {
         dispatch(getTransactionTypesAction({ type: `${type}Types`, data: uniqueData }))
     } catch (error) {
         console.error(`Failed to fetch ${type} types: `, error)
+    }
+}
+
+export const addTransactionTypeAsync = (type, data) => async (dispatch) => {
+    try {
+        const res = await http.post(`${type}-types`, data)
+        dispatch(addTransactionTypeAction({ type: `${type}Types`, data: res.data }))
+    } catch (error) {
+        console.error(`Failed to add ${type} type: `, error)
+    }
+}
+
+export const updateTransactionTypeAsync = (type, id, data) => async (dispatch) => {
+    try {
+        console.log("test for income update", type, id, data)
+        const res = await http.put(`${type}-types/${id}`, data)
+        dispatch(updateTransactionTypeAction({ type: `${type}Types`, id, data: res.data }))
+    } catch (error) {
+        console.error(`Failed to update ${type} type: `, error)
+    }
+}
+
+export const deleteTransactionTypeAsync = (type, id) => async (dispatch) => {
+    try {
+        await http.delete(`${type}-types/${id}`)
+        dispatch(deleteTransactionTypeAction({ type: `${type}Types`, id }))
+    } catch (error) {
+        console.error(`Failed to delete ${type} type: `, error)
     }
 }

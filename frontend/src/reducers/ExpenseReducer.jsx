@@ -1,11 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { http } from '../utils/Config'
 import moment from 'moment'
-import { getTransactionTypeApi } from '../utils/mapping/TypeMapping'
-import { getExpenseTypeID } from '../utils/mapping/ExpenseTypeMapping'
 
 const initialState = {
-    expenses: []
+    expenses: [],
+    expenseCategories: [] // Array to store expense categories
 }
 
 const ExpenseReducer = createSlice({
@@ -16,8 +15,7 @@ const ExpenseReducer = createSlice({
             state.expenses = action.payload
         },
         addExpenseAction: (state, action) => {
-            const { expense } = action.payload // get expense sent from below
-            state.expenses.push(expense)
+            state.expenses.push(action.payload)
         },
         editExpenseAction: (state, action) => {
             const { expense } = action.payload
@@ -29,11 +27,14 @@ const ExpenseReducer = createSlice({
         deleteExpenseAction: (state, action) => {
             const { id } = action.payload
             state.expenses = state.expenses.filter(expense => expense.expense_id !== id)
-        }
+        },
+        setExpenseCategories: (state, action) => {
+            state.expenseCategories = action.payload
+        },
     }
 })
 
-export const { getExpenseAction, addExpenseAction, editExpenseAction, deleteExpenseAction } = ExpenseReducer.actions
+export const { getExpenseAction, addExpenseAction, editExpenseAction, deleteExpenseAction, setExpenseCategories } = ExpenseReducer.actions
 
 export default ExpenseReducer.reducer
 
@@ -58,7 +59,7 @@ export const addExpenseActionAsync = (formData) => async (dispatch) => {
         }
 
         const res = await http.post('expenses', formData)
-        dispatch(addExpenseAction({ expense: formData }))
+        dispatch(addExpenseAction(res.data))
         alert('Transaction added successfully!')
         dispatch(getExpenseActionAsync())
     } catch (error) {
@@ -69,7 +70,7 @@ export const addExpenseActionAsync = (formData) => async (dispatch) => {
 
 export const editExpenseActionAsync = (id, formData) => async (dispatch) => {
     try {
-        const dateFormat = 'YYYY-MM-DD' // define date format
+        const dateFormat = 'YYYY-MM-DD'
 
         if (typeof formData !== 'object' || formData === null) {
             throw new Error('formData is not a valid object')
@@ -82,8 +83,8 @@ export const editExpenseActionAsync = (id, formData) => async (dispatch) => {
             throw new Error('Invalid date')
         }
 
-        await http.put(`expenses/${id}`, formData) // tells js to pause until the Promise resolves
-        dispatch(editExpenseAction({ expense: formData })) // add payload and dispatch action
+        const res = await http.put(`expenses/${id}`, formData)
+        dispatch(editExpenseAction({ expense: res.data }))
         alert('Transaction edited successfully!')
         dispatch(getExpenseActionAsync())
     } catch (error) {
@@ -94,12 +95,22 @@ export const editExpenseActionAsync = (id, formData) => async (dispatch) => {
 
 export const deleteExpenseActionAsync = (id) => async (dispatch) => {
     try {
-        await http.delete(`expenses/${id}`) // tells js to pause until the Promise resolves
-        dispatch(deleteExpenseAction({ id })) // add payload and dispatch action
+        await http.delete(`expenses/${id}`)
+        dispatch(deleteExpenseAction({ id }))
         alert('Transaction deleted successfully!')
         dispatch(getExpenseActionAsync())
     } catch (error) {
         console.error('Failed to delete transaction:', error)
         alert('Failed to delete transaction.')
+    }
+}
+
+// Function to fetch expense categories
+export const getExpenseCategoriesAsync = () => async (dispatch) => {
+    try {
+        const res = await http.get('expense-types')
+        dispatch(setExpenseCategories(res.data))
+    } catch (error) {
+        console.error('Failed to fetch expense categories: ', error)
     }
 }

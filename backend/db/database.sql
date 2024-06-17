@@ -74,43 +74,29 @@ CREATE TABLE IF NOT EXISTS public.saving(
 ALTER TABLE public.saving ADD COLUMN saving_note TEXT;
 
 
--- Expense Types Table
-CREATE TABLE IF NOT EXISTS public.expense_type(
-    expense_type_id SERIAL PRIMARY KEY,
-    expense_type_name VARCHAR(100) NOT NULL UNIQUE
-);
--- Populate the Expense Types table with initial data
-INSERT INTO public.expense_type (expense_type_name) VALUES ('non-essential'), ('essential');
--- Expense Table
-CREATE TABLE IF NOT EXISTS public.expense(
-    expense_id SERIAL PRIMARY KEY,
-    expense_user_id INTEGER NOT NULL,
-    expense_type_id INTEGER,
-    expense_amount DECIMAL(15, 2) NOT NULL,
-    expense_created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT expense_expense_user_id FOREIGN KEY(expense_user_id) REFERENCES public.user(user_id),
-    CONSTRAINT expense_expense_type_id FOREIGN KEY (expense_type_id) REFERENCES public.expense_type(expense_type_id)
-);
+CREATE TABLE IF NOT EXISTS public.expense
+(
+    expense_id integer NOT NULL DEFAULT nextval('expense_expense_id_seq'::regclass),
+    expense_user_id integer NOT NULL,
+    expense_type_id integer,
+    expense_amount numeric(15,2) NOT NULL,
+    expense_created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+    expense_note text COLLATE pg_catalog."default",
+    CONSTRAINT expense_pkey PRIMARY KEY (expense_id),
+    CONSTRAINT expense_expense_type_id FOREIGN KEY (expense_type_id)
+        REFERENCES public.expense_type (expense_type_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT expense_expense_user_id FOREIGN KEY (expense_user_id)
+        REFERENCES public."user" (user_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
 
-ALTER TABLE public.expense ADD COLUMN expense_note TEXT;
-ALTER TABLE public.expense ADD COLUMN expense_category VARCHAR(50);
+TABLESPACE pg_default;
 
-
-DROP TABLE public.system_settings
--- System Settings Table
-CREATE TABLE IF NOT EXISTS public.system_setting (
-    setting_id SERIAL PRIMARY KEY,
-    currency_unit CHAR(3) NOT NULL,
-    default_language VARCHAR(50) NOT NULL, 
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- Populate the Sstem Settings table with initial data including VND
-INSERT INTO public.system_setting (currency_unit, default_language) 
-VALUES 
-    ('USD', 'English'),
-    ('VND', 'Vietnamese'),
-    ('EUR', 'English')y
+ALTER TABLE IF EXISTS public.expense
+    OWNER to postgres;
 
 
 -- Due Types Table

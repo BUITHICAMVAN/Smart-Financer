@@ -6,9 +6,9 @@ const { addSaving, getSavings, updateSaving, deleteSaving } = require('../contro
 const { getUserDetails, updateUser, deleteUser, getAllUsers, createUser } = require('../controllers/userController');
 const { verifyToken } = require('../utils/verifyToken');
 const { signup, signin, forgotpassword, signout } = require('../controllers/authController');
-const { getUserIncomeTypes } = require('../controllers/income/incomeTypeController');
-const { getUserSavingTypes } = require('../controllers/saving/savingTypeController');
-const { getUserExpenseTypes, getExpenseTypeById } = require('../controllers/expense/expenseTypeController');
+const { getUserIncomeTypes, addIncomeType, updateIncomeType, getAllIncomeTypes } = require('../controllers/income/incomeTypeController');
+const { getUserSavingTypes, addSavingType, updateSavingType, getAllSavingTypes } = require('../controllers/saving/savingTypeController');
+const { getUserExpenseTypes, getExpenseTypeById, addExpenseType, updateExpenseType, getAllExpenseTypes } = require('../controllers/expense/expenseTypeController');
 const { addDue, getDues, deleteDue, updateDue } = require('../controllers/dueController');
 
 const router = require('express').Router();
@@ -26,20 +26,11 @@ router.post('/incomes', verifyToken, addIncome) // Create a new income
     .put('/incomes/:income_id', verifyToken, updateIncome) // Update an income by ID
     .delete('/incomes/:income_id', verifyToken, deleteIncome) // Delete an income by ID
 
-// Income Type
-router.get('/income-types', verifyToken, getUserIncomeTypes)
-
-// Saving Type
-router.get('/saving-types', verifyToken, getUserSavingTypes)
-
 // Expense Routes
 router.post('/expenses', verifyToken, addExpense) // Create a new expense
     .get('/expenses', verifyToken, getExpenses) // Get all expenses for a user
     .put('/expenses/:expense_id', verifyToken, updateExpense) // Update an expense by ID
     .delete('/expenses/:expense_id', verifyToken, deleteExpense) // Delete an expense by ID
-// Expense Type Routes
-router.get('/expense-types', verifyToken, getUserExpenseTypes)
-    .get('/expense-types/:expense_type_id', verifyToken, getExpenseTypeById)
 
 // Account Routes
 router.post('/accounts', verifyToken, createAccount) // Create a new account
@@ -47,15 +38,33 @@ router.post('/accounts', verifyToken, createAccount) // Create a new account
     .put('/accounts/:id', verifyToken, updateAccount) // Update an account by ID
     .delete('/accounts/:id', verifyToken, deleteAccount) // Delete an account by ID
 
-// System Settings Routes
-router.get('/system-setting', verifyToken, getSystemSetting) // Get system settings
-    .put('/system-settings/:id', verifyToken, updateSystemSetting) // Update system settings by ID
-
 // Saving Routes
 router.post('/savings', verifyToken, addSaving) // Create a new saving
     .get('/savings', verifyToken, getSavings) // Get all savings for a user
     .put('/savings/:saving_id', verifyToken, updateSaving) // Update a saving by ID
     .delete('/savings/:saving_id', verifyToken, deleteSaving) // Delete a saving by ID
+
+
+// Routes for fetching all types
+router.get('/income-types', verifyToken, getAllIncomeTypes);
+router.get('/saving-types', verifyToken, getAllSavingTypes);
+router.get('/expense-types', verifyToken, getAllExpenseTypes);
+
+// Existing routes
+router.get('/user/income-types', verifyToken, getUserIncomeTypes);
+router.get('/user/saving-types', verifyToken, getUserSavingTypes);
+router.get('/user/expense-types', verifyToken, getUserExpenseTypes);
+
+router.post('/income-types', verifyToken, addIncomeType);
+router.put('/income-types/:income_type_id', verifyToken, updateIncomeType);
+
+router.post('/saving-types', verifyToken, addSavingType);
+router.put('/saving-types/:saving_type_id', verifyToken, updateSavingType);
+
+router.get('/expense-types', verifyToken, getAllExpenseTypes);
+router.get('/expense-types/:expense_type_id', verifyToken, getExpenseTypeById);
+router.post('/expense-types', verifyToken, addExpenseType);
+router.put('/expense-types/:expense_type_id', verifyToken, updateExpenseType);
 
 // Auth Routes
 router.post('/signup', signup)

@@ -1,12 +1,27 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
+import { getCurrentMonth } from '../../utils/CurrentDate'
+import { getDaysLeftInMonth } from '../../utils/DayLeft'
+import { useSelector } from 'react-redux'
+import useTransaction from '../../customHooks/TransactionHook'
+import { getCurrencySymbol } from '../../utils/format/CurrencySymbol'
 
 const OverviewHistory = () => {
-    const [dateLeft, setDayLeft] = useState("12")
+    const dayLeft = getDaysLeftInMonth()
+    const currentMonth = getCurrentMonth()
+    const { fetchCurrentMonthSaving } = useTransaction('savings')
+
+    const currentUnit = useSelector(state => state.userReducer.userCurrencyUnit)
+    const currentMonthSaving = useSelector(state => state.transactionReducer.currentMonthSaving)
+
+    useEffect(() => {
+        fetchCurrentMonthSaving()
+    }, [])
+
     return (
         <OverviewHistoryStyled>
             <div className="history-overview">
-                <h2>March Overview</h2>
+                <h2>{currentMonth} Overview</h2>
                 <table className='table table-responsive'>
                     <thead>
                         <tr>
@@ -27,8 +42,8 @@ const OverviewHistory = () => {
                             <td><span>3</span></td>
                         </tr>
                         <tr>
-                            <td colSpan="2"><span style={{ color: 'green' }}>Total savings: $10000</span></td>
-                            <td><span>{dateLeft} days left</span></td>
+                            <td colSpan="2"><span style={{ color: 'green' }}>Total savings: {getCurrencySymbol(currentUnit)}{currentMonthSaving}</span></td>
+                            <td><span>{dayLeft} days left</span></td>
                         </tr>
                     </tbody>
                 </table>

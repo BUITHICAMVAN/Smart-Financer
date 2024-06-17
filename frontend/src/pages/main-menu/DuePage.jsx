@@ -9,6 +9,7 @@ import { addDueActionAsync, deleteDueActionAsync, editDueActionAsync, getDuesAct
 import DueModal from "../../components/modals/DueModal"
 import { getCurrencySymbol } from "../../utils/format/CurrencySymbol"
 import { getDueDateStatus, getDueStatusIcon, getDueTypeWithColor } from "../../utils/DueUtils"
+import PayStatusModal from "../../components/modals/PayStatusModal"
 
 const DuePage = () => {
   const dispatch = useDispatch()
@@ -17,13 +18,12 @@ const DuePage = () => {
   const [open, setOpen] = useState(false)
   const [initialData, setInitialData] = useState(null) // For editing
   const [dueType, setDueType] = useState('') // For setting due type
-
+  const [payStatusOpen, setPayStatusOpen] = useState(false)
+  const [selectedDue, setSelectedDue] = useState(null) // For pay status
   const totalReceivableAmount = useSelector(selectTotalReceivableAmount)
 
   const totalPayableAmount = useSelector(selectTotalPayableAmount)
-
   const dues = useSelector(state => state.dueReducer.dues)
-
   const currentUnit = useSelector(state => state.userReducer.userCurrencyUnit)
 
   useEffect(() => {
@@ -34,8 +34,9 @@ const DuePage = () => {
     dispatch(addDueActionAsync({ ...newDue, due_type: dueType }))
   }
 
-  const handlePayStatus = () => {
-
+  const handlePayStatus = (due) => {
+    setSelectedDue(due)
+    setPayStatusOpen(true)
   }
 
   const handleEditDue = (id, updatedDue) => {
@@ -91,6 +92,12 @@ const DuePage = () => {
       setConfirmLoading(false)
     }
   }
+  
+  const handleMarkAsPaid = (values) => {
+    console.log('Marked as paid with:', values)
+    setPayStatusOpen(false)
+    // Implement logic to handle marking as paid
+  }
 
   useEffect(() => {
     dispatch(getDuesActionAsync())
@@ -139,6 +146,11 @@ const DuePage = () => {
             onEdit={handleSaveEdit}
             onCancel={handleCancel}
             initialData={initialData}
+          />
+          <PayStatusModal
+            open={payStatusOpen}
+            onMarkAsPaid={handleMarkAsPaid}
+            onCancel={() => setPayStatusOpen(false)}
           />
           <hr />
           <div className="due-content  text-center">

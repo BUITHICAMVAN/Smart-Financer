@@ -121,7 +121,6 @@ exports.signout = (req, res) => {
     // Clear the authentication cookie
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
-    console.log(res)
     // Respond to the client that the sign-out was successful
     res.status(200).json({ message: 'Successfully signed out' });
 };

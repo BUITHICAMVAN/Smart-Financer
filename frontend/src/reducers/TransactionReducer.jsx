@@ -1,13 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { http } from '../utils/Config'
 import moment from 'moment'
-import { getTransactionTypeApi } from '../utils/mapping/TypeMapping'
+import { mapTransactionType } from '../utils/mapping/TypeMapping'
 
 const initialState = {
     transactions: {
         incomes: [],
         savings: []
-    }
+    },
+    currentMonthSaving: 0
 }
 
 const TransactionReducer = createSlice({
@@ -32,11 +33,14 @@ const TransactionReducer = createSlice({
             const { transType, transId, transNew } = action.payload
             const index = state.transactions[transType].findIndex(item => item.id === transId)
             state.transactions[transType][index] = transNew
+        },
+        setMonthlyAmountAction: (state, action) => {
+            state.currentMonthSaving = action.payload
         }
     }
 })
 
-export const { getTransactionsAction, deleteTransactionAction, addTransactionAction, editTransactionAction } = TransactionReducer.actions
+export const { getTransactionsAction, deleteTransactionAction, addTransactionAction, editTransactionAction, setMonthlyAmountAction } = TransactionReducer.actions
 
 export default TransactionReducer.reducer
 
@@ -64,7 +68,7 @@ export const deleteTransactionActionAsync = (type, id) => async (dispatch) => {
 
 export const addTransactionActionAsync = (type, formData) => async (dispatch) => {
     try {
-        const apiType = getTransactionTypeApi(type) // convert type incomes (frontend) to income (backend)
+        const apiType = mapTransactionType(type) // convert type incomes (frontend) to income (backend)
 
         const dateFormat = 'YYYY-MM-DD' // define date format
 
@@ -100,3 +104,38 @@ export const editTransactionActionAsync = (type, newData, id) => async (dispatch
         alert('Failed to edit transaction.')
     }
 }
+
+export const fetchMonthlyAmountAsync = (type) => async (dispatch) => {
+    try {
+        const res = await http.get(`${type}`)
+        const transactions = res.data
+
+        // Get start and end of the current month
+        const startOfMonth = moment().startOf('month')
+        const endOfMonth = moment().endOf('month')
+
+        const typeMapping = mapTransactionType(type)
+
+        // Filter transactions that fall within the current month
+        const monthlyTransactions = transactions.filter(trans => {
+            const transDate = moment(trans[`${typeMapping}_created_at`]);
+            const isBetween = transDate.isBetween(startOfMonth, endOfMonth, null, '[]')
+            return isBetween
+        })
+
+        // Calculate total savings for the current month
+        const currentMonthSavings = monthlyTransactions.reduce((total, trans) => {
+            const amount = parseFloat(trans[`${typeMapping}_amount`]) // Ensure amount is numeric
+            if (isNaN(amount)) {
+                console.error(`Invalid transaction amount: ${trans[`${typeMapping}_amount`]}`)
+                return total
+            }
+            return total + amount
+        }, 0)
+
+        // Dispatch the calculated savings amount
+        dispatch(setMonthlyAmountAction(currentMonthSavings))
+    } catch (error) {
+        console.error('Failed to fetch monthly amount:', error)
+    }
+};

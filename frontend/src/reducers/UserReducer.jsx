@@ -4,6 +4,7 @@ import { http } from '../utils/Config'
 
 const initialState = {
   userId: '',
+  user: {},
   userCurrencyUnit: '',
   expectedIncome: 0,
   customPercent: {
@@ -20,6 +21,9 @@ const UserReducer = createSlice({
     setUserIdAction: (state, action) => {
       state.userId = action.payload
     },
+    setUserAction: (state, action) => {
+      state.user = action.payload
+    },
     setPercentAction: (state, action) => {
       const { userNeedPercent, userSavingPercent, userWantPercent } = action.payload;
       state.customPercent.needPercent = userNeedPercent
@@ -31,12 +35,11 @@ const UserReducer = createSlice({
     },
     setCurrencyUnitAction: (state, action) => {
       state.userCurrencyUnit = action.payload
-      console.log(action.payload)
-  }
+    }
   }
 })
 
-export const { setUserIdAction, setPercentAction, setExpectedIncomeAction, setCurrencyUnitAction } = UserReducer.actions
+export const { setUserIdAction, setUserAction, setPercentAction, setExpectedIncomeAction, setCurrencyUnitAction } = UserReducer.actions
 
 export default UserReducer.reducer
 
@@ -70,6 +73,20 @@ export const getUserPercentAsync = () => async (dispatch) => {
   }
 }
 
+// Update percent values
+export const updateUserPercentAsync = ({userNeedPercent, userSavingPercent, userWantPercent}) => async (dispatch, getState) => {
+  try {
+    const id = await dispatch(setUserIdsAsync())
+    if (id) {
+      await http.put(`/users/${id}`, { user_need_ratio: userNeedPercent, user_saving_ratio: userSavingPercent, user_want_ratio: userWantPercent })
+      dispatch(setPercentAction({ userNeedPercent, userSavingPercent, userWantPercent }))
+    }
+    dispatch(getUserPercentAsync())
+  } catch (error) {
+    console.log('Failed to update user percent:', error)
+  }
+}
+
 export const getUserExpectedIncomeAsync = () => async (dispatch) => {
   try {
     const id = await dispatch(setUserIdsAsync())
@@ -86,12 +103,48 @@ export const getUserExpectedIncomeAsync = () => async (dispatch) => {
 // which place/layer should this function be used
 export const setCurrentCurrencyAsync = (id) => async (dispatch) => {
   try {
-      if (id) {
-          const res = await http.get(`/users/${id}`)
-          const userCurrentCurrency = res.data.user_currency_unit
-          dispatch(setCurrencyUnitAction(userCurrentCurrency))
-      }
+    if (id) {
+      const res = await http.get(`/users/${id}`)
+      const userCurrentCurrency = res.data.user_currency_unit
+      dispatch(setCurrencyUnitAction(userCurrentCurrency))
+    }
   } catch (error) {
-      console.log('Failed to fetch user currency unit:', error)
+    console.log('Failed to fetch user currency unit:', error)
+  }
+}
+
+// New function to fetch the complete user data
+export const fetchUserAsync = () => async (dispatch) => {
+  try {
+    const id = await dispatch(setUserIdsAsync())
+    if (id) {
+      const res = await http.get(`/users/${id}`)
+      dispatch(setUserAction(res.data))
+    }
+  } catch (error) {
+    console.log('Failed to fetch user data:', error)
+  }
+}
+
+// Unified update function for all user settings
+export const updateUserSettingsAsync = ({ currency, expectedIncome, needPercent, savingPercent, wantPercent }) => async (dispatch, getState) => {
+  try {
+    const id = await dispatch(setUserIdsAsync())
+    if (id) {
+      // Assuming there's a unified endpoint to update user settings
+      await http.put(`/users/${id}`, { 
+        user_currency_unit: currency,
+        user_expected_income: expectedIncome,
+        user_need_ratio: needPercent,
+        user_saving_ratio: savingPercent,
+        user_want_ratio: wantPercent
+      });
+
+      dispatch(setCurrencyUnitAction(currency));
+      dispatch(setExpectedIncomeAction(expectedIncome));
+      dispatch(setPercentAction({ userNeedPercent: needPercent, userSavingPercent: savingPercent, userWantPercent: wantPercent }));
+    }
+  } catch (error) {
+    console.log('Failed to update user settings:', error);
   }
 }

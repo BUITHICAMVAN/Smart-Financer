@@ -6,98 +6,95 @@ import CategoryTable from "../../components/tables/CategoryTable"
 import { useDispatch, useSelector } from "react-redux"
 import useTransactionType from "../../customHooks/TransactionTypeHook"
 import { getCurrencySymbol } from "../../utils/format/CurrencySymbol"
-import { getUserExpectedIncomeAsync, getUserPercentAsync } from "../../reducers/UserReducer"
+import { fetchUserAsync, getUserExpectedIncomeAsync, getUserPercentAsync } from "../../reducers/UserReducer"
 import { calcMoneyAllocation } from "../../utils/calculate/MoneyAllocation"
+import { getExpenseCategoriesAsync } from "../../reducers/ExpenseReducer"
 import { handleCategoryFormSubmitAsync } from "../../reducers/CategoryFormReducer"
+import { addTransactionTypeAsync, getTransactionTypesAsync, updateTransactionTypeAsync } from "../../reducers/TransactionTypeReducer"
+import { addExpenseTypeAsync, getExpenseTypesActionAsync, updateExpenseTypeAsync } from "../../reducers/ExpenseTypeReducer"
+import { Input } from "antd"
 
 const CategoryPage = () => {
   const dispatch = useDispatch()
 
   const [showCustomRatio, setShowCustomRatio] = useState(false)
-  const [selectedPercent, setSelectedPercent] = useState('')
+  const [selectedPercent, setSelectedPercent] = useState("")
   const { fetchTransactionTypes: fetchIncomeTypes } = useTransactionType("income")
   const { fetchTransactionTypes: fetchSavingTypes } = useTransactionType("saving")
 
-  // HANDLE CURRENCY UNI
+  // HANDLE CURRENCY UNIT
   const currencyUnit = useSelector(state => state.userReducer.userCurrencyUnit)
 
   // HANDLE EXPECTED MONTHLY INCOME
   const expectedIncome = useSelector(state => state.userReducer.expectedIncome)
 
   // HANDLE RATIO 
-  const customPercent = useSelector((state) => state.userReducer.customPercent)
+  const customPercent = useSelector(state => state.userReducer.customPercent)
   const needPercent = useSelector(state => state.userReducer.customPercent.needPercent)
   const savingPercent = useSelector(state => state.userReducer.customPercent.savingPercent)
   const wantPercent = useSelector(state => state.userReducer.customPercent.wantPercent)
 
   // HANDLE TRANSACTION TYPES
-  // types 
   const incomeTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.incomeTypes || [])
   const savingTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.savingTypes || [])
+  const expenseTypes = useSelector(state => state.expenseTypeReducer.expenseTypes)
 
-  // INITIATE COLUMN TYPES IN TABLE 
-  const incomeColumns = [
-    {
-      title: "Income",
-      dataIndex: "income",
-      key: "income",
-    },
-  ]
-  const savingColumns = [
-    {
-      title: "Saving",
-      dataIndex: "saving",
-      key: "saving"
-    },
-  ]
-  const expenseColumns = [
-    {
-      title: "Expenses",
-      dataIndex: "expenses",
-      key: "expenses",
-      children: [
-        {
-          title: "Needs",
-          dataIndex: "needs",
-          key: "needs",
-        },
-        {
-          title: "Wants",
-          dataIndex: "wants",
-          key: "wants",
-        },
-      ],
-    },
-  ]
 
   // INITIATE FORM 
   const categoryForm = useFormik({
     initialValues: {
       currency: currencyUnit,
       expectedIncome: expectedIncome || 0,
-
       needPercent: needPercent || 0,
       savingPercent: savingPercent || 0,
       wantPercent: wantPercent || 0,
-
       needAllocation: 0,
       savingAllocation: 0,
       wantAllocation: 0,
-
       incomeType: [],
       savingType: [],
       expenseType: {
-        needs: [{ type: "rent" }],
-        wants: [{ type: "shoes" }],
+        needs: [],
+        wants: [],
       },
     },
     onSubmit: async (values) => {
-      alert(JSON.stringify(values, null, 2))
-      await dispatch(handleCategoryFormSubmitAsync(values))
-    },
+      const processedValues = {
+        ...values,
+        needPercent: Number(values.needPercent),
+        savingPercent: Number(values.savingPercent),
+        wantPercent: Number(values.wantPercent),
+      }
+      await dispatch(handleCategoryFormSubmitAsync(processedValues))
+    }
   })
 
-  const handleRadioChange = (event) => { // handle between custom or standard input choice
+
+  const incomeData = categoryForm.values.incomeType.map((item, index) => ({ key: `income-${index}`, income: item.type }))
+  const savingData = categoryForm.values.savingType.map((item, index) => ({ key: `saving-${index}`, saving: item.type }))
+  const needsData = categoryForm.values.expenseType.needs.map((item, index) => ({ key: `needs-${index}`, needs: item.type }))
+  const wantsData = categoryForm.values.expenseType.wants.map((item, index) => ({ key: `wants-${index}`, wants: item.type }))
+
+
+  const [incomeRows, setIncomeRows] = useState(incomeData)
+  const [savingRows, setSavingRows] = useState(savingData)
+  const [needsRows, setNeedsRows] = useState(needsData)
+  const [wantsRows, setWantsRows] = useState(wantsData)
+
+  const incomeColumns = [
+    { title: "Income", dataIndex: "income", key: "income" },
+  ]
+  const savingColumns = [
+    { title: "Saving", dataIndex: "saving", key: "saving" },
+  ]
+  const needsColumns = [
+    { title: "Needs", dataIndex: "needs", key: "needs" },
+  ]
+  const wantsColumns = [
+    { title: "Wants", dataIndex: "wants", key: "wants" },
+  ]
+
+  const handleRadioChange = (event) => {
     const { value } = event.target
     if (value === 'standard') {
       setSelectedPercent('standard')
@@ -114,6 +111,97 @@ const CategoryPage = () => {
     }
   }
 
+  const addNewRow = (type) => {
+    const newRow = { key: `${type}-new`, type: type }
+
+    switch (type) {
+      case 'income':
+        setIncomeRows([...incomeRows, newRow])
+        break
+      case 'saving':
+        setSavingRows([...savingRows, newRow])
+        break
+      case 'needs':
+        setNeedsRows([...needsRows, newRow])
+        break
+      case 'wants':
+        setWantsRows([...wantsRows, newRow])
+        break
+      default:
+        break
+    }
+  }
+
+  const handleRowChange = (type, index, value) => {
+    const updateRows = (rows, setRows) => {
+      const updatedRows = [...rows]
+      updatedRows[index].type = value
+      setRows(updatedRows)
+    }
+
+    switch (type) {
+      case 'income':
+        updateRows(incomeRows, setIncomeRows)
+        break
+      case 'saving':
+        updateRows(savingRows, setSavingRows)
+        break
+      case 'needs':
+        updateRows(needsRows, setNeedsRows)
+        break
+      case 'wants':
+        updateRows(wantsRows, setWantsRows)
+        break
+      default:
+        break
+    }
+  }
+
+  const handleChanges = async () => {
+    const changes = []
+
+    const saveRows = (rows, addAction, updateAction, type) => {
+      for (const row of rows) {
+        if (row.key.includes('new')) {
+          if (type === 'income' || type === 'saving') {
+            changes.push(dispatch(addAction(type, { [`${type}_type_name`]: row.type })))
+          } else if (type === 'needs') {
+            changes.push(dispatch(addAction({ expense_category_id: 2, expense_type_name: row.type })))
+          } else if (type === 'wants') {
+            changes.push(dispatch(addAction({ expense_category_id: 1, expense_type_name: row.type })))
+          }
+        }
+        else {
+          const id = row.key.split('-')[1]
+          if (type === 'income' || type === 'saving') {
+            changes.push(dispatch(updateAction(type, id, { [`${type}_type_name`]: row.type })))
+          } else if (type === 'needs') {
+            changes.push(dispatch(updateAction(id, { expense_type_id: id, expense_category_id: 2, expense_type_name: row.type, })))
+          } else if (type === 'wants') {
+            changes.push(dispatch(updateAction(id, { expense_type_id: id, expense_category_id: 1, expense_type_name: row.type })))
+          }
+        }
+      }
+    }
+
+    saveRows(incomeRows, addTransactionTypeAsync, updateTransactionTypeAsync, 'income')
+    saveRows(savingRows, addTransactionTypeAsync, updateTransactionTypeAsync, 'saving')
+    saveRows(needsRows, addExpenseTypeAsync, updateExpenseTypeAsync, 'needs')
+    saveRows(wantsRows, addExpenseTypeAsync, updateExpenseTypeAsync, 'wants')
+
+    if (changes.length > 0) {
+      await Promise.all(changes)
+      alert('Changes saved successfully!')
+      dispatch(getTransactionTypesAsync(), getExpenseTypesActionAsync())
+    } else {
+      alert('No changes detected')
+    }
+  }
+
+  useEffect(() => { // fetch user
+    dispatch(fetchUserAsync())
+  }, [dispatch])
+
   useEffect(() => { // fetch expectedIncome
     dispatch(getUserExpectedIncomeAsync())
   }, [dispatch])
@@ -125,6 +213,10 @@ const CategoryPage = () => {
   useEffect(() => { // fetch types
     fetchIncomeTypes()
     fetchSavingTypes()
+  }, [])
+
+  useEffect(() => {
+    dispatch(getExpenseTypesActionAsync())
   }, [])
 
   useEffect(() => {// Check if the currency value in the form is different from the Redux state
@@ -156,9 +248,7 @@ const CategoryPage = () => {
     categoryForm.setFieldValue("needAllocation", needValue)
     categoryForm.setFieldValue("savingAllocation", savingValue)
     categoryForm.setFieldValue("wantAllocation", wantValue)
-    console.log(needValue, savingValue, wantValue)
   }, [categoryForm.values])
-
 
   useEffect(() => { // set initial percent values
     const { needPercent, savingPercent, wantPercent } = customPercent || {}
@@ -176,15 +266,19 @@ const CategoryPage = () => {
     }
   }, [customPercent])
 
-  useEffect(() => { // asign income/expense/saving types to the table
-    if (incomeTypes.length > 0 && savingTypes.length > 0) {
-      categoryForm.setValues({
-        ...categoryForm.values,
-        incomeType: incomeTypes.map(type => ({ type: type.income_type_name })),
-        savingType: savingTypes.map(type => ({ type: type.saving_type_name })),
-      })
+  useEffect(() => {
+    if (incomeTypes.length > 0 && savingTypes.length > 0 && expenseTypes.length > 0) {
+      const updatedIncomeData = incomeTypes.map(type => ({ key: `income-${type.income_type_id}`, type: type.income_type_name }))
+      const updatedSavingData = savingTypes.map(type => ({ key: `saving-${type.saving_type_id}`, type: type.saving_type_name }))
+      const updatedNeedsData = expenseTypes.filter(type => type.expense_category_id === 2).map(type => ({ key: `needs-${type.expense_type_id}`, type: type.expense_type_name }));
+      const updatedWantsData = expenseTypes.filter(type => type.expense_category_id === 1).map(type => ({ key: `wants-${type.expense_type_id}`, type: type.expense_type_name }));
+
+      setIncomeRows(updatedIncomeData)
+      setSavingRows(updatedSavingData)
+      setNeedsRows(updatedNeedsData)
+      setWantsRows(updatedWantsData)
     }
-  }, [incomeTypes, savingTypes])
+  }, [incomeTypes, savingTypes, expenseTypes])
 
   return (
     <CategoryStyle>
@@ -292,46 +386,70 @@ const CategoryPage = () => {
                 {categoryForm.values.wantAllocation}
               </span>
             </div>
-            <hr />
-            <div className="form-group category-table">
-              <h3 className="text-center">Set up Category</h3>
-              <div className="category-content">
-                <div className="income-table">
-                  <CategoryTable
-                    columns={incomeColumns}
-                    dataSource={incomeTypes.length > 0 ? incomeTypes.map(type => ({ key: type.income_type_id, income: type.income_type_name })) : []}
-                  />
-                </div>
-                <div className="saving-table">
-                  <CategoryTable
-                    columns={savingColumns}
-                    dataSource={savingTypes.length > 0 ? savingTypes.map(type => ({ key: type.saving_type_id, saving: type.saving_type_name })) : []}
-                    rowClassName={() => 'editable-row'}
-                  />
-                </div>
-                <div className="expense-table">
-                  <CategoryTable
-                    columns={expenseColumns}
-                    dataSource={[
-                      {
-                        key: "1",
-                        expenses: "Expenses",
-                        needs: categoryForm.values.expenseType.needs.map(
-                          (item) => item.type
-                        ),
-                        wants: categoryForm.values.expenseType.wants.map(
-                          (item) => item.type
-                        ),
-                      },
-                    ]}
-                  />
-                </div>
-              </div>
-            </div>
             <div className="form-group btn-submit">
               <button type="submit" className="btn btn-warning w-100">
                 Save
               </button>
+            </div>
+            <hr />
+            <div className="form-group category-table">
+              <h3 className="text-center">Add Types Entry</h3>
+              <div className="category-content">
+                <div className="income-table">
+                  <CategoryTable
+                    columns={incomeColumns}
+                    dataSource={incomeRows.map((row, index) => ({
+                      ...row,
+                      income: <Input value={row.type} onChange={(e) => handleRowChange('income', index, e.target.value)} />
+                    }))}
+                    rowClassName={() => 'editable-row'}
+                  />
+                  <div className="add-row" onClick={() => addNewRow('income')}>+ Add entry</div>
+                </div>
+                <div className="saving-table">
+                  <CategoryTable
+                    columns={savingColumns}
+                    dataSource={savingRows.map((row, index) => ({
+                      ...row,
+                      saving: <Input value={row.type} onChange={(e) => handleRowChange('saving', index, e.target.value)} />
+                    }))}
+                    rowClassName={() => 'editable-row'}
+                  /> 
+                  <div className="add-row" onClick={() => addNewRow('saving')}>+ Add entry</div>
+                </div>
+                <div className="expense-table">
+                  <div className="expense-table-columns">
+                    <div className="expense-column">
+                      <CategoryTable
+                        columns={needsColumns}
+                        dataSource={needsRows.map((row, index) => ({
+                          ...row,
+                          needs: <Input value={row.type} onChange={(e) => handleRowChange('needs', index, e.target.value)} />
+                        }))}
+                        rowClassName={() => 'editable-row'}
+                      />
+                      <div className="add-row" onClick={() => addNewRow('needs')}>+ Add entry</div>
+                    </div>
+                    <div className="expense-column">
+                      <CategoryTable
+                        columns={wantsColumns}
+                        dataSource={wantsRows.map((row, index) => ({
+                          ...row,
+                          wants: <Input value={row.type} onChange={(e) => handleRowChange('wants', index, e.target.value)} />
+                        }))}
+                        rowClassName={() => 'editable-row'}
+                      />
+                      <div className="add-row" onClick={() => addNewRow('wants')}>+ Add entry</div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+              <div className="btn-submit">
+                <button type="submit" className="btn btn-warning w-100" onClick={handleChanges}>
+                  Save
+                </button>
+              </div>
             </div>
           </form>
         </div>
@@ -339,7 +457,6 @@ const CategoryPage = () => {
     </CategoryStyle>
   )
 }
-
 
 const CategoryStyle = styled.div`
   p {
@@ -356,7 +473,12 @@ const CategoryStyle = styled.div`
     border: 2px solid #1d1a11;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
   }
-  input,
+  input {
+    background-color: var(--input-color);
+    border-radius: 10px;
+    border: none;
+    color: var(--color-white)
+  }
   select,
   span {
     background-color: var(--input-color);
@@ -393,7 +515,7 @@ const CategoryStyle = styled.div`
     }
     .money-percent {
       display: flex;
-      flex-direction: row;
+      flex-direction: row;;
     }
     .form-select,
     .form-control {
@@ -448,28 +570,57 @@ const CategoryStyle = styled.div`
       }
     }
   }
-  .category-content {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr) repeat(3, 1fr) repeat(6, 1fr);
-    gap: 2rem;
-    margin: 1.6rem 0;
-    .income-table,
-    .saving-table,
-    .expense-table {
-      background-color: var(--select-color);
-      padding: 1rem 1.25rem;
-      border-radius: 20px;
-    }
-    .income-table {
-      grid-column: span 3;
-    }
-    .saving-table {
-      grid-column: span 3;
-    }
-    .expense-table {
-      grid-column: span 6;
-    }
-  }
-`;
 
-export default CategoryPage;
+  .category-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    text-align: center;
+    margin: 1.25rem 0;
+  }
+
+  .income-table,
+  .saving-table,
+  .expense-table {
+    background-color: var(--select-color);
+    padding: 1rem 1.25rem;
+    border-radius: 20px;
+  }
+
+  .income-table {
+    width: 20%;
+  }
+
+  .saving-table {
+    width: 20%;
+  }
+
+  .expense-table {
+    width: 50%;
+  }
+
+  .th-expense-table {
+    font-size: 1rem;
+    font-weight: 600;
+    padding-bottom: 1rem;
+  }
+
+  .expense-table-columns {
+    display: flex;
+    flex-direction: row;
+    padding: 0 1rem;
+  }
+  .expense-column {
+    flex: 1;
+    margin: 0 0.5rem;
+  }
+  .add-row {
+    font-size: .7rem;
+    font-weight: 500;
+    color: var(--color-grey);
+    font-style: italic;
+    padding: 16px;
+  }
+`
+
+export default CategoryPage

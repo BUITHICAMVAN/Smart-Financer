@@ -1,5 +1,5 @@
 import { useDispatch } from 'react-redux'
-import { addTransactionActionAsync, deleteTransactionActionAsync, editTransactionActionAsync, getTransactionsActionAsync } from '../reducers/TransactionReducer'
+import { addTransactionActionAsync, deleteTransactionActionAsync, editTransactionActionAsync, fetchMonthlyAmountAsync, getTransactionsActionAsync } from '../reducers/TransactionReducer'
 
 const useTransaction = (type) => {
     const dispatch = useDispatch()
@@ -24,6 +24,11 @@ const useTransaction = (type) => {
         dispatch(action)
     }
 
-    return { fetchTransactions, addTransaction, removeTransaction, editTransaction }
+    const fetchCurrentMonthSaving = () => {
+        const action = fetchMonthlyAmountAsync(type)
+        dispatch(action)
+    }
+
+    return { fetchTransactions, addTransaction, removeTransaction, editTransaction, fetchCurrentMonthSaving }
 }
 export default useTransaction

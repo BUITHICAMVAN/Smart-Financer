@@ -10,15 +10,15 @@ export const DOMAIN_BACKEND = 'http://localhost:5000/api/v1/'
 // Tao ra 1 phien ban cua axios (instance axios)
 
 export const http = axios.create({
-    baseURL: DOMAIN_BACKEND, 
-    timeout: 30000, 
+    baseURL: DOMAIN_BACKEND,
+    timeout: 30000,
 })
 
 // Cau hinh request
 http.interceptors.request.use((config) => {
     // Tat ca cac request gui di se duoc chua trong phan header la token dang nhap
     const token = localStorage.getItem(TOKEN)
-    config.headers['Authorization'] = token ? `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo4LCJpYXQiOjE3MTc2MDM5MDZ9.YZYywJtKkf7b5q6qwVa3l-sc-Sgak3O0QzsEzJhLwMY` : ''
+    config.headers['Authorization'] = token ? `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo4LCJpYXQiOjE3MTg2MDU5MjZ9.DZBl3XrCVqEb8WXqZBzvwoKvYNT3p03DFPqBPzvg77Y` : ''
     return config
 }, error => {
     return Promise.reject(error)
@@ -27,11 +27,9 @@ http.interceptors.request.use((config) => {
 //Cau hinh response
 http.interceptors.response.use((res) => {
     // Thanh cong
-    // console.log("HTTP response: ", res)
     return res
 }, error => {
     // Xu ly that bai
-    // console.log('util', error.response)
     // lay code tu response
     const statusCode = error.response.status
     // Duong dan khong hop le
@@ -43,7 +41,6 @@ http.interceptors.response.use((res) => {
         // neu het han thi goi api refreshToken
         const decodedToken = jwtDecode(localStorage.getItem(TOKEN)) // Lay token va decode
         const date = new Date(decodedToken.exp + 1000)
-        // console.log(date)
         if (date < Date.now()) { // neu time cua token nhỏ hơn hiện tại => hết hạn
             // Goi api refresh tokem 
             console.log('goi api refresh token')

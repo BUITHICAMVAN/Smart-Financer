@@ -2,26 +2,27 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
 import { InnerLayout } from '../../styles/Layouts';
 import useTransaction from '../../customHooks/TransactionHook';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import TransactionModal from '../../components/modals/TransactionModal';
 import { dateFormat } from '../../utils/format/DateFormat';
+import { calculateTotalAmount } from '../../utils/calculate/totalAmount';
+import { getCurrencySymbol } from '../../utils/format/CurrencySymbol';
+import { setCurrentCurrencyAsync } from '../../reducers/UserReducer';
 
 const SavingPage = () => {
 
-  const [amount, setAmount] = useState("100")
-
+  const dispatch = useDispatch()
   const { fetchTransactions, addTransaction, removeTransaction, editTransaction } = useTransaction('savings')
   const [confirmLoading, setConfirmLoading] = useState(false) // loading
   const [open, setOpen] = useState(false) // open modal
   const [initialData, setInitialData] = useState(null) // table data for editing modal
 
   const savings = useSelector(state => state.transactionReducer.transactions.savings)
-  console.log(savings)
-  const totalAmount = savings.reduce((total, saving) => {
-    // Ensure income_amount is a number, defaulting to 0 if it's not
-    const amount = parseFloat(saving.saving_amount) || 0;
-    return total + amount;
-  }, 0)
+  const savingTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.savingTypes)
+
+  const totalAmount = calculateTotalAmount(savings, 'saving_amount')
+
+  const currentUnit = useSelector(state => state.userReducer.userCurrencyUnit)
 
   const showModal = () => {
     setInitialData(null); // Clear initial data for adding
@@ -68,9 +69,18 @@ const SavingPage = () => {
     }
   }
 
+  const getSavingTypeName = (id) => {
+    const savingType = savingTypes.find(type => type.saving_type_id === id)
+    return savingType ? savingType.saving_type_name : 'Unknown'
+  }
+
   useEffect(() => {
     fetchTransactions();
   }, [])
+
+  useEffect(() => {
+    dispatch(setCurrentCurrencyAsync())
+  })
 
   return (
     <SavingPageStyled>
@@ -78,7 +88,7 @@ const SavingPage = () => {
         <div className="container">
           <div className="content-container text-center">
             <div className="income-total">
-              <p>$ {totalAmount}</p>
+              <p>{getCurrencySymbol(currentUnit)}{totalAmount}</p>
               <h2>Savings Balance</h2>
             </div>
             <div className="btn-con">
@@ -102,15 +112,15 @@ const SavingPage = () => {
                     <th><span>Saving type</span></th>
                     <th><span>Amount</span></th>
                     <th><span>Note</span></th>
-                  </tr> 
+                  </tr>
                 </thead>
                 <tbody>
                   {savings.map((saving) => (
                     <tr key={saving.saving_id}>
-                      <td><span>{dateFormat(saving.saving_created_at)}</span></td>
-                      <td><span>{saving.saving_type_id}</span></td>
-                      <td><span>{saving.saving_amount}</span></td>
-                      <td><span>{saving.saving_note}</span></td>
+                      <td><span className="white-text">{dateFormat(saving.saving_created_at)}</span></td>
+                      <td><span className="white-text">{getSavingTypeName(saving.saving_type_id)}</span></td>
+                      <td><span className="white-text">{getCurrencySymbol(currentUnit)}{saving.saving_amount}</span></td>
+                      <td><span className="white-text">{saving.saving_note}</span></td>
                       <td><span className='edit-btn' onClick={() => handleEdit(saving)}>Edit</span></td>
                       <td><span className='del-btn' onClick={() => handleDelete(saving.saving_id)}>Delete</span></td>
                     </tr>
@@ -150,6 +160,10 @@ const SavingPageStyled = styled.div`
         color: white;
       }
     }
+  }
+  .white-text {
+    color: white;
+    font-weight: 400;
   }
   .edit-btn {
     color: var(--edit-btn);

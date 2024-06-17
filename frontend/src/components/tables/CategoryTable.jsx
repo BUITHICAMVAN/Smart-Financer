@@ -2,7 +2,7 @@ import React from "react"
 import { Table } from "antd"
 import styled from "styled-components"
 
-const CategoryTable = ({ columns, dataSource, title }) => {
+const CategoryTable = ({ columns, dataSource, onAddRow, rowClassName, title }) => {
   return (
     <CategoryTableStyled>
       <Table

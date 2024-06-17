@@ -1,9 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import {
     budgeting,
-    categories,
     customize,
     dashboard,
     expenses,
@@ -16,6 +15,8 @@ import {
 import BoxSx from "../box/BoxSx";
 
 const Navigation = () => {
+    const location = useLocation();
+    const isDashboardActive = location.pathname === "/" || location.pathname === "/dashboard-page";
     return (
         <NavStyled>
             <div className="app-name">
@@ -28,13 +29,11 @@ const Navigation = () => {
                     <h1>Main Menu</h1>
                 </div>
                 <li>
-                    <NavLink to="/dashboard-page">
+                    <NavLink
+                        to="/dashboard-page"
+                        className={isDashboardActive ? "active" : ""}
+                    >
                         {dashboard} <span>Dashboard</span>
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink to="/category-page">
-                        {categories} <span>Category</span>
                     </NavLink>
                 </li>
                 <li>
@@ -57,11 +56,11 @@ const Navigation = () => {
                         {expenses} <span>Expenses</span>
                     </NavLink>
                 </li>
-                <li>
+                {/* <li>
                     <NavLink to="/report-page" >
                         {report} <span>Report</span>
                     </NavLink>
-                </li>
+                </li> */}
                 <li>
                     <NavLink to="/due-page" >
                         {report} <span>Dues</span>
@@ -75,7 +74,7 @@ const Navigation = () => {
                 </div>
                 {/* Account List */}
                 <li>
-                    <NavLink to="/customize-page">
+                    <NavLink to="/category-page">
                         {customize} <span>Customize</span>
                     </NavLink>
                 </li>

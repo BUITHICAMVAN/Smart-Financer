@@ -1,6 +1,6 @@
-// models/expenseModel.js
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../../db/db');
+const ExpenseType = require('./expenseTypeModel');
 
 class Expense extends Model {}
 
@@ -10,13 +10,14 @@ Expense.init({
   expense_amount: { type: DataTypes.DECIMAL(15, 2), allowNull: false },
   expense_note: { type: DataTypes.TEXT },
   expense_created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
-  expense_type_id: { type: DataTypes.INTEGER, allowNull: false, references: { model: 'expense_type', key: 'expense_type_id' } },
-  expense_category: { type: DataTypes.STRING(50) }
+  expense_type_id: { type: DataTypes.INTEGER, allowNull: false, references: { model: ExpenseType, key: 'expense_type_id' } }
 }, {
   sequelize,
   modelName: 'Expense',
   tableName: 'expense',
   timestamps: false
 });
+
+Expense.belongsTo(ExpenseType, { foreignKey: 'expense_type_id' });
 
 module.exports = Expense;

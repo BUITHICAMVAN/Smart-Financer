@@ -30,20 +30,20 @@ root.render(
       <Provider store={store}>
         <Routes>
           <Route path='' element={<App />}>
-            <Route index element={<DashboardPage />}></Route>
-            <Route path='/dashboard-page' element={<DashboardPage />}></Route>
-            <Route path='/category-page' element={<CategoryPage />}></Route>
-            <Route path='/income-page' element={<IncomePage />}></Route>
-            <Route path='saving-page' element={<SavingPage />}></Route>
-            <Route path='/expense-page' element={<ExpensePage />}></Route>
-            <Route path='/report-page' element={<ReportPage/>}></Route>
-            <Route path='/customize-page' element={<CustomizePage />}></Route>
-            <Route path='/profile-page' element={<ProfilePage />}></Route>
-            <Route path='/budgeting-page' element={<BudgetingPage />}></Route>
-            <Route path='/signin-page' element={<SignInPage/>}></Route>
-            <Route path='/signup-page' element={<SignUpPage/>}></Route>
-            <Route path='/landing-page' element={<LandingPage/>}></Route>
-            <Route path='/due-page' element={<DuePage/>}></Route>
+            <Route index element={<DashboardPage />} />
+            <Route path='/dashboard-page' element={<DashboardPage />} />
+            <Route path='/category-page' element={<CategoryPage />} />
+            <Route path='/income-page' element={<IncomePage />} />
+            <Route path='saving-page' element={<SavingPage />} />
+            <Route path='/expense-page' element={<ExpensePage />} />
+            <Route path='/report-page' element={<ReportPage />} />
+            <Route path='/customize-page' element={<CustomizePage />} />
+            <Route path='/profile-page' element={<ProfilePage />} />
+            <Route path='/budgeting-page' element={<BudgetingPage />} />
+            <Route path='/signin-page' element={<SignInPage />} />
+            <Route path='/signup-page' element={<SignUpPage />} />
+            <Route path='/landing-page' element={<LandingPage />} />
+            <Route path='/due-page' element={<DuePage />} />
           </Route>
         </Routes>
       </Provider>

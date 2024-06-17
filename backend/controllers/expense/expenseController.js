@@ -1,9 +1,11 @@
-const Expense = require("../../models/expense/expenseModel"); // Correctly import the model
+const ExpenseCategory = require('../../models/expense/expenseCategoryModel');
+const Expense = require('../../models/expense/expenseModel');
+const ExpenseType = require('../../models/expense/expenseTypeModel');
 
 exports.addExpense = async (req, res) => {
-    const { expense_amount, expense_type_id, expense_note, expense_created_at, expense_category } = req.body;
+    const { expense_amount, expense_type_id, expense_note, expense_created_at } = req.body;
 
-    // Correct validations to match model fields
+    // Validations to match model fields
     if (!expense_amount || !expense_type_id) {
         return res.status(400).json({ message: 'Amount and type are required!' });
     }
@@ -13,10 +15,9 @@ exports.addExpense = async (req, res) => {
     }
 
     try {
-        const expense = await Expense.create({ // Use Sequelize create method
+        const expense = await Expense.create({
             expense_user_id: req.user.user_id,
             expense_amount,
-            expense_category,
             expense_type_id,
             expense_note,
             expense_created_at: expense_created_at || new Date()
@@ -31,9 +32,16 @@ exports.addExpense = async (req, res) => {
 
 exports.getExpenses = async (req, res) => {
     try {
-        const expenses = await Expense.findAll({ // Use Sequelize findAll method
+        const expenses = await Expense.findAll({
             where: { expense_user_id: req.user.user_id },
-            order: [['expense_created_at', 'DESC']] // Sort by creation date
+            include: [
+                {
+                    model: ExpenseType,
+                    include: [{ model: ExpenseCategory, attributes: ['expense_category_name'] }],
+                    attributes: ['expense_type_name']
+                }
+            ],
+            order: [['expense_created_at', 'DESC']]
         });
         res.status(200).json(expenses);
     } catch (error) {
@@ -46,10 +54,10 @@ exports.deleteExpense = async (req, res) => {
     const { expense_id } = req.params;
 
     try {
-        const result = await Expense.destroy({ // Use Sequelize destroy method
+        const result = await Expense.destroy({
             where: {
                 expense_id: expense_id,
-                expense_user_id: req.user.user_id// Ensure the expense belongs to the user
+                expense_user_id: req.user.user_id // Ensure the expense belongs to the user
             }
         });
 
@@ -66,7 +74,7 @@ exports.deleteExpense = async (req, res) => {
 
 exports.updateExpense = async (req, res) => {
     const { expense_id } = req.params; // ID of the expense to update
-    const { expense_amount, expense_type_id, expense_note, expense_created_at, expense_category } = req.body;
+    const { expense_amount, expense_type_id, expense_note, expense_created_at } = req.body;
 
     // Basic validations
     if (!expense_amount || !expense_type_id) {
@@ -94,7 +102,6 @@ exports.updateExpense = async (req, res) => {
         expense.expense_amount = expense_amount;
         expense.expense_type_id = expense_type_id;
         expense.expense_note = expense_note;
-        expense.expense_category = expense_category;
         if (expense_created_at) { // Only update the created_at if provided
             expense.expense_created_at = expense_created_at;
         }

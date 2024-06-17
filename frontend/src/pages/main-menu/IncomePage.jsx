@@ -1,27 +1,26 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { InnerLayout } from '../../styles/Layouts'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import useTransaction from '../../customHooks/TransactionHook'
 import TransactionModal from '../../components/modals/TransactionModal'
 import { dateFormat } from '../../utils/format/DateFormat'
+import { calculateTotalAmount } from '../../utils/calculate/totalAmount'
+import { getCurrencySymbol } from '../../utils/format/CurrencySymbol'
 
 const IncomePage = () => {
 
+  const dispatch = useDispatch()
   const { fetchTransactions, addTransaction, removeTransaction, editTransaction } = useTransaction('incomes')
   const [confirmLoading, setConfirmLoading] = useState(false)
   const [open, setOpen] = useState(false)
   const [initialData, setInitialData] = useState(null) // For editing
 
   const incomes = useSelector(state => state.transactionReducer.transactions.incomes)
+  const incomeTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.incomeTypes)
 
-  const totalAmount = incomes.reduce((total, income) => {
-    // Ensure income_amount is a number, defaulting to 0 if it's not
-    const amount = parseFloat(income.income_amount) || 0
-    return total + amount
-  }, 0)
-
-  const currencyRates = useSelector(state => state.ratesReducer.rates)
+  const totalAmount = calculateTotalAmount(incomes, 'income_amount')
+  const currentUnit = useSelector(state => state.userReducer.userCurrencyUnit)
 
   const showModal = () => {
     setInitialData(null) // Clear initial data for adding
@@ -68,6 +67,11 @@ const IncomePage = () => {
     }
   }
 
+  const getIncomeTypeName = (id) => {
+    const incomeType = incomeTypes.find(type => type.income_type_id === id)
+    return incomeType ? incomeType.income_type_name : 'Unknown'
+  }
+
   useEffect(() => {
     fetchTransactions()
   }, [])
@@ -78,7 +82,7 @@ const IncomePage = () => {
         <div className="container">
           <div className="content-container text-center">
             <div className="income-total">
-              <p>${totalAmount}</p>
+              <p>{getCurrencySymbol(currentUnit)}{totalAmount}</p>
               <h2>Total Income</h2>
             </div>
             <div className="btn-con">
@@ -106,10 +110,10 @@ const IncomePage = () => {
                 <tbody>
                   {incomes.map((income) => (
                     <tr key={income.income_id}>
-                      <td><span>{dateFormat(income.income_created_at)}</span></td>
-                      <td><span>{income.income_type_id}</span></td>
-                      <td><span>{income.income_amount}</span></td>
-                      <td><span>{income.income_note}</span></td>
+                      <td><span className="white-text">{dateFormat(income.income_created_at)}</span></td>
+                      <td><span className="white-text">{getIncomeTypeName(income.income_type_id)}</span></td>
+                      <td><span className="white-text">{getCurrencySymbol(currentUnit)}{income.income_amount}</span></td>
+                      <td><span className="white-text">{income.income_note}</span></td>
                       <td><span className='edit-btn' onClick={() => handleEdit(income)}>Edit</span></td>
                       <td><span className='del-btn' onClick={() => handleDelete(income.income_id)}>Delete</span></td>
                     </tr>
@@ -139,6 +143,10 @@ const IncomePageStyled = styled.div`
     font-size: .875rem;
     line-height: 1.25rem;
     font-weight: 500;
+  }
+  .white-text {
+    color: white;
+    font-weight: 400;
   }
   .btn-con {
     margin: 2rem 0;

@@ -17,7 +17,7 @@ exports.getUserIncomeTypes = async (req, res) => {
             }],
             order: [['income_type_id', 'ASC']] // Order the results by income_type_id
         });
-        
+
         const incomeTypeAttributes = userIncomesWithTypes.map(income => {
             return income.IncomeType; // This will give you an array of IncomeType objectsj7
         });
@@ -28,3 +28,57 @@ exports.getUserIncomeTypes = async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 }
+
+exports.addIncomeType = async (req, res) => {
+    const { income_type_name } = req.body;
+
+    try {
+        if (!income_type_name) {
+            return res.status(400).json({ message: 'Income type name is required' });
+        }
+
+        const newIncomeType = await IncomeType.create({ income_type_name });
+        res.status(201).json(newIncomeType);
+    } catch (error) {
+        console.error('Failed to add income type:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+exports.updateIncomeType = async (req, res) => {
+    const { income_type_id } = req.params;
+    const { income_type_name } = req.body;
+
+    try {
+        const typeId = parseInt(income_type_id, 10);
+        if (isNaN(typeId)) {
+            return res.status(400).json({ message: 'Invalid income type ID' });
+        }
+
+        const incomeType = await IncomeType.findByPk(typeId);
+        if (!incomeType) {
+            return res.status(404).json({ message: 'Income type not found' });
+        }
+
+        incomeType.income_type_name = income_type_name;
+        await incomeType.save();
+
+        res.json(incomeType);
+    } catch (error) {
+        console.error('Failed to update income type:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+exports.getAllIncomeTypes = async (req, res) => {
+    try {
+        const incomeTypes = await IncomeType.findAll({
+            attributes: ['income_type_id', 'income_type_name'],
+            order: [['income_type_id', 'ASC']] // Order the results by income_type_id
+        });
+        res.json(incomeTypes);
+    } catch (error) {
+        console.error('Failed to fetch all income types:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};

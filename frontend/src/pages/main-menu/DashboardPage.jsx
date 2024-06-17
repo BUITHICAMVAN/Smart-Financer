@@ -1,51 +1,88 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { InnerLayout } from '../../styles/Layouts';
-import { dollar } from '../../utils/icons/Icons';
 import styled from 'styled-components';
 import History from '../../components/history/History';
 import OverviewHistory from '../../components/history/OverviewHistory';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchUserAsync } from '../../reducers/UserReducer';
+import { getCurrencySymbol } from '../../utils/format/CurrencySymbol';
+import { calculateTotalAmount } from '../../utils/calculate/totalAmount';
+import useTransaction from '../../customHooks/TransactionHook';
+import { getExpenseActionAsync } from '../../reducers/ExpenseReducer';
+import { getCurrentMonth } from '../../utils/CurrentDate';
 
 const DashboardPage = () => {
 
-    const [user, setUser] = useState("Van")
-    const [dateLeft, setDayLeft] = useState("12")
-    const [useMonth, setMonth] = useState("March")
+    const dispatch = useDispatch()
+    const { fetchTransactions: fetchIncomes } = useTransaction('incomes')
+    const { fetchTransactions: fetchSavings, fetchCurrentMonthSaving } = useTransaction('savings')
+
+    const username = useSelector(state => state.userReducer.user.user_fullname)
+    const currentUnit = useSelector(state => state.userReducer.userCurrencyUnit)
+
+    const incomes = useSelector(state => state.transactionReducer.transactions.incomes)
+    const savings = useSelector(state => state.transactionReducer.transactions.savings)
+    const expenses = useSelector(state => state.expenseReducer.expenses)
+
+    const totalIncomes = calculateTotalAmount(incomes, 'income_amount')
+    const totalSavings = calculateTotalAmount(savings, 'saving_amount')
+    const totalExpenses = calculateTotalAmount(expenses, 'expense_amount')
+
+    const currentMonth = getCurrentMonth()
+    const currentMonthSaving = useSelector(state => state.transactionReducer.currentMonthSaving)
+
+    useEffect(() => {
+        dispatch(fetchUserAsync())
+    }, [dispatch])
+
+    useEffect(() => {
+        fetchIncomes()
+        fetchSavings()
+    }, [])
+
+    useEffect(() => {
+        dispatch(getExpenseActionAsync())
+    }, [dispatch])
+
+    useEffect(() => {
+        fetchCurrentMonthSaving()
+    }, [])
 
     return (
         <DashboardStyled>
             <InnerLayout>
                 <div className="container">
-                    <h1>Hello {user}</h1>
+                    <h1>Hello {username}</h1>
                     <span>Welcome back!</span>
                     <div className="amount-con">
                         <div className="income text-sm">
                             <h2>Total Income</h2>
                             <p>
-                                {dollar} 1000
+                                {getCurrencySymbol(currentUnit)} {totalIncomes}
                             </p>
                         </div>
                         <div className="saving">
                             <h2>Saving Account</h2>
                             <p>
-                                {dollar} 500
+                                {getCurrencySymbol(currentUnit)} {totalSavings}
                             </p>
                         </div>
                         <div className="expense">
                             <h2>Total Expense</h2>
                             <p>
-                                {dollar} 200
+                                {getCurrencySymbol(currentUnit)} {totalExpenses}
                             </p>
                         </div>
                         <div className="monthly-saving">
-                            <h2>March Savings</h2>
+                            <h2>{currentMonth} Savings</h2>
                             <p>
-                                {dollar} 3000
+                                {getCurrencySymbol(currentUnit)} {currentMonthSaving}
                             </p>
                         </div>
                     </div>
                     <div className='histories-con'>
-                        <History/>
-                        <OverviewHistory/>
+                        <History />
+                        <OverviewHistory />
                     </div>
                 </div>
             </InnerLayout>

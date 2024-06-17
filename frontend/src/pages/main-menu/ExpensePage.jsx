@@ -6,36 +6,40 @@ import { useDispatch, useSelector } from 'react-redux'
 import { addExpenseActionAsync, deleteExpenseActionAsync, editExpenseActionAsync, getExpenseActionAsync } from '../../reducers/ExpenseReducer'
 import { dateFormat } from '../../utils/format/DateFormat'
 import { getCurrencySymbol } from '../../utils/format/CurrencySymbol'
+import useTransaction from '../../customHooks/TransactionHook'
+import { getCurrentMonth } from '../../utils/CurrentDate'
+import { setCurrentCurrencyAsync } from '../../reducers/UserReducer'
+import { getExpenseTypeName } from '../../utils/mapping/ExpenseTypeMapping'
+import { getExpenseTypesActionAsync } from '../../reducers/ExpenseTypeReducer'
 
 const ExpensePage = () => {
-
   const dispatch = useDispatch()
 
-  const [month, setMonth] = useState('March')
-
-  const [amount, setAmount] = useState("100")
-  const [currency, setCurrency] = useState("$")
+  const { fetchCurrentMonthSaving } = useTransaction('savings')
 
   const [open, setOpen] = useState(false) // open modal
   const [initialData, setInitialData] = useState(null) // table data for editing modal
 
   const expenses = useSelector(state => state.expenseReducer.expenses)
+  const expenseTypes = useSelector(state => state.expenseTypeReducer.expenseTypes)
 
-  const needs = expenses.filter(expense => expense.expense_type_id === 1)
-
-  const wants = expenses.filter(expense => expense.expense_type_id === 2);
+  const wants = expenses.filter(expense => expense.expense_category_id === 1)
+  const needs = expenses.filter(expense => expense.expense_category_id === 2)
 
   const totalNeedsAmount = needs.reduce((total, expense) => {
-    const amount = parseFloat(expense.expense_amount) || 0;
+    const amount = parseFloat(expense.expense_amount) || 0
     return total + amount
   }, 0)
 
   const totalWantsAmount = wants.reduce((total, expense) => {
-    const amount = parseFloat(expense.expense_amount) || 0;
+    const amount = parseFloat(expense.expense_amount) || 0
     return total + amount
   }, 0)
 
-  const currencyUnit = useSelector(state => state.ratesReducer.currencyUnit)
+  const currentUnit = useSelector(state => state.userReducer.userCurrencyUnit)
+
+  const currentMonth = getCurrentMonth()
+  const currentMonthSaving = useSelector(state => state.transactionReducer.currentMonthSaving)
 
   const showModal = () => {
     setInitialData(null) // Clear initial data for adding
@@ -80,13 +84,25 @@ const ExpensePage = () => {
     dispatch(getExpenseActionAsync())
   }, [])
 
+  useEffect(() => {
+    dispatch(getExpenseTypesActionAsync())
+  }, [])
+
+  useEffect(() => {
+    dispatch(setCurrentCurrencyAsync())
+  }, [])
+
+  useEffect(() => {
+    fetchCurrentMonthSaving()
+  }, [])
+
   return (
     <ExpensePageStyled>
       <InnerLayout>
         <div className='container'>
           <div className="expense-container">
             <div className="content-container content-left text-center">
-              <h1>{month} Entries</h1>
+              <h1> {currentMonth} Entries</h1>
               <hr />
               <div className="expense-content">
                 <div className="btn-con">
@@ -113,12 +129,12 @@ const ExpensePage = () => {
                     {expenses.map((expense) => (
                       <tr key={expense.expense_id}>
                         <td><span className="white-text">{dateFormat(expense.expense_created_at)}</span></td>
-                        <td><span className="white-text">{expense.expense_category}</span></td>
+                        <td><span className="white-text">{getExpenseTypeName(expense.expense_type_id, expenseTypes)}</span></td>
                         <td><span className={expense.expense_type_id === 1 ? "white-text" : "na-text"}>
-                          {expense.expense_type_id === 1 ? `${getCurrencySymbol(currencyUnit)}${expense.expense_amount}` : 'N/A'}
+                          {expense.expense_type_id === 1 ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
                         </span></td>
                         <td><span className={expense.expense_type_id === 2 ? "white-text" : "na-text"}>
-                          {expense.expense_type_id === 2 ? `${getCurrencySymbol(currencyUnit)}${expense.expense_amount}` : 'N/A'}
+                          {expense.expense_type_id === 2 ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
                         </span></td>
                         <td><span className='edit-btn' onClick={() => handleEdit(expense)}>Edit</span></td>
                         <td><span className='del-btn' onClick={() => handleDelete(expense.expense_id)}>Delete</span></td>
@@ -136,12 +152,12 @@ const ExpensePage = () => {
                   <span className='insight-title'>Spendings</span>
                   <div className="main">
                     <div className="amount">
-                      <p>Needs: ${totalNeedsAmount}</p>
-                      <p>Wants: ${totalWantsAmount}</p>
+                      <p>Needs: {getCurrencySymbol(currentUnit)}{totalNeedsAmount}</p>
+                      <p>Wants: {getCurrencySymbol(currentUnit)}{totalWantsAmount}</p>
                     </div>
                     <div className="bracket">
                       <p>{'}'}</p>
-                      <p>{currency}{totalNeedsAmount+totalWantsAmount}</p>
+                      <p>{getCurrencySymbol(currentUnit)}{totalNeedsAmount + totalWantsAmount}</p>
                     </div>
                   </div>
                 </div>
@@ -149,12 +165,12 @@ const ExpensePage = () => {
                   <span className='insight-title'>Money Left</span>
                   <div className="main">
                     <div className="amount">
-                      <p>Needs: ${amount}</p>
-                      <p>Wants: ${amount}</p>
+                      <p>Needs: {getCurrencySymbol(currentUnit)}</p>
+                      <p>Wants: {getCurrencySymbol(currentUnit)}</p>
                     </div>
                     <div className="bracket">
                       <p>{'}'}</p>
-                      <p>{currency}200</p>
+                      <p>{getCurrencySymbol(currentUnit)}{currentMonthSaving}</p>
                     </div>
                   </div>
                 </div>
@@ -162,7 +178,7 @@ const ExpensePage = () => {
                   <span className='insight-title'>Savings</span>
                   <div className="main">
                     <div className="amount">
-                      <p>Total Savings: 200</p>
+                      <p>Total Savings: {getCurrencySymbol(currentUnit)}{ }</p>
                     </div>c
                   </div>
                 </div>
@@ -221,6 +237,10 @@ const ExpensePageStyled = styled.div`
   .white-text {
     color: white;
     font-weight: 400;
+  }
+  .na-text {
+    font-size: 0.7em; /* Decrease font size for "N/A" */
+    color: gray; /* Optional: Change color for "N/A" */
   }
   .edit-btn {
     color: var(--edit-btn);

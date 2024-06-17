@@ -4,7 +4,6 @@ const dueTypeMap = {
 }
 
 export const getDueTypeID = (dueTypeName) => {
-    console.log(`Mapping dueTypeName: ${dueTypeName} to ID`)
     return dueTypeMap[dueTypeName]
 }
 

@@ -73,7 +73,6 @@ exports.deleteDue = async (req, res) => {
 
 exports.updateDue = async (req, res) => {
     const { due_id } = req.params;
-    console.log(req.params)
     const { due_amount, due_due_date, due_details, due_type_id, due_status_id } = req.body;
 
     try {

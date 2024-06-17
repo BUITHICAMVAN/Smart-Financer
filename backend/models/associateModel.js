@@ -9,7 +9,8 @@ const ExpenseType = require('./expense/expenseTypeModel');
 const SystemSettings = require('./systemSettingModel');
 const Due = require('./due/dueModel');
 const DueType = require('./due/dueTypeModel')
-const DueStatus = require('./due/dueStatusModel')
+const DueStatus = require('./due/dueStatusModel');
+const ExpenseCategory = require('./expense/expenseCategoryModel');
 
 // User and Account
 User.hasMany(Account, { foreignKey: 'account_user_id' });
@@ -39,11 +40,13 @@ Expense.belongsTo(User, { foreignKey: 'expense_user_id' });
 ExpenseType.hasMany(Expense, { foreignKey: 'expense_type_id' });
 Expense.belongsTo(ExpenseType, { foreignKey: 'expense_type_id' });
 
+// ExpenseCategory and ExpenseType
+ExpenseCategory.hasMany(ExpenseType, { foreignKey: 'expense_category_id' });
+ExpenseType.belongsTo(ExpenseCategory, { foreignKey: 'expense_category_id' });
+
 // Associate User with SystemSettings
 User.hasOne(SystemSettings, { foreignKey: 'user_id' });
 SystemSettings.belongsTo(User, { foreignKey: 'user_id' });
-
-// Assuming models are already imported as shown in your previous script
 
 // User and Due - A user can have many dues
 User.hasMany(Due, { foreignKey: 'due_user_id' });
