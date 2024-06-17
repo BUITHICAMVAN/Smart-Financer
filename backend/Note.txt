@@ -6,4 +6,3 @@ const SECRET_KEY = process.env.SECRET_KEY;
     Step 2:
     const crypto = require('crypto');
     const secretKey = crypto.randomBytes(32).toString('hex');
-    console.log(secretKey);

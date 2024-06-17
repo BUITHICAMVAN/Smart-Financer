@@ -60,7 +60,7 @@ function ExpenseForm() {
                 <DatePicker 
                     id='date'
                     placeholderText='Enter A Date'
-                    selected={date}
+                    defaultValue={date}
                     dateFormat="dd/MM/yyyy"
                     onChange={(date) => {
                         setInputState({...inputState, date: date})

@@ -6,7 +6,11 @@ const Saving = require('./saving/savingModel');
 const SavingType = require('./saving/savingTypeModel');
 const Expense = require('./expense/expenseModel');
 const ExpenseType = require('./expense/expenseTypeModel');
-const SystemSettings = require('./systemSettingModel')
+const SystemSettings = require('./systemSettingModel');
+const Due = require('./due/dueModel');
+const DueType = require('./due/dueTypeModel')
+const DueStatus = require('./due/dueStatusModel');
+const ExpenseCategory = require('./expense/expenseCategoryModel');
 
 // User and Account
 User.hasMany(Account, { foreignKey: 'account_user_id' });
@@ -36,9 +40,26 @@ Expense.belongsTo(User, { foreignKey: 'expense_user_id' });
 ExpenseType.hasMany(Expense, { foreignKey: 'expense_type_id' });
 Expense.belongsTo(ExpenseType, { foreignKey: 'expense_type_id' });
 
+// ExpenseCategory and ExpenseType
+ExpenseCategory.hasMany(ExpenseType, { foreignKey: 'expense_category_id' });
+ExpenseType.belongsTo(ExpenseCategory, { foreignKey: 'expense_category_id' });
+
 // Associate User with SystemSettings
 User.hasOne(SystemSettings, { foreignKey: 'user_id' });
 SystemSettings.belongsTo(User, { foreignKey: 'user_id' });
+
+// User and Due - A user can have many dues
+User.hasMany(Due, { foreignKey: 'due_user_id' });
+Due.belongsTo(User, { foreignKey: 'due_user_id' });
+
+// DueType and Due - A due type can categorize many dues
+DueType.hasMany(Due, { foreignKey: 'due_type_id' });
+Due.belongsTo(DueType, { foreignKey: 'due_type_id' });
+
+// DueStatus and Due - A due status can be associated with many dues
+DueStatus.hasMany(Due, { foreignKey: 'due_status_id' });
+Due.belongsTo(DueStatus, { foreignKey: 'due_status_id' });
+
 
 module.exports = {
   User,

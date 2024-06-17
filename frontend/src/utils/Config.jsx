@@ -1,25 +1,24 @@
-import axios from "axios";
-import { history } from "..";
-import { jwtDecode } from 'jwt-decode'
+import axios from "axios"
+import { jwtDecode } from "jwt-decode"
+import { history } from "../"
 
 export const TOKEN = 'token'
-export const DOMAIN_BACKEND = ''
+export const DOMAIN_BACKEND = 'http://localhost:5000/api/v1/'
+
 // Cau hinh cho cac file dung chung cho he thong 
 //  Cau hinh interceptor cho axios (cau hinh cho tat ca request va response khi su dung axios)
 // Tao ra 1 phien ban cua axios (instance axios)
 
 export const http = axios.create({
-    baseURL: DOMAIN_BACKEND, // Correct property name
-    timeout: 30000, // Maximum time for a request
-});
+    baseURL: DOMAIN_BACKEND,
+    timeout: 30000,
+})
 
 // Cau hinh request
 http.interceptors.request.use((config) => {
     // Tat ca cac request gui di se duoc chua trong phan header la token dang nhap
-    config.headers = {
-        ...config.headers,
-        Authorization: `Bearer ${localStorage.getItem(TOKEN)}`
-    }
+    const token = localStorage.getItem(TOKEN)
+    config.headers['Authorization'] = token ? `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo4LCJpYXQiOjE3MTg2MDU5MjZ9.DZBl3XrCVqEb8WXqZBzvwoKvYNT3p03DFPqBPzvg77Y` : ''
     return config
 }, error => {
     return Promise.reject(error)
@@ -31,7 +30,6 @@ http.interceptors.response.use((res) => {
     return res
 }, error => {
     // Xu ly that bai
-    console.log('util', error.response)
     // lay code tu response
     const statusCode = error.response.status
     // Duong dan khong hop le
@@ -41,10 +39,8 @@ http.interceptors.response.use((res) => {
     } else if (statusCode === 401) {
         // kiem tra token het han hay chua
         // neu het han thi goi api refreshToken
-
         const decodedToken = jwtDecode(localStorage.getItem(TOKEN)) // Lay token va decode
         const date = new Date(decodedToken.exp + 1000)
-        console.log(date)
         if (date < Date.now()) { // neu time cua token nhỏ hơn hiện tại => hết hạn
             // Goi api refresh tokem 
             console.log('goi api refresh token')

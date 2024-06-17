@@ -6,8 +6,12 @@ Cai dat thu vien:
 - redux:  npm i redux react-redux @reduxjs/toolkit
 - axios
 - lodash
-- antd: npm i antd npm install @ant-design/icons --save
+- antd: npm i antd @ant-design/icons --save
 - formik yup 
 - history: chuyen huong nhung trang khong phai component
-- styled component
+- styled-components
 - moment 
+- @tensorflow/tfjs
+
+- tanstack query 
+- zustard
