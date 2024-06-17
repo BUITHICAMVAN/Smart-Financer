@@ -6,7 +6,7 @@ import { GlobalStyle } from './styles/GlobalStyles'
 import { Routes, Route, unstable_HistoryRouter as HistoryRouter } from 'react-router-dom'
 import App from './App'
 import DashboardPage from './pages/main-menu/DashboardPage'
-import CategoryPage from './pages/main-menu/CategoryPage'
+import CategoryPage from './pages/account/CategoryPage'
 import IncomePage from './pages/main-menu/IncomePage'
 import ExpensePage from './pages/main-menu/ExpensePage'
 import ProfilePage from './pages/account/ProfilePage'
@@ -16,7 +16,6 @@ import BudgetingPage from './pages/main-menu/BudgetingPage'
 import SignInPage from './pages/authenticate/SignInPage'
 import SignUpPage from './pages/authenticate/SignUpPage'
 import { LandingPage } from './pages/LandingPage'
-import CustomizePage from './pages/account/CustomizePage'
 import ReportPage from './pages/main-menu/ReportPage'
 import DuePage from './pages/main-menu/DuePage'
 
@@ -37,7 +36,6 @@ root.render(
             <Route path='saving-page' element={<SavingPage />} />
             <Route path='/expense-page' element={<ExpensePage />} />
             <Route path='/report-page' element={<ReportPage />} />
-            <Route path='/customize-page' element={<CustomizePage />} />
             <Route path='/profile-page' element={<ProfilePage />} />
             <Route path='/budgeting-page' element={<BudgetingPage />} />
             <Route path='/signin-page' element={<SignInPage />} />
