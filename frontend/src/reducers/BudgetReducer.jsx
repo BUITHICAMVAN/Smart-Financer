@@ -31,6 +31,12 @@ const BudgetReducer = createSlice({
     setBudgetTypes: (state, action) => {
       state.budgetTypes = action.payload
     },
+    updateBudgetAmount: (state, action) => {
+      const index = state.budgets.findIndex(b => b.budget_id === action.payload.budget_id)
+      if (index !== -1) {
+        state.budgets[index].budget_amount = action.payload.budget_amount
+      }
+    }
   },
 })
 
@@ -40,6 +46,7 @@ export const {
   editBudgetAction,
   deleteBudgetAction,
   setBudgetTypes,
+  updateBudgetAmount,
 } = BudgetReducer.actions
 
 export default BudgetReducer.reducer
@@ -135,6 +142,17 @@ export const deleteBudgetActionAsync = (id) => async (dispatch) => {
   } catch (error) {
     console.error('Failed to delete budget:', error)
     alert('Failed to delete budget.')
+  }
+}
+
+export const updateBudgetAmountAsync = (budgetId, budgetAmount) => async (dispatch) => {
+  try {
+    const res = await http.put(`budgets/${budgetId}`, { budget_amount: budgetAmount })
+    dispatch(updateBudgetAmount({ budget_id: budgetId, budget_amount: budgetAmount }))
+    alert('Budget updated successfully!')
+  } catch (error) {
+    console.error('Failed to update budget:', error)
+    alert('Failed to update budget.')
   }
 }
 

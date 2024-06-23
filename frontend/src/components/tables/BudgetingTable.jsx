@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { Table, Input, Form } from 'antd'
-import styled from 'styled-components'
+import { Table, Input, Form } from 'antd';
+import styled from 'styled-components';
 
-const EditableContext = React.createContext(null)
+const EditableContext = React.createContext(null);
 
 const EditableRow = ({ index, ...props }) => {
-  const [form] = Form.useForm()
+  const [form] = Form.useForm();
   return (
     <Form form={form} component={false}>
       <EditableContext.Provider value={form}>
         <tr {...props} />
       </EditableContext.Provider>
     </Form>
-  )
-}
+  );
+};
 
 const EditableCell = ({
   title,
@@ -24,32 +24,32 @@ const EditableCell = ({
   handleSave,
   ...restProps
 }) => {
-  const [editing, setEditing] = useState(false)
-  const inputRef = useRef(null)
-  const form = useContext(EditableContext)
+  const [editing, setEditing] = useState(false);
+  const inputRef = useRef(null);
+  const form = useContext(EditableContext);
 
   useEffect(() => {
     if (editing) {
-      inputRef.current.focus()
+      inputRef.current.focus();
     }
-  }, [editing])
+  }, [editing]);
 
   const toggleEdit = () => {
-    setEditing(!editing)
-    form.setFieldsValue({ [dataIndex]: record[dataIndex] })
-  }
+    setEditing(!editing);
+    form.setFieldsValue({ [dataIndex]: record[dataIndex] });
+  };
 
   const save = async () => {
     try {
-      const values = await form.validateFields()
-      toggleEdit()
-      handleSave({ ...record, ...values })
+      const values = await form.validateFields();
+      toggleEdit();
+      handleSave({ ...record, ...values });
     } catch (errInfo) {
-      console.log('Save failed:', errInfo)
+      console.log('Save failed:', errInfo);
     }
-  }
+  };
 
-  let childNode = children
+  let childNode = children;
 
   if (editable) {
     childNode = editing ? (
@@ -73,35 +73,32 @@ const EditableCell = ({
       >
         {children}
       </div>
-    )
+    );
   }
 
-  return <td {...restProps}>{childNode}</td>
-}
+  return <td {...restProps}>{childNode}</td>;
+};
 
-const BudgetingTable = ({ data }) => {
-  const [dataSource, setDataSource] = useState([])
+const BudgetingTable = ({ data, onUpdateBudget }) => {
+  const [dataSource, setDataSource] = useState([]);
 
   useEffect(() => {
     if (Array.isArray(data.categories)) {
-      setDataSource(data.categories)
+      setDataSource(data.categories);
     }
-  }, [data])
+  }, [data]);
 
   const handleSave = (row) => {
-    const updateData = (items) => {
-      return items.map((item) => {
-        if (item.key === row.key) {
-          return { ...item, ...row }
-        }
-        if (item.children) {
-          return { ...item, children: updateData(item.children) }
-        }
-        return item
-      })
+    const newData = [...dataSource];
+    const index = newData.findIndex((item) => row.key === item.key);
+    const item = newData[index];
+    newData.splice(index, 1, { ...item, ...row });
+    setDataSource(newData);
+
+    if (row.budget_id && row.budget !== undefined) {
+      onUpdateBudget(row.budget_id, row.budget);
     }
-    setDataSource(updateData(dataSource))
-  }
+  };
 
   const columns = [
     {
@@ -116,9 +113,9 @@ const BudgetingTable = ({ data }) => {
             props: {
               colSpan: 4,
             },
-          }
+          };
         }
-        return text
+        return text;
       },
     },
     {
@@ -143,17 +140,17 @@ const BudgetingTable = ({ data }) => {
       width: '20%',
       render: (text, record) => {
         if (record.children) {
-          return { props: { colSpan: 0 } }
+          return { props: { colSpan: 0 } };
         }
-        const remaining = (record.budget ?? 0) - (record.actual ?? 0)
-        return remaining.toFixed(2)
+        const remaining = (record.budget ?? 0) - (record.actual ?? 0);
+        return remaining.toFixed(2);
       },
     },
-  ]
+  ];
 
   const mergedColumns = columns.map((col) => {
     if (!col.editable) {
-      return col
+      return col;
     }
     return {
       ...col,
@@ -164,8 +161,8 @@ const BudgetingTable = ({ data }) => {
         title: col.title,
         handleSave,
       }),
-    }
-  })
+    };
+  });
 
   return (
     <BudgetingTableStyled>
@@ -182,8 +179,8 @@ const BudgetingTable = ({ data }) => {
         pagination={false}
       />
     </BudgetingTableStyled>
-  )
-}
+  );
+};
 
 const BudgetingTableStyled = styled.div`
   .editable-row .editable-cell-value-wrap {

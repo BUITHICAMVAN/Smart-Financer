@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { InnerLayout } from '../../styles/Layouts';
 import BudgetingTable from '../../components/tables/BudgetingTable';
 import { useDispatch, useSelector } from 'react-redux';
-import { getBudgetActionAsync } from '../../reducers/BudgetReducer';
+import { getBudgetActionAsync, updateBudgetAmountAsync } from '../../reducers/BudgetReducer';
 import { formatBudgetingData } from '../../utils/format/BudgetDataFormat';
 import useTransaction from '../../customHooks/TransactionHook';
 import { getExpenseActionAsync } from '../../reducers/ExpenseReducer';
@@ -20,25 +20,29 @@ const BudgetingPage = () => {
 
   useEffect(() => {
     dispatch(getBudgetActionAsync());
-  }, [dispatch]);
+  }, []);
 
   useEffect(() => {
     fetchIncome();
-  }, [fetchIncome]);
+  }, []);
 
   useEffect(() => {
     fetchSaving();
-  }, [fetchSaving]);
+  }, []);
 
   useEffect(() => {
     dispatch(getExpenseActionAsync());
-  }, [dispatch]);
+  }, []);
 
   useEffect(() => {
     if (budgets.length > 0 && incomes.length > 0 && savings.length > 0 && expenses.length > 0) {
       setBudgetingData(formatBudgetingData(budgets, incomes, savings, expenses));
     }
-  }, [budgets, incomes, savings, expenses]);
+  }, []);
+
+  const handleUpdateBudget = (budgetId, budgetAmount) => {
+    dispatch(updateBudgetAmountAsync(budgetId, budgetAmount));
+  };
 
   return (
     <BudgetingPageStyled>
@@ -49,7 +53,7 @@ const BudgetingPage = () => {
               <h1 className='text-center'>June Budgeting</h1>
               <hr />
               <BudgetingTableStyled>
-                <BudgetingTable data={budgetingData} />
+                <BudgetingTable data={budgetingData} onUpdateBudget={handleUpdateBudget} />
               </BudgetingTableStyled>
             </div>
             <div className="content-container content-right text-left">
