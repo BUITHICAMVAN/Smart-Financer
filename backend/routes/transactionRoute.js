@@ -1,7 +1,6 @@
 const { addIncome, getIncomes, updateIncome, deleteIncome } = require('../controllers/income/incomeController');
 const { addExpense, getExpenses, updateExpense, deleteExpense } = require('../controllers/expense/expenseController');
 const { createAccount, getAccountDetails, updateAccount, deleteAccount } = require('../controllers/accountController');
-const { getSystemSetting, updateSystemSetting } = require('../controllers/systemSettingController');
 const { addSaving, getSavings, updateSaving, deleteSaving } = require('../controllers/saving/savingController');
 const { getUserDetails, updateUser, deleteUser, getAllUsers, createUser } = require('../controllers/userController');
 const { verifyToken } = require('../utils/verifyToken');
@@ -10,6 +9,7 @@ const { getUserIncomeTypes, addIncomeType, updateIncomeType, getAllIncomeTypes }
 const { getUserSavingTypes, addSavingType, updateSavingType, getAllSavingTypes } = require('../controllers/saving/savingTypeController');
 const { getUserExpenseTypes, getExpenseTypeById, addExpenseType, updateExpenseType, getAllExpenseTypes } = require('../controllers/expense/expenseTypeController');
 const { addDue, getDues, deleteDue, updateDue } = require('../controllers/dueController');
+const { addBudget, getBudgets, updateBudget, deleteBudget } = require('../controllers/budget/budgetController');
 
 const router = require('express').Router();
 
@@ -78,4 +78,9 @@ router.post('/due', verifyToken, addDue)
     .delete('/due/:due_id', verifyToken, deleteDue)
     .put('/due/:due_id', verifyToken, updateDue)
 
+// Budget Routes
+router.post('/budgets', verifyToken, addBudget) // Create a new budget
+    .get('/budgets', verifyToken, getBudgets) // Get all budgets for a user
+    .put('/budgets/:budget_id', verifyToken, updateBudget) // Update a budget by ID
+    .delete('/budgets/:budget_id', verifyToken, deleteBudget) // Delete a budget by ID
 module.exports = router

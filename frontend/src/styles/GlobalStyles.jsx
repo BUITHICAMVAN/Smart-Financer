@@ -40,7 +40,8 @@ export const GlobalStyle = createGlobalStyle`
         --table-row: rgba(40, 41, 35, 1);
         --select-color: rgba(24, 24, 27, 1);
         --modal-color: rgba(24, 24, 27, 1);
-        --border-color: rgba(39, 39, 42, 1)
+        --border-color: rgba(39, 39, 42, 1);
+        --first-col: rgba(187, 139, 17, 1);
         
     }
 

@@ -2,65 +2,43 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { InnerLayout } from '../../styles/Layouts';
 import BudgetingTable from '../../components/tables/BudgetingTable';
-
-const mockBudgetingData = {
-  categories: [
-    {
-      key: 'income',
-      category: 'Income',
-      children: [
-        { key: 'base-salary', category: 'Base Salary', budget: 60000, actual: 59000 },
-        { key: 'side-hustles', category: 'Side Hustles', budget: 7000, actual: 6800 },
-        { key: 'bonus', category: 'Bonus', budget: 5000, actual: 4500 },
-        { key: 'investments', category: 'Investments', budget: 4000, actual: 4200 },
-      ]
-    },
-    {
-      key: 'expenses',
-      category: 'Expenses',
-      children: [
-        {
-          key: 'essentials',
-          category: 'Essentials',
-          children: [
-            { key: 'renting', category: 'Renting', budget: 12000, actual: 11500 },
-            { key: 'groceries', category: 'Groceries', budget: 6000, actual: 6500 },
-            { key: 'billings', category: 'Billings (electric, internet, water, ...)', budget: 3000, actual: 3200 },
-            { key: 'transport', category: 'Transport (gas, uber, ...)', budget: 2000, actual: 2100 },
-          ]
-        },
-        {
-          key: 'non-essentials',
-          category: 'Non-Essentials',
-          children: [
-            { key: 'coffee', category: 'Coffee', budget: 1000, actual: 900 },
-            { key: 'leisure', category: 'Leisure Activities', budget: 2000, actual: 1800 },
-            { key: 'shopping', category: 'Shopping', budget: 2500, actual: 2300 },
-          ]
-        }
-      ]
-    },
-    {
-      key: 'savings',
-      category: 'Savings',
-      children: [
-        { key: 'house', category: 'Properties - House', budget: 8000, actual: 7500 },
-        { key: 'retirement', category: 'Retirement', budget: 6000, actual: 6500 },
-        { key: 'emergency', category: 'Emergency', budget: 3000, actual: 2800 },
-        { key: 'savings', category: 'Savings', budget: 5000, actual: 4700 },
-        { key: 'travel', category: 'Travel', budget: 4000, actual: 4200 },
-      ]
-    }
-  ]
-};
+import { useDispatch, useSelector } from 'react-redux';
+import { getBudgetActionAsync } from '../../reducers/BudgetReducer';
+import { formatBudgetingData } from '../../utils/format/BudgetDataFormat';
+import useTransaction from '../../customHooks/TransactionHook';
+import { getExpenseActionAsync } from '../../reducers/ExpenseReducer';
 
 const BudgetingPage = () => {
-  const [budgetingData, setBudgetingData] = useState(mockBudgetingData);
+  const dispatch = useDispatch();
+  const budgets = useSelector(state => state.budgetReducer.budgets);
+  const { fetchTransactions: fetchIncome } = useTransaction('incomes');
+  const { fetchTransactions: fetchSaving } = useTransaction('savings');
+  const incomes = useSelector(state => state.transactionReducer.transactions.incomes);
+  const savings = useSelector(state => state.transactionReducer.transactions.savings);
+  const expenses = useSelector(state => state.expenseReducer.expenses);
+  const [budgetingData, setBudgetingData] = useState({ categories: [] });
 
   useEffect(() => {
-    // Here, you would fetch real budgeting data if needed
-    // For now, we're using the mock data
-  }, []);
+    dispatch(getBudgetActionAsync());
+  }, [dispatch]);
+
+  useEffect(() => {
+    fetchIncome();
+  }, [fetchIncome]);
+
+  useEffect(() => {
+    fetchSaving();
+  }, [fetchSaving]);
+
+  useEffect(() => {
+    dispatch(getExpenseActionAsync());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (budgets.length > 0 && incomes.length > 0 && savings.length > 0 && expenses.length > 0) {
+      setBudgetingData(formatBudgetingData(budgets, incomes, savings, expenses));
+    }
+  }, [budgets, incomes, savings, expenses]);
 
   return (
     <BudgetingPageStyled>
@@ -136,7 +114,7 @@ const BudgetingPageStyled = styled.div`
       grid-column: span 6; 
     }
     .content-right {
-        grid-column: span 4; 
+      grid-column: span 4; 
     }
   }
   .btn-con {
@@ -168,13 +146,6 @@ const BudgetingPageStyled = styled.div`
   .del-btn {
     color: var(--delete-btn); 
   }
-  .edit-btn {
-    color: var(--edit-btn);
-  }
-  .del-btn {
-    color: var(--delete-btn); 
-  }
-
   .summary {
     display: grid;
     gap: 1rem;
@@ -198,6 +169,6 @@ const BudgetingPageStyled = styled.div`
 
 const BudgetingTableStyled = styled.div`
   margin: 2rem 0rem;
-`
+`;
 
 export default BudgetingPage;

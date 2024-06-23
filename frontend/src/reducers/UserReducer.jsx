@@ -74,7 +74,7 @@ export const getUserPercentAsync = () => async (dispatch) => {
 }
 
 // Update percent values
-export const updateUserPercentAsync = ({userNeedPercent, userSavingPercent, userWantPercent}) => async (dispatch, getState) => {
+export const updateUserPercentAsync = ({ userNeedPercent, userSavingPercent, userWantPercent }) => async (dispatch, getState) => {
   try {
     const id = await dispatch(setUserIdsAsync())
     if (id) {
@@ -132,7 +132,7 @@ export const updateUserSettingsAsync = ({ currency, expectedIncome, needPercent,
     const id = await dispatch(setUserIdsAsync())
     if (id) {
       // Assuming there's a unified endpoint to update user settings
-      await http.put(`/users/${id}`, { 
+      await http.put(`/users/${id}`, {
         user_currency_unit: currency,
         user_expected_income: expectedIncome,
         user_need_ratio: needPercent,

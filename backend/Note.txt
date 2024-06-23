@@ -1,8 +1,0 @@
-1. use the dotenv package to load environment variables from a .env file into process.env.
-const SECRET_KEY = process.env.SECRET_KEY; 
-
-2. generate SECRET_KEY tool:
-    Step 1: type 'node' in terminal
-    Step 2:
-    const crypto = require('crypto');
-    const secretKey = crypto.randomBytes(32).toString('hex');

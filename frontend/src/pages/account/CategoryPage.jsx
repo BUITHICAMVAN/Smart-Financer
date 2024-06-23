@@ -8,7 +8,6 @@ import useTransactionType from "../../customHooks/TransactionTypeHook"
 import { getCurrencySymbol } from "../../utils/format/CurrencySymbol"
 import { fetchUserAsync, getUserExpectedIncomeAsync, getUserPercentAsync } from "../../reducers/UserReducer"
 import { calcMoneyAllocation } from "../../utils/calculate/MoneyAllocation"
-import { getExpenseCategoriesAsync } from "../../reducers/ExpenseReducer"
 import { handleCategoryFormSubmitAsync } from "../../reducers/CategoryFormReducer"
 import { addTransactionTypeAsync, getTransactionTypesAsync, updateTransactionTypeAsync } from "../../reducers/TransactionTypeReducer"
 import { addExpenseTypeAsync, getExpenseTypesActionAsync, updateExpenseTypeAsync } from "../../reducers/ExpenseTypeReducer"
@@ -68,7 +67,6 @@ const CategoryPage = () => {
       await dispatch(handleCategoryFormSubmitAsync(processedValues))
     }
   })
-
 
   const incomeData = categoryForm.values.incomeType.map((item, index) => ({ key: `income-${index}`, income: item.type }))
   const savingData = categoryForm.values.savingType.map((item, index) => ({ key: `saving-${index}`, saving: item.type }))
@@ -414,7 +412,7 @@ const CategoryPage = () => {
                       saving: <Input value={row.type} onChange={(e) => handleRowChange('saving', index, e.target.value)} />
                     }))}
                     rowClassName={() => 'editable-row'}
-                  /> 
+                  />
                   <div className="add-row" onClick={() => addNewRow('saving')}>+ Add entry</div>
                 </div>
                 <div className="expense-table">

@@ -20,7 +20,7 @@ const Navigation = () => {
     return (
         <NavStyled>
             <div className="app-name">
-                <img src="../../img/logo_bee" alt="logo_bee" />
+                {/* <img src="../../img/logo_bee" alt="logo_bee" /> */}
                 <h1>SmartFinancer</h1>
             </div>
             <ul className="menu-items">
@@ -44,6 +44,11 @@ const Navigation = () => {
                 <li>
                     <NavLink to="budgeting-page">
                         {budgeting} <span>Budgeting</span>
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink to="forecast-page">
+                        {budgeting} <span>Forecasting</span>
                     </NavLink>
                 </li>
                 <li>
