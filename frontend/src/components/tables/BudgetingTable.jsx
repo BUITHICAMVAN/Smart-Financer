@@ -43,7 +43,7 @@ const EditableCell = ({
     try {
       const values = await form.validateFields();
       toggleEdit();
-      handleSave({ ...record, ...values });
+      handleSave({ ...record, ...values, budget: parseFloat(values.budget) });
     } catch (errInfo) {
       console.log('Save failed:', errInfo);
     }
@@ -90,13 +90,22 @@ const BudgetingTable = ({ data, onUpdateBudget }) => {
 
   const handleSave = (row) => {
     const newData = [...dataSource];
-    const index = newData.findIndex((item) => row.key === item.key);
-    const item = newData[index];
-    newData.splice(index, 1, { ...item, ...row });
-    setDataSource(newData);
+    const findAndUpdate = (items) => {
+      return items.map((item) => {
+        if (item.key === row.key) {
+          return { ...item, ...row };
+        }
+        if (item.children) {
+          return { ...item, children: findAndUpdate(item.children) };
+        }
+        return item;
+      });
+    };
+    const updatedData = findAndUpdate(newData);
+    setDataSource(updatedData);
 
-    if (row.budget_id && row.budget !== undefined) {
-      onUpdateBudget(row.budget_id, row.budget);
+    if (row.key && row.budget !== undefined) {
+      onUpdateBudget(parseInt(row.key), parseFloat(row.budget));
     }
   };
 

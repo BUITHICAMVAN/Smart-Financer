@@ -1,47 +1,52 @@
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { InnerLayout } from '../../styles/Layouts';
-import BudgetingTable from '../../components/tables/BudgetingTable';
-import { useDispatch, useSelector } from 'react-redux';
-import { getBudgetActionAsync, updateBudgetAmountAsync } from '../../reducers/BudgetReducer';
-import { formatBudgetingData } from '../../utils/format/BudgetDataFormat';
-import useTransaction from '../../customHooks/TransactionHook';
-import { getExpenseActionAsync } from '../../reducers/ExpenseReducer';
+import React, { useEffect, useState } from 'react'
+import styled from 'styled-components'
+import { InnerLayout } from '../../styles/Layouts'
+import BudgetingTable from '../../components/tables/BudgetingTable'
+import { useDispatch, useSelector } from 'react-redux'
+import { getBudgetActionAsync, updateBudgetAmountAsync } from '../../reducers/BudgetReducer'
+import { formatBudgetingData } from '../../utils/format/BudgetDataFormat'
+import useTransaction from '../../customHooks/TransactionHook'
+import { getExpenseActionAsync } from '../../reducers/ExpenseReducer'
+import { getExpenseTypesActionAsync } from '../../reducers/ExpenseTypeReducer'
 
 const BudgetingPage = () => {
-  const dispatch = useDispatch();
-  const budgets = useSelector(state => state.budgetReducer.budgets);
-  const { fetchTransactions: fetchIncome } = useTransaction('incomes');
-  const { fetchTransactions: fetchSaving } = useTransaction('savings');
-  const incomes = useSelector(state => state.transactionReducer.transactions.incomes);
-  const savings = useSelector(state => state.transactionReducer.transactions.savings);
-  const expenses = useSelector(state => state.expenseReducer.expenses);
-  const [budgetingData, setBudgetingData] = useState({ categories: [] });
+  const dispatch = useDispatch()
+  const budgets = useSelector(state => state.budgetReducer.budgets)
+  const { fetchTransactions: fetchIncome } = useTransaction('incomes')
+  const { fetchTransactions: fetchSaving } = useTransaction('savings')
+  const incomes = useSelector(state => state.transactionReducer.transactions.incomes)
+  const savings = useSelector(state => state.transactionReducer.transactions.savings)
+  const expenses = useSelector(state => state.expenseReducer.expenses)
+  const [budgetingData, setBudgetingData] = useState({ categories: [] })
 
   useEffect(() => {
-    dispatch(getBudgetActionAsync());
-  }, []);
+    dispatch(getBudgetActionAsync())
+  }, [])
 
   useEffect(() => {
-    fetchIncome();
-  }, []);
+    fetchIncome()
+  }, [])
 
   useEffect(() => {
-    fetchSaving();
-  }, []);
+    fetchSaving()
+  }, [])
 
   useEffect(() => {
-    dispatch(getExpenseActionAsync());
-  }, []);
+    dispatch(getExpenseActionAsync())
+  }, [])
+
+  useEffect(() => {
+    dispatch(getExpenseTypesActionAsync())
+  }, [])
 
   useEffect(() => {
     if (budgets.length > 0 && incomes.length > 0 && savings.length > 0 && expenses.length > 0) {
-      setBudgetingData(formatBudgetingData(budgets, incomes, savings, expenses));
+      setBudgetingData(formatBudgetingData(budgets, incomes, savings, expenses))
     }
-  }, []);
+  }, [])
 
   const handleUpdateBudget = (budgetId, budgetAmount) => {
-    dispatch(updateBudgetAmountAsync(budgetId, budgetAmount));
+    dispatch(updateBudgetAmountAsync(budgetId, budgetAmount))
   };
 
   return (
@@ -90,8 +95,8 @@ const BudgetingPage = () => {
         </div>
       </InnerLayout>
     </BudgetingPageStyled>
-  );
-};
+  )
+}
 
 const BudgetingPageStyled = styled.div`
   h1 {

@@ -94,7 +94,7 @@ export const addBudgetActionAsync = (formData) => async (dispatch, getState) => 
       budget_date: moment().format(dateFormat),
     }
 
-    const res = await http.post('budgets', newBudget)
+    const res = await http.post('budget', newBudget)
     dispatch(addBudgetAction(res.data))
     alert('Budget added successfully!')
     dispatch(getBudgetActionAsync(userId))
@@ -147,7 +147,7 @@ export const deleteBudgetActionAsync = (id) => async (dispatch) => {
 
 export const updateBudgetAmountAsync = (budgetId, budgetAmount) => async (dispatch) => {
   try {
-    const res = await http.put(`budgets/${budgetId}`, { budget_amount: budgetAmount })
+    const res = await http.put(`budget/${budgetId}`, { budget_amount: budgetAmount })
     dispatch(updateBudgetAmount({ budget_id: budgetId, budget_amount: budgetAmount }))
     alert('Budget updated successfully!')
   } catch (error) {

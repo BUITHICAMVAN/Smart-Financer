@@ -52,18 +52,19 @@ exports.getBudgets = async (req, res) => {
 
 exports.updateBudget = async (req, res) => {
     const { budget_id } = req.params;
-    const { budget_budget_type_id, budget_related_id, budget_related_type, budget_amount, budget_date } = req.body;
+    const { budget_amount } = req.body;
+
+    if (!budget_amount || budget_amount <= 0 || typeof budget_amount !== 'number') {
+        return res.status(400).json({ message: 'Amount must be a positive number!' });
+    }
 
     try {
         const budget = await Budget.findOne({ where: { budget_id: budget_id, budget_user_id: req.user.user_id } });
         if (!budget) {
             return res.status(404).json({ message: 'Budget not found' });
         }
-        budget.budget_budget_type_id = budget_budget_type_id;
-        budget.budget_related_id = budget_related_id;
-        budget.budget_related_type = budget_related_type;
+
         budget.budget_amount = budget_amount;
-        budget.budget_date = budget_date || budget.budget_date;
         await budget.save();
 
         res.status(200).json({ message: 'Budget updated', data: budget });

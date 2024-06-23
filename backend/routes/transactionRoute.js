@@ -79,8 +79,8 @@ router.post('/due', verifyToken, addDue)
     .put('/due/:due_id', verifyToken, updateDue)
 
 // Budget Routes
-router.post('/budgets', verifyToken, addBudget) // Create a new budget
+router.post('/budget', verifyToken, addBudget) // Create a new budget
     .get('/budgets', verifyToken, getBudgets) // Get all budgets for a user
-    .put('/budgets/:budget_id', verifyToken, updateBudget) // Update a budget by ID
-    .delete('/budgets/:budget_id', verifyToken, deleteBudget) // Delete a budget by ID
+    .put('/budget/:budget_id', verifyToken, updateBudget) // Update a budget by ID
+    .delete('/budget/:budget_id', verifyToken, deleteBudget) // Delete a budget by ID
 module.exports = router
