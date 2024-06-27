@@ -24,6 +24,23 @@ const fetchData = async (userId) => {
   return { incomes, expenses, savings };
 };
 
+const aggregateData = (data, typeField, amountField) => {
+  const aggregatedData = data.reduce((acc, item) => {
+    const typeId = item.dataValues[typeField];
+    const amount = Number(item.dataValues[amountField]);
+
+    if (!acc[typeId]) {
+      acc[typeId] = { ...item, dataValues: { ...item.dataValues, [amountField]: amount } };
+    } else {
+      acc[typeId].dataValues[amountField] += amount;
+    }
+
+    return acc;
+  }, {});
+
+  return Object.values(aggregatedData);
+};
+
 const forecastNextMonth = async (req, res) => {
   try {
     const userId = req.user.user_id;
@@ -43,14 +60,15 @@ const forecastNextMonth = async (req, res) => {
     const predictions = {};
 
     for (const [dataType, { data, field, typeField }] of Object.entries(types)) {
-      const uniqueTypes = [...new Set(data.map(item => item.dataValues[typeField]))];
+      const aggregatedData = aggregateData(data, typeField, field);
+      const uniqueTypes = [...new Set(aggregatedData.map(item => item.dataValues[typeField]))];
 
       for (const type of uniqueTypes) {
-        const filteredData = data.filter(item => item.dataValues[typeField] === type);
+        const filteredData = aggregatedData.filter(item => item.dataValues[typeField] === type);
         if (filteredData.length > 0) {
           const { xTrain, yTrain, latestInput, timeSteps } = prepareData(filteredData, field);
 
-          if (xTrain.length === 0 || yTrain.length === 0) {
+          if (xTrain.length === 0 ||  yTrain.length === 0) {
             console.error(`No training data for ${dataType}_${type}`);
             predictions[`${dataType}_${type}`] = 'Not enough data';
             continue;
@@ -73,5 +91,6 @@ const forecastNextMonth = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 module.exports = { forecastNextMonth };
