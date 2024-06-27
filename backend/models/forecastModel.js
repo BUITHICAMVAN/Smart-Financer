@@ -63,27 +63,12 @@ const denormalizeValue = (value, min, max) => {
   return value * (max - min) + min;
 };
 
-const forecastNext = (model, latestInput, numMonths = 1) => {
-  let input = latestInput;
-  const predictions = [];
-
-  for (let i = 0; i < numMonths; i++) {
-    const prediction = model.predict(input);
-    const normalizedPrediction = prediction.dataSync()[0];
-    const actualPrediction = denormalizeValue(normalizedPrediction, min, max);
-    console.log(`Prediction for month ${i + 1}:`, normalizedPrediction, 'Actual Prediction:', actualPrediction); // Debugging statement
-    predictions.push(actualPrediction);
-
-    // Update the input sequence for the next prediction
-    const inputArray = input.arraySync()[0];
-    inputArray.push([normalizedPrediction]);
-    inputArray.shift();
-    input = tf.tensor3d([inputArray], [1, input.shape[1], input.shape[2]]);
-  }
-
-  return predictions;
+const forecastNext = (model, latestInput) => {
+  const prediction = model.predict(latestInput);
+  const normalizedPrediction = prediction.dataSync()[0];
+  const actualPrediction = denormalizeValue(normalizedPrediction, min, max);
+  console.log('Prediction:', normalizedPrediction, 'Actual Prediction:', actualPrediction); // Debugging statement
+  return actualPrediction;
 };
-
-
 
 module.exports = { createModel, trainModel, prepareData, forecastNext };

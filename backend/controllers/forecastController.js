@@ -41,7 +41,6 @@ const forecastNextMonth = async (req, res) => {
     };
 
     const predictions = {};
-    const numMonths = 3; // Change this to predict the desired number of months
 
     for (const [dataType, { data, field, typeField }] of Object.entries(types)) {
       const uniqueTypes = [...new Set(data.map(item => item.dataValues[typeField]))];
@@ -60,7 +59,7 @@ const forecastNextMonth = async (req, res) => {
           const model = createModel(timeSteps);
           await trainModel(model, xTrain, yTrain);
 
-          const nextMonthPrediction = forecastNext(model, latestInput, numMonths); // Predicting multiple months
+          const nextMonthPrediction = forecastNext(model, latestInput); // Predicting next month only
           predictions[`${dataType}_${type}`] = nextMonthPrediction;
         } else {
           predictions[`${dataType}_${type}`] = 'Not enough data';
