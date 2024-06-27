@@ -10,6 +10,7 @@ const { getUserSavingTypes, addSavingType, updateSavingType, getAllSavingTypes }
 const { getUserExpenseTypes, getExpenseTypeById, addExpenseType, updateExpenseType, getAllExpenseTypes } = require('../controllers/expense/expenseTypeController');
 const { addDue, getDues, deleteDue, updateDue } = require('../controllers/dueController');
 const { addBudget, getBudgets, updateBudget, deleteBudget } = require('../controllers/budget/budgetController');
+const { forecastNextMonth } = require('../controllers/forecastController');
 
 const router = require('express').Router();
 
@@ -83,4 +84,7 @@ router.post('/budget', verifyToken, addBudget) // Create a new budget
     .get('/budgets', verifyToken, getBudgets) // Get all budgets for a user
     .put('/budget/:budget_id', verifyToken, updateBudget) // Update a budget by ID
     .delete('/budget/:budget_id', verifyToken, deleteBudget) // Delete a budget by ID
+
+router.get('/forecast/next-month', verifyToken, forecastNextMonth);
+
 module.exports = router

@@ -1,8 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { InnerLayout } from '../../styles/Layouts';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import ForecastTable from '../../components/tables/ForecastTable';
+import useTransaction from '../../customHooks/TransactionHook';
+import { getExpenseActionAsync } from '../../reducers/ExpenseReducer';
+import { getExpenseTypesActionAsync } from '../../reducers/ExpenseTypeReducer';
+import { formatForecastData } from '../../utils/format/ForecastDataFormat';
 
 const mockForecastData = [
   {
@@ -54,11 +58,39 @@ const mockForecastData = [
 ]
 
 const ForecastPage = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
+  const { fetchTransactions: fetchIncome } = useTransaction('incomes')
+  const { fetchTransactions: fetchSaving } = useTransaction('savings')
+  const incomes = useSelector(state => state.transactionReducer.transactions.incomes)
+  const savings = useSelector(state => state.transactionReducer.transactions.savings)
+  const expenses = useSelector(state => state.expenseReducer.expenses)
+  const [forecastingData, setForecastingData] = useState({ categories: [] })
+  
+  
+  useEffect(() => {
+  }, [])
 
   useEffect(() => {
-    // Add any side effects or data fetching here if needed
-  }, [dispatch]);
+    fetchIncome()
+  }, [])
+
+  useEffect(() => {
+    fetchSaving()
+  }, [])
+
+  useEffect(() => {
+    dispatch(getExpenseActionAsync())
+  }, [])
+
+  useEffect(() => {
+    dispatch(getExpenseTypesActionAsync())
+  }, [])
+
+  useEffect(() => {
+    if (incomes.length > 0 && savings.length > 0 && expenses.length > 0) {
+      setForecastingData(formatForecastData(incomes, savings, expenses))
+    }
+  }, [])
 
   return (
     <ForecastPageStyled>

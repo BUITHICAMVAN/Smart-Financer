@@ -82,15 +82,6 @@ CREATE TABLE IF NOT EXISTS public.expense_category
     expense_category_name VARCHAR(100) NOT NULL UNIQUE
 );
 
--- Table: public.expense_type
-CREATE TABLE IF NOT EXISTS public.expense_type
-(
-    expense_type_id SERIAL PRIMARY KEY,
-    expense_type_name VARCHAR(100) NOT NULL UNIQUE,
-    expense_category_id INTEGER,
-    expense_essential BOOLEAN NOT NULL, -- True for essentials, false for non-essentials
-    FOREIGN KEY (expense_category_id) REFERENCES public.expense_category (expense_category_id)
-);
 
 -- Create Expense Types Table
 CREATE TABLE IF NOT EXISTS public.expense_type(
@@ -168,4 +159,16 @@ CREATE TABLE IF NOT EXISTS public.budget
     budget_created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (budget_user_id) REFERENCES public.user(user_id),
     FOREIGN KEY (budget_budget_type_id) REFERENCES public.budget_type(budget_type_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.forecast (
+    forecast_id SERIAL PRIMARY KEY,
+    forecast_user_id INTEGER NOT NULL,
+    forecast_related_type VARCHAR(50) NOT NULL,  -- e.g., 'Income', 'Expense', 'Saving'
+    forecast_related_id VARCHAR(50) NOT NULL,  -- e.g., 'Base Salary', 'Coffee', 'Renting'
+    forecast_month VARCHAR(20) NOT NULL,  -- e.g., 'January', 'February'
+    forecast_amount DECIMAL(10, 2) NOT NULL,
+    forecast_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    forecast_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (forecast_user_id) REFERENCES public.user(user_id)
 );

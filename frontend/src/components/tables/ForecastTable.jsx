@@ -1,60 +1,67 @@
-import React from 'react';
-import styled from 'styled-components';
-import { Table } from 'antd';
+import React, { useDebugValue, useState } from 'react'
+import styled from 'styled-components'
+import { Table } from 'antd'
 
 const ForecastTable = ({ data }) => {
-    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const [dataSource, setDataSource] = useState([])
+  useDebugValue(() => {
+    if (Array.isArray(data.categories)) {
+      setDataSource(data.categories)
+    }
+  }, [data])
 
-    const columns = [
-        {
-            title: 'Category',
-            dataIndex: 'category',
-            key: 'category',
-            width: '20%',
-            fixed: 'left',
-            render: (text, record) => {
-                if (record.children) {
-                    return {
-                        children: text,
-                        props: {
-                            colSpan: 1,
-                        },
-                    };
-                }
-                return text;
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
+  const columns = [
+    {
+      title: 'Category',
+      dataIndex: 'category',
+      key: 'category',
+      width: '20%',
+      fixed: 'left',
+      render: (text, record) => {
+        if (record.children) {
+          return {
+            children: text,
+            props: {
+              colSpan: 1,
             },
-        },
-        ...months.map(month => ({
-            title: month,
-            dataIndex: month.toLowerCase(),
-            key: month.toLowerCase(),
-            render: (text) => <span>${text || 0}</span>,
-        }))
-    ];
+          }
+        }
+        return text
+      },
+    },
+    ...months.map(month => ({
+      title: month,
+      dataIndex: month.toLowerCase(),
+      key: month.toLowerCase(),
+      render: (text) => <span>${text || 0}</span>,
+    }))
+  ]
 
-    const mergedColumns = columns.map((col) => {
-        return {
-          ...col,
-          onCell: (record) => ({
-            record,
-            dataIndex: col.dataIndex,
-            title: col.title
-          }),
-        };
-      });
+  const mergedColumns = columns.map((col) => {
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        dataIndex: col.dataIndex,
+        title: col.title
+      }),
+    }
+  })
 
-    return (
-        <ForecastTableStyled>
-            <Table
-                dataSource={data}
-                pagination={false}
-                columns={mergedColumns}
-                rowKey="key"
-                scroll={{ x: 1500 }}
-            />
-        </ForecastTableStyled>
-    );
-};
+  return (
+    <ForecastTableStyled>
+      <Table
+        dataSource={data}
+        pagination={false}
+        columns={mergedColumns}
+        rowKey="key"
+        scroll={{ x: 1500 }}
+      />
+    </ForecastTableStyled>
+  )
+}
 
 
 const ForecastTableStyled = styled.div`
