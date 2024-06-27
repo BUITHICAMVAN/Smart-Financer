@@ -1,4 +1,9 @@
 const tf = require('@tensorflow/tfjs');
+const seedrandom = require('seedrandom');
+
+// Set a random seed for reproducibility
+const seed = 42;
+seedrandom(seed, { global: true });
 
 const maxTimeSteps = 12; // Maximum number of time steps to use as input features
 const features = 1;      // Number of features (e.g., amount)
@@ -9,9 +14,22 @@ const max = 1000; // Replace with your actual maximum value
 
 const createModel = (timeSteps) => {
   const model = tf.sequential();
-  model.add(tf.layers.lstm({ units: 50, returnSequences: true, inputShape: [timeSteps, features] }));
-  model.add(tf.layers.lstm({ units: 50 }));
-  model.add(tf.layers.dense({ units: 1 }));
+  model.add(tf.layers.lstm({
+    units: 60,
+    activation: 'relu',
+    returnSequences: true,
+    inputShape: [timeSteps, features],
+    kernelInitializer: tf.initializers.glorotUniform({ seed })
+  }));
+  model.add(tf.layers.lstm({
+    units: 30,
+    activation: 'relu',
+    kernelInitializer: tf.initializers.glorotUniform({ seed })
+  }));
+  model.add(tf.layers.dense({
+    units: 1,
+    kernelInitializer: tf.initializers.glorotUniform({ seed })
+  }));
   model.compile({ optimizer: 'adam', loss: 'meanSquaredError' });
   console.log('Model created with timeSteps:', timeSteps); // Debugging statement
   return model;
@@ -19,20 +37,23 @@ const createModel = (timeSteps) => {
 
 const trainModel = async (model, xTrain, yTrain) => {
   console.log('Training model...'); // Debugging statement
-  await model.fit(xTrain, yTrain, { epochs: 50, batchSize: 32 });
+  await model.fit(xTrain, yTrain, {
+    epochs: 100,
+    batchSize: 32,
+    shuffle: false, // Ensure deterministic data order
+    callbacks: {
+      onEpochEnd: async (epoch, logs) => {
+        console.log("loss", logs.loss + ",")
+      }
+    }
+  });
   console.log('Model trained.'); // Debugging statement
 };
 
 const prepareData = (data, amountField) => {
   console.log('Data:', data); // Debugging statement
 
-  const amounts = data.map(d => {
-    const amount = Number(d.dataValues[amountField]);
-    if (isNaN(amount)) {
-      console.error('Invalid amount detected:', d.dataValues); // Debugging statement
-    }
-    return amount;
-  });
+  const amounts = data.map(d => d[amountField]);
   console.log('Amounts:', amounts); // Debugging statement
 
   const timeSteps = Math.min(amounts.length, maxTimeSteps);

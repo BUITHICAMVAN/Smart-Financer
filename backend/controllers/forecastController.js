@@ -2,6 +2,7 @@ const Expense = require('../models/expense/expenseModel');
 const Income = require('../models/income/incomeModel');
 const Saving = require('../models/saving/savingModel');
 const { createModel, trainModel, prepareData, forecastNext } = require('../models/forecastModel');
+const moment = require('moment');
 
 const fetchData = async (userId) => {
   const incomes = await Income.findAll({
@@ -24,19 +25,26 @@ const fetchData = async (userId) => {
   return { incomes, expenses, savings };
 };
 
-const aggregateData = (data, typeField, amountField) => {
-  const aggregatedData = data.reduce((acc, item) => {
+const aggregateDataByTypeAndMonth = (data, typeField, amountField, dateField) => {
+  const aggregatedData = {};
+
+  data.forEach(item => {
     const typeId = item.dataValues[typeField];
+    const month = moment(item.dataValues[dateField]).format('YYYY-MM');
     const amount = Number(item.dataValues[amountField]);
 
-    if (!acc[typeId]) {
-      acc[typeId] = { ...item, dataValues: { ...item.dataValues, [amountField]: amount } };
-    } else {
-      acc[typeId].dataValues[amountField] += amount;
+    const key = `${typeId}_${month}`;
+
+    if (!aggregatedData[key]) {
+      aggregatedData[key] = {
+        typeId,
+        month,
+        totalAmount: 0
+      };
     }
 
-    return acc;
-  }, {});
+    aggregatedData[key].totalAmount += amount;
+  });
 
   return Object.values(aggregatedData);
 };
@@ -52,36 +60,35 @@ const forecastNextMonth = async (req, res) => {
     const { incomes, expenses, savings } = await fetchData(userId);
 
     const types = {
-      incomes: { data: incomes, field: 'income_amount', typeField: 'income_type_id' },
-      expenses: { data: expenses, field: 'expense_amount', typeField: 'expense_type_id' },
-      savings: { data: savings, field: 'saving_amount', typeField: 'saving_type_id' }
+      incomes: { data: incomes, typeField: 'income_type_id', amountField: 'income_amount', dateField: 'income_created_at' },
+      expenses: { data: expenses, typeField: 'expense_type_id', amountField: 'expense_amount', dateField: 'expense_created_at' },
+      savings: { data: savings, typeField: 'saving_type_id', amountField: 'saving_amount', dateField: 'saving_created_at' }
     };
 
     const predictions = {};
 
-    for (const [dataType, { data, field, typeField }] of Object.entries(types)) {
-      const aggregatedData = aggregateData(data, typeField, field);
-      const uniqueTypes = [...new Set(aggregatedData.map(item => item.dataValues[typeField]))];
+    for (const [dataType, { data, typeField, amountField, dateField }] of Object.entries(types)) {
+      const aggregatedData = aggregateDataByTypeAndMonth(data, typeField, amountField, dateField);
 
-      for (const type of uniqueTypes) {
-        const filteredData = aggregatedData.filter(item => item.dataValues[typeField] === type);
-        if (filteredData.length > 0) {
-          const { xTrain, yTrain, latestInput, timeSteps } = prepareData(filteredData, field);
+      const types = [...new Set(aggregatedData.map(item => item.typeId))];
 
-          if (xTrain.length === 0 ||  yTrain.length === 0) {
-            console.error(`No training data for ${dataType}_${type}`);
-            predictions[`${dataType}_${type}`] = 'Not enough data';
-            continue;
-          }
+      for (const type of types) {
+        const filteredData = aggregatedData.filter(item => item.typeId === type);
+        console.log(`Preparing data for ${dataType}_${type}`); // Debugging statement
 
-          const model = createModel(timeSteps);
-          await trainModel(model, xTrain, yTrain);
+        const { xTrain, yTrain, latestInput, timeSteps } = prepareData(filteredData, 'totalAmount');
 
-          const nextMonthPrediction = forecastNext(model, latestInput); // Predicting next month only
-          predictions[`${dataType}_${type}`] = nextMonthPrediction;
-        } else {
+        if (xTrain.length === 0 || yTrain.length === 0) {
+          console.error(`No training data for ${dataType}_${type}`);
           predictions[`${dataType}_${type}`] = 'Not enough data';
+          continue;
         }
+
+        const model = createModel(timeSteps);
+        await trainModel(model, xTrain, yTrain);
+
+        const nextMonthPrediction = forecastNext(model, latestInput); // Predicting next month only
+        predictions[`${dataType}_${type}`] = nextMonthPrediction;
       }
     }
 
@@ -91,6 +98,5 @@ const forecastNextMonth = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 module.exports = { forecastNextMonth };
