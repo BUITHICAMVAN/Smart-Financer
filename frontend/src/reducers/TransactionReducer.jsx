@@ -8,7 +8,11 @@ const initialState = {
         incomes: [],
         savings: []
     },
-    currentMonthSaving: 0
+    currentMonthSaving: 0,
+    currentMonthTransactions: {
+        incomes: [],
+        savings: []
+    }
 }
 
 const TransactionReducer = createSlice({
@@ -36,11 +40,15 @@ const TransactionReducer = createSlice({
         },
         setMonthlyAmountAction: (state, action) => {
             state.currentMonthSaving = action.payload
+        },
+        setMonthlyTransactionAction: (state, action) => {
+            const { type, data } = action.payload
+            state.currentMonthTransactions[type] = data
         }
     }
 })
 
-export const { getTransactionsAction, deleteTransactionAction, addTransactionAction, editTransactionAction, setMonthlyAmountAction } = TransactionReducer.actions
+export const { getTransactionsAction, deleteTransactionAction, addTransactionAction, editTransactionAction, setMonthlyAmountAction, setMonthlyTransactionAction } = TransactionReducer.actions
 
 export default TransactionReducer.reducer
 
@@ -139,3 +147,27 @@ export const fetchMonthlyAmountAsync = (type) => async (dispatch) => {
         console.error('Failed to fetch monthly amount:', error)
     }
 };
+
+export const fetchMonthlyTransactionAsync = (type) => async (dispatch) => {
+    try {
+        const res = await http.get(`${type}`)
+        const transactions = res.data
+
+        // Get start and end of the current month
+        const startOfMonth = moment().startOf('month')
+        const endOfMonth = moment().endOf('month')
+
+        const typeMapping = mapTransactionType(type)
+
+        // Filter transactions that fall within the current month
+        const monthlyTransactions = transactions.filter(trans => {
+            const transDate = moment(trans[`${typeMapping}_created_at`])
+            return transDate.isBetween(startOfMonth, endOfMonth, null, '[]')
+        })
+
+        // Dispatch the transactions for the current month
+        dispatch(setMonthlyTransactionAction({ type, data: monthlyTransactions }))
+    } catch (error) {
+        console.error('Failed to fetch monthly transactions:', error)
+    }
+}

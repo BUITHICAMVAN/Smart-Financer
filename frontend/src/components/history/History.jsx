@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { NavLink } from 'react-router-dom'
 import { getCurrentMonth } from '../../utils/CurrentDate'
 import { useDispatch, useSelector } from 'react-redux'
-import { deleteExpenseActionAsync, getExpenseActionAsync } from '../../reducers/ExpenseReducer'
+import { deleteExpenseActionAsync, fetchCurrentMonthExpensesAsync } from '../../reducers/ExpenseReducer'
 import { dateFormat } from '../../utils/format/DateFormat'
 import { getCurrencySymbol } from '../../utils/format/CurrencySymbol'
 import { setCurrentCurrencyAsync } from '../../reducers/UserReducer'
@@ -15,7 +15,7 @@ const History = () => {
     const [initialData, setInitialData] = useState(null) // table data for editing modal
 
     const currentMonth = getCurrentMonth()
-    const expenses = useSelector(state => state.expenseReducer.expenses)
+    const expenses = useSelector(state => state.expenseReducer.currentMonthExpenses)
 
     const currencyUnit = useSelector(state => state.userReducer.userCurrencyUnit)
 
@@ -33,7 +33,7 @@ const History = () => {
     })
 
     useEffect(() => {
-        dispatch(getExpenseActionAsync())
+        dispatch(fetchCurrentMonthExpensesAsync())
     }, [])
 
     return (

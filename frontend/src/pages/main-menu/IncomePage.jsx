@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { InnerLayout } from '../../styles/Layouts'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import useTransaction from '../../customHooks/TransactionHook'
 import TransactionModal from '../../components/modals/TransactionModal'
 import { dateFormat } from '../../utils/format/DateFormat'
@@ -10,13 +10,13 @@ import { getCurrencySymbol } from '../../utils/format/CurrencySymbol'
 
 const IncomePage = () => {
 
-  const dispatch = useDispatch()
-  const { fetchTransactions, addTransaction, removeTransaction, editTransaction } = useTransaction('incomes')
+  const { addTransaction, removeTransaction, editTransaction, fetchMonthlyTransaction } = useTransaction('incomes')
   const [confirmLoading, setConfirmLoading] = useState(false)
   const [open, setOpen] = useState(false)
   const [initialData, setInitialData] = useState(null) // For editing
 
-  const incomes = useSelector(state => state.transactionReducer.transactions.incomes)
+  const currentMonthTransactions = useSelector(state => state.transactionReducer.currentMonthTransactions)
+  const incomes = currentMonthTransactions.incomes || []
   const incomeTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.incomeTypes)
 
   const totalAmount = calculateTotalAmount(incomes, 'income_amount')
@@ -73,7 +73,7 @@ const IncomePage = () => {
   }
 
   useEffect(() => {
-    fetchTransactions()
+    fetchMonthlyTransaction()
   }, [])
 
   return (

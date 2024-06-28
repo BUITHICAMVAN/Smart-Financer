@@ -4,7 +4,8 @@ import moment from 'moment'
 
 const initialState = {
     expenses: [],
-    expenseCategories: [] // Array to store expense categories
+    expenseCategories: [], // Array to store expense categories
+    currentMonthExpenses: []
 }
 
 const ExpenseReducer = createSlice({
@@ -31,10 +32,13 @@ const ExpenseReducer = createSlice({
         setExpenseCategories: (state, action) => {
             state.expenseCategories = action.payload
         },
+        setCurrentMonthExpenses: (state, action) => {
+            state.currentMonthExpenses = action.payload
+        }
     }
 })
 
-export const { getExpenseAction, addExpenseAction, editExpenseAction, deleteExpenseAction, setExpenseCategories } = ExpenseReducer.actions
+export const { getExpenseAction, addExpenseAction, editExpenseAction, deleteExpenseAction, setExpenseCategories, setCurrentMonthExpenses } = ExpenseReducer.actions
 
 export default ExpenseReducer.reducer
 
@@ -112,5 +116,28 @@ export const getExpenseCategoriesAsync = () => async (dispatch) => {
         dispatch(setExpenseCategories(res.data))
     } catch (error) {
         console.error('Failed to fetch expense categories: ', error)
+    }
+}
+
+// Function to fetch the expenses for the current month
+export const fetchCurrentMonthExpensesAsync = () => async (dispatch) => {
+    try {
+        const res = await http.get('expenses')
+        const expenses = res.data
+
+        // Get start and end of the current month
+        const startOfMonth = moment().startOf('month')
+        const endOfMonth = moment().endOf('month')
+
+        // Filter expenses that fall within the current month
+        const currentMonthExpenses = expenses.filter(expense => {
+            const expenseDate = moment(expense.expense_created_at)
+            return expenseDate.isBetween(startOfMonth, endOfMonth, null, '[]')
+        })
+
+        // Dispatch the expenses for the current month
+        dispatch(setCurrentMonthExpenses(currentMonthExpenses))
+    } catch (error) {
+        console.error('Failed to fetch current month expenses:', error)
     }
 }

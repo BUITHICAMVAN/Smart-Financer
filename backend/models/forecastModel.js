@@ -8,10 +8,20 @@ seedrandom(seed, { global: true });
 const maxTimeSteps = 12; // Maximum number of time steps to use as input features
 const features = 1;      // Number of features (e.g., amount)
 
-// Define your min and max values for denormalization
+// Define your min and max values for normalization/denormalization
 const min = 0; // Replace with your actual minimum value
 const max = 1000; // Replace with your actual maximum value
 
+// Normalization and denormalization functions
+const normalizeValue = (value, min, max) => {
+  return (value - min) / (max - min);
+};
+
+const denormalizeValue = (value, min, max) => {
+  return value * (max - min) + min;
+};
+
+// Function to create the LSTM model
 const createModel = (timeSteps) => {
   const model = tf.sequential();
   model.add(tf.layers.lstm({
@@ -35,28 +45,41 @@ const createModel = (timeSteps) => {
   return model;
 };
 
+// Function to train the model
 const trainModel = async (model, xTrain, yTrain) => {
-  console.log('Training model...'); // Debugging statement
+  console.log('Training model...');
   await model.fit(xTrain, yTrain, {
     epochs: 100,
     batchSize: 32,
-    shuffle: false, // Ensure deterministic data order
     callbacks: {
-      onEpochEnd: async (epoch, logs) => {
-        console.log("loss", logs.loss + ",")
+      onEpochEnd: (epoch, logs) => {
+        console.log(`Epoch ${epoch + 1}: loss = ${logs.loss}`);
       }
     }
   });
-  console.log('Model trained.'); // Debugging statement
+  console.log('Model trained.');
 };
 
+// Function to prepare the data for training
 const prepareData = (data, amountField) => {
   console.log('Data:', data); // Debugging statement
 
-  const amounts = data.map(d => d[amountField]);
+  const amounts = data.map(d => {
+    const amount = Number(d[amountField]);
+    if (isNaN(amount)) {
+      console.error('Invalid amount detected:', d);
+    }
+    return normalizeValue(amount, min, max);
+  });
+
   console.log('Amounts:', amounts); // Debugging statement
 
   const timeSteps = Math.min(amounts.length, maxTimeSteps);
+  if (timeSteps < 1) {
+    console.error('Not enough data points to create time steps');
+    return { xTrain: [], yTrain: [], latestInput: null, timeSteps: 0 };
+  }
+
   const xTrain = [];
   const yTrain = [];
 
@@ -70,6 +93,7 @@ const prepareData = (data, amountField) => {
 
   if (xTrain.length === 0 || yTrain.length === 0) {
     console.error('xTrain or yTrain is empty'); // Debugging statement
+    return { xTrain: [], yTrain: [], latestInput: null, timeSteps: 0 };
   }
 
   const xTrainTensor = tf.tensor3d(xTrain.map(arr => arr.map(value => [value])), [xTrain.length, timeSteps, features]);
@@ -80,10 +104,7 @@ const prepareData = (data, amountField) => {
   return { xTrain: xTrainTensor, yTrain: yTrainTensor, latestInput, timeSteps };
 };
 
-const denormalizeValue = (value, min, max) => {
-  return value * (max - min) + min;
-};
-
+// Function to forecast the next value
 const forecastNext = (model, latestInput) => {
   const prediction = model.predict(latestInput);
   const normalizedPrediction = prediction.dataSync()[0];

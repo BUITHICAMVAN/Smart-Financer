@@ -12,12 +12,13 @@ import { setCurrentCurrencyAsync } from '../../reducers/UserReducer';
 const SavingPage = () => {
 
   const dispatch = useDispatch()
-  const { fetchTransactions, addTransaction, removeTransaction, editTransaction } = useTransaction('savings')
+  const { fetchMonthlyTransaction, addTransaction, removeTransaction, editTransaction } = useTransaction('savings')
   const [confirmLoading, setConfirmLoading] = useState(false) // loading
   const [open, setOpen] = useState(false) // open modal
   const [initialData, setInitialData] = useState(null) // table data for editing modal
 
-  const savings = useSelector(state => state.transactionReducer.transactions.savings)
+  const currentMonthTransactions = useSelector(state => state.transactionReducer.currentMonthTransactions)
+  const savings = currentMonthTransactions.savings || []
   const savingTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.savingTypes)
 
   const totalAmount = calculateTotalAmount(savings, 'saving_amount')
@@ -75,7 +76,7 @@ const SavingPage = () => {
   }
 
   useEffect(() => {
-    fetchTransactions();
+    fetchMonthlyTransaction();
   }, [])
 
   useEffect(() => {
@@ -92,7 +93,7 @@ const SavingPage = () => {
               <h2>Savings Balance</h2>
             </div>
             <div className="btn-con">
-              <button className="btn btn-dark mx-3">Export</button>
+              {/* <button className="btn btn-dark mx-3">Export</button> */}
               <button className="btn btn-warning" onClick={showModal}>Add Entry</button>
             </div>
             <TransactionModal

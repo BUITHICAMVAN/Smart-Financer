@@ -45,7 +45,7 @@ const PayStatusModal = ({ open, onMarkAsPaid, onCancel }) => {
                     <Form.Item name="paymentSource">
                         <Radio.Group onChange={handleChange} value={selectedOption}>
                             <Radio value="savings">Savings</Radio>
-                            <Radio value="miscellaneous">Miscellaneous</Radio>
+                            <Radio value="incomes">Incomes</Radio>
                             <Radio value="needs">Needs</Radio>
                             <Radio value="wants">Wants</Radio>
                         </Radio.Group>

@@ -6,17 +6,17 @@ import { useDispatch, useSelector } from 'react-redux'
 import { getBudgetActionAsync, updateBudgetAmountAsync } from '../../reducers/BudgetReducer'
 import { formatBudgetingData } from '../../utils/format/BudgetDataFormat'
 import useTransaction from '../../customHooks/TransactionHook'
-import { getExpenseActionAsync } from '../../reducers/ExpenseReducer'
+import { fetchCurrentMonthExpensesAsync } from '../../reducers/ExpenseReducer'
 import { getExpenseTypesActionAsync } from '../../reducers/ExpenseTypeReducer'
 
 const BudgetingPage = () => {
   const dispatch = useDispatch()
   const budgets = useSelector(state => state.budgetReducer.budgets)
-  const { fetchTransactions: fetchIncome } = useTransaction('incomes')
-  const { fetchTransactions: fetchSaving } = useTransaction('savings')
-  const incomes = useSelector(state => state.transactionReducer.transactions.incomes)
-  const savings = useSelector(state => state.transactionReducer.transactions.savings)
-  const expenses = useSelector(state => state.expenseReducer.expenses)
+  const { fetchMonthlyTransaction: fetchIncome } = useTransaction('incomes')
+  const { fetchMonthlyTransaction: fetchSaving } = useTransaction('savings')
+  const incomes = useSelector(state => state.transactionReducer.currentMonthTransactions.incomes)
+  const savings = useSelector(state => state.transactionReducer.currentMonthTransactions.savings)
+  const expenses = useSelector(state => state.expenseReducer.currentMonthExpenses)
   const [budgetingData, setBudgetingData] = useState({ categories: [] })
 
   useEffect(() => {
@@ -32,7 +32,7 @@ const BudgetingPage = () => {
   }, [])
 
   useEffect(() => {
-    dispatch(getExpenseActionAsync())
+    dispatch(fetchCurrentMonthExpensesAsync())
   }, [])
 
   useEffect(() => {

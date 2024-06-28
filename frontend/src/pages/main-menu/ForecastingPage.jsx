@@ -97,7 +97,7 @@ const ForecastPage = () => {
       <InnerLayout>
         <div className="container">
           <div className="content-container text-center">
-            <h3 className="text-center">12-Month Forecast</h3>
+            <h3 className="text-center">Forecast Actual Transactions</h3>
             <hr />
             <ForecastTable data={mockForecastData} />
           </div>

@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { InnerLayout } from '../../styles/Layouts'
 import ExpenseModal from '../../components/modals/ExpenseModal'
 import { useDispatch, useSelector } from 'react-redux'
-import { addExpenseActionAsync, deleteExpenseActionAsync, editExpenseActionAsync, getExpenseActionAsync } from '../../reducers/ExpenseReducer'
+import { addExpenseActionAsync, deleteExpenseActionAsync, editExpenseActionAsync, fetchCurrentMonthExpensesAsync } from '../../reducers/ExpenseReducer'
 import { dateFormat } from '../../utils/format/DateFormat'
 import { getCurrencySymbol } from '../../utils/format/CurrencySymbol'
 import useTransaction from '../../customHooks/TransactionHook'
@@ -20,7 +20,7 @@ const ExpensePage = () => {
   const [open, setOpen] = useState(false) // open modal
   const [initialData, setInitialData] = useState(null) // table data for editing modal
 
-  const expenses = useSelector(state => state.expenseReducer.expenses)
+  const expenses = useSelector(state => state.expenseReducer.currentMonthExpenses)
   const expenseTypes = useSelector(state => state.expenseTypeReducer.expenseTypes)
 
   const wants = expenses.filter(expense => expense.expense_category_id === 1)
@@ -81,7 +81,7 @@ const ExpensePage = () => {
   }
 
   useEffect(() => {
-    dispatch(getExpenseActionAsync())
+    dispatch(fetchCurrentMonthExpensesAsync())
   }, [])
 
   useEffect(() => {
@@ -106,7 +106,7 @@ const ExpensePage = () => {
               <hr />
               <div className="expense-content">
                 <div className="btn-con">
-                  <button className="btn btn-dark">Export</button>
+                  {/* <button className="btn btn-dark">Export</button> */}
                   <button className="btn btn-warning" onClick={showModal}>Add Entry</button>
                 </div>
                 <ExpenseModal

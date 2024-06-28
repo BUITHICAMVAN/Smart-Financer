@@ -69,18 +69,25 @@ const forecastNextMonth = async (req, res) => {
 
     for (const [dataType, { data, typeField, amountField, dateField }] of Object.entries(types)) {
       const aggregatedData = aggregateDataByTypeAndMonth(data, typeField, amountField, dateField);
+      console.log(`Aggregated Data for ${dataType}:`, aggregatedData); // Debugging statement
 
-      const types = [...new Set(aggregatedData.map(item => item.typeId))];
+      const typeIds = [...new Set(aggregatedData.map(item => item.typeId))];
 
-      for (const type of types) {
-        const filteredData = aggregatedData.filter(item => item.typeId === type);
-        console.log(`Preparing data for ${dataType}_${type}`); // Debugging statement
+      for (const typeId of typeIds) {
+        const filteredData = aggregatedData.filter(item => item.typeId === typeId);
+        console.log(`Filtered Data for ${dataType}_${typeId}:`, filteredData); // Debugging statement
+
+        if (filteredData.length === 0) {
+          console.error(`No data to process for ${dataType}_${typeId}`);
+          predictions[`${dataType}_${typeId}`] = 'Not enough data';
+          continue;
+        }
 
         const { xTrain, yTrain, latestInput, timeSteps } = prepareData(filteredData, 'totalAmount');
 
         if (xTrain.length === 0 || yTrain.length === 0) {
-          console.error(`No training data for ${dataType}_${type}`);
-          predictions[`${dataType}_${type}`] = 'Not enough data';
+          console.error(`No training data for ${dataType}_${typeId}`);
+          predictions[`${dataType}_${typeId}`] = 'Not enough data';
           continue;
         }
 
@@ -88,13 +95,17 @@ const forecastNextMonth = async (req, res) => {
         await trainModel(model, xTrain, yTrain);
 
         const nextMonthPrediction = forecastNext(model, latestInput); // Predicting next month only
-        predictions[`${dataType}_${type}`] = nextMonthPrediction;
+        predictions[`${dataType}_${typeId}`] = nextMonthPrediction;
       }
     }
 
     console.log('Predictions:', predictions); // Debugging statement
+    // Save the predictions to the database if needed
+    // await savePredictionsToDatabase(userId, predictions);
+
     res.json({ predictions });
   } catch (error) {
+    console.error('Error during prediction:', error); // Log the error for better visibility
     res.status(500).json({ error: error.message });
   }
 };

@@ -31,9 +31,9 @@ const DueModal = ({ open, onCreate, onCancel, onEdit, initialData, dueType }) =>
 
     const getTitle = () => {
         if (initialData) {
-            return dueType === 'payable' ? 'Edit Due Payable' : 'Edit Due Receivable'
+            return dueType === 'receivable' ? 'Edit Due Receivable' : 'Edit Due Receivable'
         } else {
-            return dueType === 'payable' ? 'Add Due Payable' : 'Add Due Receivable'
+            return dueType === 'payable' ? 'Add Due Payable' : 'Edit Due Payable'
         }
     }
 
