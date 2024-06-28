@@ -5,37 +5,40 @@ const seedrandom = require('seedrandom');
 const seed = 42;
 seedrandom(seed, { global: true });
 
-const maxTimeSteps = 12; // Maximum number of time steps to use as input features
+const maxTimeSteps = 4; // Maximum number of time steps to use as input features
 const features = 1;      // Number of features (e.g., amount)
 
-// Define your min and max values for normalization/denormalization
-const min = 0; // Replace with your actual minimum value
-const max = 1000; // Replace with your actual maximum value
-
-// Normalization and denormalization functions
+// Normalize value to a range of [0, 1]
 const normalizeValue = (value, min, max) => {
   return (value - min) / (max - min);
 };
 
+// Denormalize value from the range of [0, 1] back to the original scale
 const denormalizeValue = (value, min, max) => {
   return value * (max - min) + min;
 };
 
 // Function to create the LSTM model
 const createModel = (timeSteps) => {
-  const model = tf.sequential();
+  const model = tf.sequential(); // create sequential model
+
+  // add first LSTM layer with 60 units and return sequences
   model.add(tf.layers.lstm({
     units: 60,
     activation: 'relu',
-    returnSequences: true,
+    returnSequences: true, // return sequences to feed the next layer
     inputShape: [timeSteps, features],
     kernelInitializer: tf.initializers.glorotUniform({ seed })
   }));
+
+  // add another layer
   model.add(tf.layers.lstm({
     units: 30,
     activation: 'relu',
     kernelInitializer: tf.initializers.glorotUniform({ seed })
   }));
+
+  // add a dense layer with a single input
   model.add(tf.layers.dense({
     units: 1,
     kernelInitializer: tf.initializers.glorotUniform({ seed })
@@ -48,8 +51,10 @@ const createModel = (timeSteps) => {
 // Function to train the model
 const trainModel = async (model, xTrain, yTrain) => {
   console.log('Training model...');
+
+  // fit model with training data
   await model.fit(xTrain, yTrain, {
-    epochs: 100,
+    epochs: 50,
     batchSize: 32,
     callbacks: {
       onEpochEnd: (epoch, logs) => {
@@ -61,7 +66,7 @@ const trainModel = async (model, xTrain, yTrain) => {
 };
 
 // Function to prepare the data for training
-const prepareData = (data, amountField) => {
+const prepareData = (data, amountField, min, max) => {
   console.log('Data:', data); // Debugging statement
 
   const amounts = data.map(d => {
@@ -105,7 +110,7 @@ const prepareData = (data, amountField) => {
 };
 
 // Function to forecast the next value
-const forecastNext = (model, latestInput) => {
+const forecastNext = (model, latestInput, min, max) => {
   const prediction = model.predict(latestInput);
   const normalizedPrediction = prediction.dataSync()[0];
   const actualPrediction = denormalizeValue(normalizedPrediction, min, max);

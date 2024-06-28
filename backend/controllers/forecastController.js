@@ -25,6 +25,28 @@ const fetchData = async (userId) => {
   return { incomes, expenses, savings };
 };
 
+const fetchDataAndCalculateMinMax = async () => {
+  const incomes = await Income.findAll();
+  const expenses = await Expense.findAll();
+  const savings = await Saving.findAll();
+
+  // Combine all amounts into a single array
+  const amounts = [
+    ...incomes.map(income => Number(income.dataValues.income_amount)),
+    ...expenses.map(expense => Number(expense.dataValues.expense_amount)),
+    ...savings.map(saving => Number(saving.dataValues.saving_amount))
+  ];
+
+  // Filter out invalid data points
+  const validAmounts = amounts.filter(amount => !isNaN(amount));
+
+  // Calculate the minimum and maximum values
+  const min = Math.min(...validAmounts);
+  const max = Math.max(...validAmounts);
+
+  return { min, max };
+};
+
 const aggregateDataByTypeAndMonth = (data, typeField, amountField, dateField) => {
   const aggregatedData = {};
 
@@ -57,6 +79,8 @@ const forecastNextMonth = async (req, res) => {
       throw new Error('User ID is missing');
     }
 
+    const { min, max } = await fetchDataAndCalculateMinMax();
+
     const { incomes, expenses, savings } = await fetchData(userId);
 
     const types = {
@@ -77,13 +101,7 @@ const forecastNextMonth = async (req, res) => {
         const filteredData = aggregatedData.filter(item => item.typeId === typeId);
         console.log(`Filtered Data for ${dataType}_${typeId}:`, filteredData); // Debugging statement
 
-        if (filteredData.length === 0) {
-          console.error(`No data to process for ${dataType}_${typeId}`);
-          predictions[`${dataType}_${typeId}`] = 'Not enough data';
-          continue;
-        }
-
-        const { xTrain, yTrain, latestInput, timeSteps } = prepareData(filteredData, 'totalAmount');
+        const { xTrain, yTrain, latestInput, timeSteps } = prepareData(filteredData, 'totalAmount', min, max);
 
         if (xTrain.length === 0 || yTrain.length === 0) {
           console.error(`No training data for ${dataType}_${typeId}`);
@@ -94,7 +112,7 @@ const forecastNextMonth = async (req, res) => {
         const model = createModel(timeSteps);
         await trainModel(model, xTrain, yTrain);
 
-        const nextMonthPrediction = forecastNext(model, latestInput); // Predicting next month only
+        const nextMonthPrediction = forecastNext(model, latestInput, min, max); // Predicting next month only
         predictions[`${dataType}_${typeId}`] = nextMonthPrediction;
       }
     }
