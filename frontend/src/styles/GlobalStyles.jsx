@@ -138,4 +138,56 @@ export const GlobalStyle = createGlobalStyle`
             }
         }
     }
+
+    @keyframes shake {
+        0% {
+            transform: translateX(0);
+        }
+        25% {
+            transform: translateX(10px);
+        }
+        50% {
+            transform: translateX(-10px);
+        }
+        75% {
+            transform: translateX(10px);
+        }
+        100% {
+            transform: translateX(0);
+        }
+    }
+
+    /* Responsive Typography */
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 1.5rem;
+        }
+
+        h2 {
+            font-size: 0.75rem;
+        }
+
+        h3 {
+            font-size: 1.25rem;
+        }
+
+        p {
+            font-size: 1.5rem;
+        }
+    }
+
+    /* Responsive Spacing */
+    @media (max-width: 768px) {
+        .component {
+            padding: 0.75rem 1rem;
+        }
+
+        .content-container {
+            padding: 1.5rem;
+        }
+
+        button {
+            padding: 0.5rem 0.75rem;
+        }
+    }
 `;

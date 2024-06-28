@@ -30,11 +30,11 @@ const History = () => {
 
     useEffect(() => {
         dispatch(setCurrentCurrencyAsync())
-    })
+    }, [dispatch])
 
     useEffect(() => {
         dispatch(fetchCurrentMonthExpensesAsync())
-    }, [])
+    }, [dispatch])
 
     return (
         <HistoryStyled>
@@ -43,33 +43,44 @@ const History = () => {
                     <h2>{currentMonth} Transactions</h2>
                     <NavLink to='/expense-page' className={'history-detail'}><h2>View in detail</h2></NavLink>
                 </div>
-                <div className="history-table text-center">
-                    <table className='table'>
-                        <thead>
-                            <tr>
-                                <th><span>Date & Time</span></th>
-                                <th><span>Details</span></th>
-                                <th><span>Needs</span></th>
-                                <th><span>Wants</span></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {expenses.map((expense) => (
-                                <tr key={expense.expense_id}>
-                                    <td><span className="white-text">{dateFormat(expense.expense_created_at)}</span></td>
-                                    <td><span className="white-text">{expense.expense_category}</span></td>
-                                    <td><span className={expense.expense_type_id === 1 ? "white-text" : "na-text"}>
+                <div className="history-table">
+                    <div className="history-item header">
+                        <div className="row">
+                            <div className="column details">
+                                <span>Details</span>
+                            </div>
+                            <div className="column needs">
+                                <span>Needs</span>
+                            </div>
+                            <div className="column wants">
+                                <span>Wants</span>
+                            </div>
+                        </div>
+                    </div>
+                    {expenses.map((expense, index) => (
+                        <div className={`history-item ${index >= 2 ? 'hide-on-mobile' : ''}`} key={expense.expense_id}>
+                            <div className="row">
+                                <div className="column details">
+                                    <span>{expense.expense_category}</span>
+                                </div>
+                                <div className="column needs">
+                                    <span className={expense.expense_type_id === 1 ? "white-text" : "na-text"}>
                                         {expense.expense_type_id === 1 ? `${getCurrencySymbol(currencyUnit)}${expense.expense_amount}` : 'N/A'}
-                                    </span></td>
-                                    <td><span className={expense.expense_type_id === 2 ? "white-text" : "na-text"}>
+                                    </span>
+                                </div>
+                                <div className="column wants">
+                                    <span className={expense.expense_type_id === 2 ? "white-text" : "na-text"}>
                                         {expense.expense_type_id === 2 ? `${getCurrencySymbol(currencyUnit)}${expense.expense_amount}` : 'N/A'}
-                                    </span></td>
-                                    <td><span className='edit-btn' onClick={() => handleEdit(expense)}>Edit</span></td>
-                                    <td><span className='del-btn' onClick={() => handleDelete(expense.expense_id)}>Delete</span></td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="row actions">
+                                <button className="edit-btn" onClick={() => handleEdit(expense)}>Edit</button>
+                                <button className="del-btn" onClick={() => handleDelete(expense.expense_id)}>Delete</button>
+                            </div>
+                            <div className="date">{dateFormat(expense.expense_created_at)}</div>
+                        </div>
+                    ))}
                 </div>
             </div>
         </HistoryStyled>
@@ -78,8 +89,8 @@ const History = () => {
 
 const HistoryStyled = styled.div`
     .history-title {
-      display: flex;
-      justify-content: space-between;
+        display: flex;
+        justify-content: space-between;
     }
     .history-detail {
         text-decoration: none;
@@ -98,16 +109,86 @@ const HistoryStyled = styled.div`
         color: gray; /* Optional: Change color for "N/A" */
     }
     .history-table {
-      thead {
-        span {
-          font-weight: 600;
-          color: white;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .history-item {
+        position: relative;
+        background: var(--component-color);
+        border: 2px solid #191a16;
+        box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
+        border-radius: 20px;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        &.header {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            padding-bottom: 0;
         }
-      }
-      tbody > tr {
-        background: rgb(0, 0, 0);
-      }
+
+        .row {
+            display: flex;
+            justify-content: center;
+            &.actions {
+                margin-top: 0.5rem;
+                button {
+                    width: 25%;
+                    background: none;
+                    border: none;
+                    color: var(--color-white);
+                    cursor: pointer;
+                    padding: 0.5rem 1rem;
+                    border-radius: 10px;
+                    transition: background 0.3s ease;
+
+                    &.edit-btn {
+                        color: var(--edit-btn);
+                    }
+
+                    &.del-btn {
+                        color: var(--delete-btn);
+                    }
+
+                    &:hover {
+                        background: rgba(255, 255, 255, 0.1);
+                    }
+                }
+            }
+        }
+
+        .column {
+            flex: 1;
+            padding: 0.5rem;
+            &:nth-child(2) {
+                text-align: center;
+            }
+            &:nth-child(3) {
+                text-align: right;
+            }
+        }
+
+        .date {
+            position: absolute;
+            bottom: -10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1); /* Lighter background color */
+            padding: 0.25rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            color: var(--color-white); /* Adjust text color for contrast */
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hide-on-mobile {
+            display: none;
+        }
     }
 `;
 
-export default History
+export default History;

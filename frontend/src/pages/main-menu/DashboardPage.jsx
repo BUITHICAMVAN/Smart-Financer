@@ -96,18 +96,27 @@ const DashboardStyled = styled.div`
     grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
     margin: 1.25rem 0;
+
+    @media (max-width: 1024px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
   }
+
   .income,
-    .saving,
-    .expense,
-    .monthly-saving,
-    .history-con,
-    .history-overview {
-      background: var(--component-color);
-      border: 2px solid #191a16;
-      box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
-      border-radius: 20px;
-      padding: 1rem 1.25rem;
+  .saving,
+  .expense,
+  .monthly-saving,
+  .history-con,
+  .history-overview {
+    background: var(--component-color);
+    border: 2px solid #191a16;
+    box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
+    border-radius: 20px;
+    padding: 1rem 1.25rem;
   }
 
   .table, th, td {
@@ -119,14 +128,11 @@ const DashboardStyled = styled.div`
     display: grid;
     grid-template-columns: 4fr 2fr;
     gap: 1rem;
-    .edit-btn {
-      color: var(--edit-btn);
-    }
-    .del-btn {
-      color: var(--delete-btn); 
+
+    @media (max-width: 1024px) {
+      grid-template-columns: 1fr;
     }
   }
-`
+`;
 
-
-export default DashboardPage
+export default DashboardPage;

@@ -15,7 +15,6 @@ import { createBrowserHistory } from 'history'
 import BudgetingPage from './pages/main-menu/BudgetingPage'
 import SignInPage from './pages/authenticate/SignInPage'
 import SignUpPage from './pages/authenticate/SignUpPage'
-import { LandingPage } from './pages/LandingPage'
 import ReportPage from './pages/main-menu/ReportPage'
 import DuePage from './pages/main-menu/DuePage'
 import ForecastPage from './pages/main-menu/ForecastingPage'
@@ -41,7 +40,6 @@ root.render(
             <Route path='/budgeting-page' element={<BudgetingPage />} />
             <Route path='/signin-page' element={<SignInPage />} />
             <Route path='/signup-page' element={<SignUpPage />} />
-            <Route path='/landing-page' element={<LandingPage />} />
             <Route path='/due-page' element={<DuePage />} />
             <Route path='/forecast-page' element={<ForecastPage />} />
           </Route>
