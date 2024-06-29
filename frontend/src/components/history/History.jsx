@@ -1,44 +1,86 @@
-import React, { useEffect, useState } from 'react'
-import styled from 'styled-components'
-import { NavLink } from 'react-router-dom'
-import { getCurrentMonth } from '../../utils/CurrentDate'
-import { useDispatch, useSelector } from 'react-redux'
-import { deleteExpenseActionAsync, fetchCurrentMonthExpensesAsync } from '../../reducers/ExpenseReducer'
-import { dateFormat } from '../../utils/format/DateFormat'
-import { getCurrencySymbol } from '../../utils/format/CurrencySymbol'
-import { setCurrentCurrencyAsync } from '../../reducers/UserReducer'
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
+import { NavLink } from 'react-router-dom';
+import { getCurrentMonth } from '../../utils/CurrentDate';
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteExpenseActionAsync, editExpenseActionAsync, fetchCurrentMonthExpensesAsync } from '../../reducers/ExpenseReducer';
+import { dateFormat } from '../../utils/format/DateFormat';
+import { getCurrencySymbol } from '../../utils/format/CurrencySymbol';
+import { setCurrentCurrencyAsync } from '../../reducers/UserReducer';
+import Pagination from '../pagination/Pagination';
+import ExpenseModal from '../modals/ExpenseModal';
+import { getExpenseTypeName } from '../../utils/mapping/ExpenseTypeMapping';
+import { getExpenseTypesActionAsync } from '../../reducers/ExpenseTypeReducer';
 
 const History = () => {
+    const dispatch = useDispatch();
+    const [open, setOpen] = useState(false); // open modal
+    const [initialData, setInitialData] = useState(null); // table data for editing modal
+    const [currentPage, setCurrentPage] = useState(1);
 
-    const dispatch = useDispatch()
-    const [open, setOpen] = useState(false) // open modal
-    const [initialData, setInitialData] = useState(null) // table data for editing modal
+    const itemsPerPage = 5;
 
-    const currentMonth = getCurrentMonth()
-    const expenses = useSelector(state => state.expenseReducer.currentMonthExpenses)
+    const currentMonth = getCurrentMonth();
+    const expenses = useSelector(state => state.expenseReducer.currentMonthExpenses);
+    const expenseTypes = useSelector(state => state.expenseTypeReducer.expenseTypes)
 
-    const currencyUnit = useSelector(state => state.userReducer.userCurrencyUnit)
+    const currentUnit = useSelector(state => state.userReducer.userCurrencyUnit)
+
+    const handleCancel = () => {
+        setOpen(false)
+        setInitialData(null) // Clear initial data when closing modal
+    }
 
     const handleDelete = (id) => {
-        dispatch(deleteExpenseActionAsync(id))
-    }
+        dispatch(deleteExpenseActionAsync(id));
+    };
 
     const handleEdit = (data) => {
-        setInitialData(data) // Set data to edit
-        setOpen(true)
+        setInitialData(data); // Set data to edit
+        setOpen(true);
+    };
+
+    const handleSaveEdit = async (id, formData) => {
+        try {
+            await dispatch(editExpenseActionAsync(id, formData))
+            setOpen(false)
+        } catch (error) {
+            console.error('Failed to edit transaction:', error)
+            alert('Failed to edit transaction.')
+        }
     }
 
     useEffect(() => {
-        dispatch(setCurrentCurrencyAsync())
-    }, [])
+        dispatch(setCurrentCurrencyAsync());
+    }, [dispatch]);
 
     useEffect(() => {
-        dispatch(fetchCurrentMonthExpensesAsync())
+        dispatch(fetchCurrentMonthExpensesAsync());
+    }, [dispatch]);
+
+    useEffect(() => {
+        dispatch(getExpenseTypesActionAsync())
     }, [])
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
+
+    // Calculate the index of the first and last item on the current page
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = expenses.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(expenses.length / itemsPerPage);
 
     return (
         <HistoryStyled>
             <div className="history-con">
+                <ExpenseModal
+                    open={open}
+                    onEdit={handleSaveEdit}
+                    onCancel={handleCancel}
+                    initialData={initialData}
+                />
                 <div className="history-title">
                     <h2>{currentMonth} Transactions</h2>
                     <NavLink to='/expense-page' className={'history-detail'}><h2>View in detail</h2></NavLink>
@@ -51,18 +93,19 @@ const History = () => {
                                 <th><span>Details</span></th>
                                 <th><span>Needs</span></th>
                                 <th><span>Wants</span></th>
+                                <th><span>Actions</span></th>
                             </tr>
                         </thead>
                         <tbody>
-                            {expenses.map((expense) => (
+                            {currentItems.map((expense) => (
                                 <tr key={expense.expense_id}>
                                     <td><span className="white-text">{dateFormat(expense.expense_created_at)}</span></td>
-                                    <td><span className="white-text">{expense.expense_note}</span></td>
+                                    <td><span className="white-text">{getExpenseTypeName(expense.expense_type_id, expenseTypes)}</span></td>
                                     <td><span className={expense.expense_type_id === 1 ? "white-text" : "na-text"}>
-                                        {expense.expense_type_id === 1 ? `${getCurrencySymbol(currencyUnit)}${expense.expense_amount}` : 'N/A'}
+                                        {expense.expense_type_id === 1 ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
                                     </span></td>
                                     <td><span className={expense.expense_type_id === 2 ? "white-text" : "na-text"}>
-                                        {expense.expense_type_id === 2 ? `${getCurrencySymbol(currencyUnit)}${expense.expense_amount}` : 'N/A'}
+                                        {expense.expense_type_id === 2 ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
                                     </span></td>
                                     <td><span className='edit-btn' onClick={() => handleEdit(expense)}>Edit</span></td>
                                     <td><span className='del-btn' onClick={() => handleDelete(expense.expense_id)}>Delete</span></td>
@@ -71,9 +114,14 @@ const History = () => {
                         </tbody>
                     </table>
                 </div>
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                />
             </div>
         </HistoryStyled>
-    )
+    );
 }
 
 const HistoryStyled = styled.div`
@@ -105,15 +153,34 @@ const HistoryStyled = styled.div`
         }
       }
       tbody > tr {
-        background: rgb(0, 0, 0);
+        background: transparent;
+        td {
+            background: var(--component-color);
+            border: 1px solid #191a16;
+            border-radius: 10px;
+            padding: 0.5rem;
+        }
+        &:hover td {
+            background: var(--hover-color); /* Optional: Change color on hover */
+        }
       }
     }
-    .edit-btn {
+    .edit-btn, .del-btn {
         color: var(--edit-btn);
+        margin-right: 10px;
+        cursor: pointer;
+        display: inline-block;
+        padding: 0.5rem;
+        border-radius: 5px;
+        transition: background 0.3s ease;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
     }
     .del-btn {
         color: var(--delete-btn);
     }
 `;
 
-export default History
+export default History;

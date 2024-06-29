@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { InnerLayout } from '../../styles/Layouts';
 import useTransaction from '../../customHooks/TransactionHook';
@@ -10,30 +10,30 @@ import { getCurrencySymbol } from '../../utils/format/CurrencySymbol';
 import { setCurrentCurrencyAsync } from '../../reducers/UserReducer';
 
 const SavingPage = () => {
+  const dispatch = useDispatch();
+  const { fetchMonthlyTransaction, addTransaction, removeTransaction, editTransaction } = useTransaction('savings');
+  const [confirmLoading, setConfirmLoading] = useState(false); // loading
+  const [open, setOpen] = useState(false); // open modal
+  const [initialData, setInitialData] = useState(null); // table data for editing modal
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
-  const dispatch = useDispatch()
-  const { fetchMonthlyTransaction, addTransaction, removeTransaction, editTransaction } = useTransaction('savings')
-  const [confirmLoading, setConfirmLoading] = useState(false) // loading
-  const [open, setOpen] = useState(false) // open modal
-  const [initialData, setInitialData] = useState(null) // table data for editing modal
+  const currentMonthTransactions = useSelector(state => state.transactionReducer.currentMonthTransactions);
+  const savings = currentMonthTransactions.savings || [];
+  const savingTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.savingTypes);
 
-  const currentMonthTransactions = useSelector(state => state.transactionReducer.currentMonthTransactions)
-  const savings = currentMonthTransactions.savings || []
-  const savingTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.savingTypes)
-
-  const totalAmount = calculateTotalAmount(savings, 'saving_amount')
-
-  const currentUnit = useSelector(state => state.userReducer.userCurrencyUnit)
+  const totalAmount = calculateTotalAmount(savings, 'saving_amount');
+  const currentUnit = useSelector(state => state.userReducer.userCurrencyUnit);
 
   const showModal = () => {
     setInitialData(null); // Clear initial data for adding
     setOpen(true);
-  }
+  };
 
   const handleCancel = () => {
     setOpen(false);
     setInitialData(null); // Clear initial data when closing modal
-  }
+  };
 
   const handleCreate = async (formData) => {
     setConfirmLoading(true);
@@ -46,16 +46,16 @@ const SavingPage = () => {
     } finally {
       setConfirmLoading(false);
     }
-  }
+  };
 
   const handleDelete = (id) => {
     removeTransaction(id);
-  }
+  };
 
   const handleEdit = (data) => {
     setInitialData(data); // Set data to edit
     setOpen(true);
-  }
+  };
 
   const handleSaveEdit = (data, id) => {
     setConfirmLoading(true);
@@ -68,20 +68,44 @@ const SavingPage = () => {
     } finally {
       setConfirmLoading(false);
     }
-  }
+  };
 
   const getSavingTypeName = (id) => {
-    const savingType = savingTypes.find(type => type.saving_type_id === id)
-    return savingType ? savingType.saving_type_name : 'Unknown'
-  }
+    const savingType = savingTypes.find(type => type.saving_type_id === id);
+    return savingType ? savingType.saving_type_name : 'Unknown';
+  };
 
   useEffect(() => {
     fetchMonthlyTransaction();
-  }, [])
+  }, []);
 
   useEffect(() => {
-    dispatch(setCurrentCurrencyAsync())
-  })
+    dispatch(setCurrentCurrencyAsync());
+  }, [dispatch]);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = savings.slice(indexOfFirstItem, indexOfFirstItem + itemsPerPage);
+
+  const renderPagination = () => {
+    const pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(savings.length / itemsPerPage); i++) {
+      pageNumbers.push(i);
+    }
+    return (
+      <Pagination>
+        {pageNumbers.map(number => (
+          <PaginationItem key={number} onClick={() => handlePageChange(number)} active={number === currentPage}>
+            {number}
+          </PaginationItem>
+        ))}
+      </Pagination>
+    );
+  };
 
   return (
     <SavingPageStyled>
@@ -93,7 +117,6 @@ const SavingPage = () => {
               <h2>Savings Balance</h2>
             </div>
             <div className="btn-con">
-              {/* <button className="btn btn-dark mx-3">Export</button> */}
               <button className="btn btn-warning" onClick={showModal}>Add Entry</button>
             </div>
             <TransactionModal
@@ -116,7 +139,7 @@ const SavingPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {savings.map((saving) => (
+                  {currentItems.map((saving) => (
                     <tr key={saving.saving_id}>
                       <td><span className="white-text">{dateFormat(saving.saving_created_at)}</span></td>
                       <td><span className="white-text">{getSavingTypeName(saving.saving_type_id)}</span></td>
@@ -128,13 +151,14 @@ const SavingPage = () => {
                   ))}
                 </tbody>
               </table>
+              {renderPagination()}
             </div>
           </div>
         </div>
       </InnerLayout>
     </SavingPageStyled>
-  )
-}
+  );
+};
 
 const SavingPageStyled = styled.div`
   p {
@@ -174,6 +198,23 @@ const SavingPageStyled = styled.div`
   }
 `;
 
+const Pagination = styled.ul`
+  display: flex;
+  justify-content: center;
+  padding: 1rem 0;
+  list-style: none;
+`;
 
-export default SavingPage
+const PaginationItem = styled.li`
+  margin: 0 0.5rem;
+  cursor: pointer;
+  color: ${({ active }) => (active ? '#fff' : '#fff')};
+  background-color: ${({ active }) => (active ? 'var(--color-yellow)' : 'transparent')};
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  &:hover {
+    background-color: ${({ active }) => (active ? 'var(--color-yellow)' : '#f0f0f0')};
+  }
+`;
 
+export default SavingPage;

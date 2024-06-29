@@ -30,21 +30,9 @@ const DuePage = () => {
     dispatch(getDuesActionAsync())
   }, [dispatch])
 
-  const handleAddDue = (newDue) => {
-    dispatch(addDueActionAsync({ ...newDue, due_type: dueType }))
-  }
-
   const handlePayStatus = (due) => {
     setSelectedDue(due)
     setPayStatusOpen(true)
-  }
-
-  const handleEditDue = (id, updatedDue) => {
-    dispatch(editDueActionAsync(id, updatedDue))
-  }
-
-  const handleDeleteDue = (id) => {
-    dispatch(deleteDueActionAsync(id))
   }
 
   const showModal = (type) => {

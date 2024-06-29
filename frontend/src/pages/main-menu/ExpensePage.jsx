@@ -1,100 +1,124 @@
-import React, { useEffect, useState } from 'react'
-import styled from 'styled-components'
-import { InnerLayout } from '../../styles/Layouts'
-import ExpenseModal from '../../components/modals/ExpenseModal'
-import { useDispatch, useSelector } from 'react-redux'
-import { addExpenseActionAsync, deleteExpenseActionAsync, editExpenseActionAsync, fetchCurrentMonthExpensesAsync } from '../../reducers/ExpenseReducer'
-import { dateFormat } from '../../utils/format/DateFormat'
-import { getCurrencySymbol } from '../../utils/format/CurrencySymbol'
-import useTransaction from '../../customHooks/TransactionHook'
-import { getCurrentMonth } from '../../utils/CurrentDate'
-import { setCurrentCurrencyAsync } from '../../reducers/UserReducer'
-import { getExpenseTypeName } from '../../utils/mapping/ExpenseTypeMapping'
-import { getExpenseTypesActionAsync } from '../../reducers/ExpenseTypeReducer'
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
+import { InnerLayout } from '../../styles/Layouts';
+import ExpenseModal from '../../components/modals/ExpenseModal';
+import { useDispatch, useSelector } from 'react-redux';
+import { addExpenseActionAsync, deleteExpenseActionAsync, editExpenseActionAsync, fetchCurrentMonthExpensesAsync } from '../../reducers/ExpenseReducer';
+import { dateFormat } from '../../utils/format/DateFormat';
+import { getCurrencySymbol } from '../../utils/format/CurrencySymbol';
+import useTransaction from '../../customHooks/TransactionHook';
+import { getCurrentMonth } from '../../utils/CurrentDate';
+import { setCurrentCurrencyAsync } from '../../reducers/UserReducer';
+import { getExpenseTypeName } from '../../utils/mapping/ExpenseTypeMapping';
+import { getExpenseTypesActionAsync } from '../../reducers/ExpenseTypeReducer';
 
 const ExpensePage = () => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
+  const { fetchCurrentMonthSaving } = useTransaction('savings');
 
-  const { fetchCurrentMonthSaving } = useTransaction('savings')
+  const [open, setOpen] = useState(false); // open modal
+  const [initialData, setInitialData] = useState(null); // table data for editing modal
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
-  const [open, setOpen] = useState(false) // open modal
-  const [initialData, setInitialData] = useState(null) // table data for editing modal
+  const expenses = useSelector(state => state.expenseReducer.currentMonthExpenses);
+  const expenseTypes = useSelector(state => state.expenseTypeReducer.expenseTypes);
 
-  const expenses = useSelector(state => state.expenseReducer.currentMonthExpenses)
-  const expenseTypes = useSelector(state => state.expenseTypeReducer.expenseTypes)
-
-  const wants = expenses.filter(expense => expense.expense_category_id === 1)
-  const needs = expenses.filter(expense => expense.expense_category_id === 2)
+  const wants = expenses.filter(expense => expense.expense_category_id === 1);
+  const needs = expenses.filter(expense => expense.expense_category_id === 2);
 
   const totalNeedsAmount = needs.reduce((total, expense) => {
-    const amount = parseFloat(expense.expense_amount) || 0
-    return total + amount
-  }, 0)
+    const amount = parseFloat(expense.expense_amount) || 0;
+    return total + amount;
+  }, 0);
 
   const totalWantsAmount = wants.reduce((total, expense) => {
-    const amount = parseFloat(expense.expense_amount) || 0
-    return total + amount
-  }, 0)
+    const amount = parseFloat(expense.expense_amount) || 0;
+    return total + amount;
+  }, 0);
 
-  const currentUnit = useSelector(state => state.userReducer.userCurrencyUnit)
-
-  const currentMonth = getCurrentMonth()
-  const currentMonthSaving = useSelector(state => state.transactionReducer.currentMonthSaving)
+  const currentUnit = useSelector(state => state.userReducer.userCurrencyUnit);
+  const currentMonth = getCurrentMonth();
+  const currentMonthSaving = useSelector(state => state.transactionReducer.currentMonthSaving);
 
   const showModal = () => {
-    setInitialData(null) // Clear initial data for adding
-    setOpen(true)
-  }
+    setInitialData(null); // Clear initial data for adding
+    setOpen(true);
+  };
 
   const handleCancel = () => {
-    setOpen(false)
-    setInitialData(null) // Clear initial data when closing modal
-  }
+    setOpen(false);
+    setInitialData(null); // Clear initial data when closing modal
+  };
 
   const handleCreate = async (formData) => {
     try {
-      await dispatch(addExpenseActionAsync(formData))
-      setOpen(false)
+      await dispatch(addExpenseActionAsync(formData));
+      setOpen(false);
     } catch (error) {
-      console.error('Failed to add transaction:', error)
-      alert('Failed to add transaction.')
+      console.error('Failed to add transaction:', error);
+      alert('Failed to add transaction.');
     }
-  }
+  };
 
   const handleDelete = (id) => {
-    dispatch(deleteExpenseActionAsync(id))
-  }
+    dispatch(deleteExpenseActionAsync(id));
+  };
 
   const handleEdit = (data) => {
-    setInitialData(data) // Set data to edit
-    setOpen(true)
-  }
+    setInitialData(data); // Set data to edit
+    setOpen(true);
+  };
 
   const handleSaveEdit = async (id, formData) => {
     try {
-      await dispatch(editExpenseActionAsync(id, formData))
-      setOpen(false)
+      await dispatch(editExpenseActionAsync(id, formData));
+      setOpen(false);
     } catch (error) {
-      console.error('Failed to edit transaction:', error)
-      alert('Failed to edit transaction.')
+      console.error('Failed to edit transaction:', error);
+      alert('Failed to edit transaction.');
     }
-  }
+  };
 
   useEffect(() => {
-    dispatch(fetchCurrentMonthExpensesAsync())
-  }, [])
+    dispatch(fetchCurrentMonthExpensesAsync());
+  }, [dispatch]);
 
   useEffect(() => {
-    dispatch(getExpenseTypesActionAsync())
-  }, [])
+    dispatch(getExpenseTypesActionAsync());
+  }, [dispatch]);
 
   useEffect(() => {
-    dispatch(setCurrentCurrencyAsync())
-  }, [])
+    dispatch(setCurrentCurrencyAsync());
+  }, [dispatch]);
 
   useEffect(() => {
-    fetchCurrentMonthSaving()
-  }, [])
+    fetchCurrentMonthSaving();
+  }, [fetchCurrentMonthSaving]);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = expenses.slice(indexOfFirstItem, indexOfLastItem);
+
+  const renderPagination = () => {
+    const pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(expenses.length / itemsPerPage); i++) {
+      pageNumbers.push(i);
+    }
+    return (
+      <Pagination>
+        {pageNumbers.map(number => (
+          <PaginationItem key={number} onClick={() => handlePageChange(number)} active={number === currentPage}>
+            {number}
+          </PaginationItem>
+        ))}
+      </Pagination>
+    );
+  };
 
   return (
     <ExpensePageStyled>
@@ -106,7 +130,6 @@ const ExpensePage = () => {
               <hr />
               <div className="expense-content">
                 <div className="btn-con">
-                  {/* <button className="btn btn-dark">Export</button> */}
                   <button className="btn btn-warning" onClick={showModal}>Add Entry</button>
                 </div>
                 <ExpenseModal
@@ -126,15 +149,15 @@ const ExpensePage = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {expenses.map((expense) => (
+                    {currentItems.map((expense) => (
                       <tr key={expense.expense_id}>
                         <td><span className="white-text">{dateFormat(expense.expense_created_at)}</span></td>
                         <td><span className="white-text">{getExpenseTypeName(expense.expense_type_id, expenseTypes)}</span></td>
-                        <td><span className={expense.expense_type_id === 1 ? "white-text" : "na-text"}>
-                          {expense.expense_type_id === 1 ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
+                        <td><span className={expense.expense_category_id === 2 ? "white-text" : "na-text"}>
+                          {expense.expense_category_id === 2 ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
                         </span></td>
-                        <td><span className={expense.expense_type_id === 2 ? "white-text" : "na-text"}>
-                          {expense.expense_type_id === 2 ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
+                        <td><span className={expense.expense_category_id === 1 ? "white-text" : "na-text"}>
+                          {expense.expense_category_id === 1 ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
                         </span></td>
                         <td><span className='edit-btn' onClick={() => handleEdit(expense)}>Edit</span></td>
                         <td><span className='del-btn' onClick={() => handleDelete(expense.expense_id)}>Delete</span></td>
@@ -142,6 +165,7 @@ const ExpensePage = () => {
                     ))}
                   </tbody>
                 </table>
+                {renderPagination()}
               </div>
             </div>
             <div className='content-container content-right text-left'>
@@ -178,8 +202,8 @@ const ExpensePage = () => {
                   <span className='insight-title'>Savings</span>
                   <div className="main">
                     <div className="amount">
-                      <p>Total Savings: {getCurrencySymbol(currentUnit)}{ }</p>
-                    </div>c
+                      <p>Total Savings: {getCurrencySymbol(currentUnit)}</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -188,8 +212,8 @@ const ExpensePage = () => {
         </div>
       </InnerLayout>
     </ExpensePageStyled>
-  )
-}
+  );
+};
 
 const ExpensePageStyled = styled.div`
   h1 {
@@ -248,13 +272,6 @@ const ExpensePageStyled = styled.div`
   .del-btn {
     color: var(--delete-btn); 
   }
-  .edit-btn {
-    color: var(--edit-btn);
-  }
-  .del-btn {
-    color: var(--delete-btn); 
-  }
-
   .insight {
     display: grid;
     gap: 1rem;
@@ -301,4 +318,23 @@ const ExpensePageStyled = styled.div`
   }
 `;
 
-export default ExpensePage
+const Pagination = styled.ul`
+  display: flex;
+  justify-content: center;
+  padding: 1rem 0;
+  list-style: none;
+`;
+
+const PaginationItem = styled.li`
+  margin: 0 0.5rem;
+  cursor: pointer;
+  color: ${({ active }) => (active ? '#fff' : '#fff')};
+  background-color: ${({ active }) => (active ? 'var(--color-yellow)' : 'transparent')};
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  &:hover {
+    background-color: ${({ active }) => (active ? 'var(--color-yellow)' : '#f0f0f0')};
+  }
+`;
+
+export default ExpensePage;
