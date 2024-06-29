@@ -1,95 +1,133 @@
-import React, { useEffect, useState } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { Tooltip } from "antd"
-import { QuestionCircleOutlined } from '@ant-design/icons'
-import styled from "styled-components"
-import { InnerLayout } from "../../styles/Layouts"
-import { dateFormat } from "../../utils/format/DateFormat"
-import { addDueActionAsync, deleteDueActionAsync, editDueActionAsync, getDuesActionAsync, selectTotalPayableAmount, selectTotalReceivableAmount } from "../../reducers/DueReducer"
-import DueModal from "../../components/modals/DueModal"
-import { getCurrencySymbol } from "../../utils/format/CurrencySymbol"
-import { getDueDateStatus, getDueStatusIcon, getDueTypeWithColor } from "../../utils/DueUtils"
-import PayStatusModal from "../../components/modals/PayStatusModal"
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Tooltip } from "antd";
+import { QuestionCircleOutlined } from '@ant-design/icons';
+import styled from "styled-components";
+import { InnerLayout } from "../../styles/Layouts";
+import { dateFormat } from "../../utils/format/DateFormat";
+import { addDueActionAsync, deleteDueActionAsync, editDueActionAsync, getDuesActionAsync, selectTotalPayableAmount, selectTotalReceivableAmount } from "../../reducers/DueReducer";
+import DueModal from "../../components/modals/DueModal";
+import { getCurrencySymbol } from "../../utils/format/CurrencySymbol";
+import { getDueDateStatus, getDueStatusIcon, getDueTypeWithColor } from "../../utils/DueUtils";
+import PayStatusModal from "../../components/modals/PayStatusModal";
 
 const DuePage = () => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
-  const [confirmLoading, setConfirmLoading] = useState(false)
-  const [open, setOpen] = useState(false)
-  const [initialData, setInitialData] = useState(null) // For editing
-  const [dueType, setDueType] = useState('') // For setting due type
-  const [payStatusOpen, setPayStatusOpen] = useState(false)
-  const [selectedDue, setSelectedDue] = useState(null) // For pay status
-  const totalReceivableAmount = useSelector(selectTotalReceivableAmount)
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [initialData, setInitialData] = useState(null); // For editing
+  const [dueType, setDueType] = useState(''); // For setting due type
+  const [payStatusOpen, setPayStatusOpen] = useState(false);
+  const [selectedDue, setSelectedDue] = useState(null); // For pay status
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
-  const totalPayableAmount = useSelector(selectTotalPayableAmount)
-  const dues = useSelector(state => state.dueReducer.dues)
-  const currentUnit = useSelector(state => state.userReducer.userCurrencyUnit)
+  const totalReceivableAmount = useSelector(selectTotalReceivableAmount);
+  const totalPayableAmount = useSelector(selectTotalPayableAmount);
+  const dues = useSelector(state => state.dueReducer.dues);
+  const currentUnit = useSelector(state => state.userReducer.userCurrencyUnit);
 
   useEffect(() => {
-    dispatch(getDuesActionAsync())
-  }, [dispatch])
+    dispatch(getDuesActionAsync());
+  }, [dispatch]);
+
+  const handleAddDue = (newDue) => {
+    dispatch(addDueActionAsync({ ...newDue, due_type: dueType }));
+  };
 
   const handlePayStatus = (due) => {
-    setSelectedDue(due)
-    setPayStatusOpen(true)
-  }
+    setSelectedDue(due);
+    setPayStatusOpen(true);
+  };
+
+  const handleEditDue = (id, updatedDue) => {
+    dispatch(editDueActionAsync(id, updatedDue));
+  };
+
+  const handleDeleteDue = (id) => {
+    dispatch(deleteDueActionAsync(id));
+  };
 
   const showModal = (type) => {
-    setInitialData(null) // Clear initial data for adding
-    setDueType(type) // Set the due type
-    setOpen(true)
-  }
+    setInitialData(null); // Clear initial data for adding
+    setDueType(type); // Set the due type
+    setOpen(true);
+  };
 
   const handleCancel = () => {
-    setOpen(false)
-    setInitialData(null) // Clear initial data when closing modal
-  }
+    setOpen(false);
+    setInitialData(null); // Clear initial data when closing modal
+  };
 
   const handleCreate = async (data) => {
-    setConfirmLoading(true)
+    setConfirmLoading(true);
     try {
-      await dispatch(addDueActionAsync(data))
-      setOpen(false)
+      await dispatch(addDueActionAsync(data));
+      setOpen(false);
     } catch (error) {
-      console.error('Failed to add transaction:', error)
-      alert('Failed to add transaction.')
+      console.error('Failed to add transaction:', error);
+      alert('Failed to add transaction.');
     } finally {
-      setConfirmLoading(false)
+      setConfirmLoading(false);
     }
-  }
+  };
 
   const handleDelete = (id) => {
-    dispatch(deleteDueActionAsync(id))
-  }
+    dispatch(deleteDueActionAsync(id));
+  };
 
   const handleEdit = (data) => {
-    setInitialData(data) // Set data to edit
-    setOpen(true)
-  }
+    setInitialData(data); // Set data to edit
+    setOpen(true);
+  };
 
   const handleSaveEdit = (id, data) => {
-    setConfirmLoading(true)
+    setConfirmLoading(true);
     try {
-      dispatch(editDueActionAsync(id, data))
-      setOpen(false)
+      dispatch(editDueActionAsync(id, data));
+      setOpen(false);
     } catch (error) {
-      console.error('Failed to edit transaction:', error)
-      alert('Failed to edit transaction.')
+      console.error('Failed to edit transaction:', error);
+      alert('Failed to edit transaction.');
     } finally {
-      setConfirmLoading(false)
+      setConfirmLoading(false);
     }
-  }
-  
+  };
+
   const handleMarkAsPaid = (values) => {
-    console.log('Marked as paid with:', values)
-    setPayStatusOpen(false)
+    console.log('Marked as paid with:', values);
+    setPayStatusOpen(false);
     // Implement logic to handle marking as paid
-  }
+  };
 
   useEffect(() => {
-    dispatch(getDuesActionAsync())
-  }, [])
+    dispatch(getDuesActionAsync());
+  }, [dispatch]);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = dues.slice(indexOfFirstItem, indexOfLastItem);
+
+  const renderPagination = () => {
+    const pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(dues.length / itemsPerPage); i++) {
+      pageNumbers.push(i);
+    }
+    return (
+      <Pagination>
+        {pageNumbers.map(number => (
+          <PaginationItem key={number} onClick={() => handlePageChange(number)} active={number === currentPage}>
+            {number}
+          </PaginationItem>
+        ))}
+      </Pagination>
+    );
+  };
 
   return (
     <DuePageStyled>
@@ -154,7 +192,7 @@ const DuePage = () => {
                 </tr>
               </thead>
               <tbody>
-                {dues.map((due) => (
+                {currentItems.map((due) => (
                   <tr key={due.due_id}>
                     <td><span>{dateFormat(due.due_created_at)}</span></td>
                     <td><span>{due.due_details}</span></td>
@@ -169,15 +207,13 @@ const DuePage = () => {
                 ))}
               </tbody>
             </table>
+            {renderPagination()}
           </div>
         </div>
       </InnerLayout>
     </DuePageStyled>
-  )
-}
-
-export default DuePage
-
+  );
+};
 
 const DuePageStyled = styled.div`
   p {
@@ -314,3 +350,24 @@ const DuePageStyled = styled.div`
     }
   }
 `;
+
+const Pagination = styled.ul`
+  display: flex;
+  justify-content: center;
+  padding: 1rem 0;
+  list-style: none;
+`;
+
+const PaginationItem = styled.li`
+  margin: 0 0.5rem;
+  cursor: pointer;
+  color: ${({ active }) => (active ? '#fff' : '#fff')};
+  background-color: ${({ active }) => (active ? 'var(--color-yellow)' : 'transparent')};
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  &:hover {
+    background-color: ${({ active }) => (active ? 'var(--color-yellow)' : '#f0f0f0')};
+  }
+`;
+
+export default DuePage;
