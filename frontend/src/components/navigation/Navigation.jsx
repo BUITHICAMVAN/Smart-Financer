@@ -108,7 +108,7 @@ const NavWrapper = styled.div`
 const ToggleButton = styled.button`
     position: absolute;
     top: 1rem;
-    left: 1rem;
+    right: 1rem;
     background: var(--color-yellow);
     border: none;
     padding: 0.5rem 1rem;
@@ -193,13 +193,13 @@ const NavStyled = styled.nav`
         &::before {
             content: "";
             position: absolute;
-            left: 0;
+            right: 0;
             top: 0;
             width: 4px;
             height: 100%;
             background-color: var(--color-yellow);
-            border-radius: 0 10px 10px 0;
-            margin-left: -0.5rem;
+            border-radius: 10px 0 0 10px;
+            margin-right: -0.5rem;
         }
     }
     .bottom-nav {
@@ -209,11 +209,11 @@ const NavStyled = styled.nav`
         width: 250px;
         position: fixed;
         top: 0;
-        left: 0;
+        right: 0;
         height: 100%;
         background: var(--background-color);
         z-index: 2;
-        transform: translateX(-100%);
+        transform: translateX(100%);
         transition: transform 0.3s ease-in-out;
         
         &.active {

@@ -105,18 +105,17 @@ const DashboardStyled = styled.div`
       grid-template-columns: 1fr;
     }
   }
-
   .income,
-  .saving,
-  .expense,
-  .monthly-saving,
-  .history-con,
-  .history-overview {
-    background: var(--component-color);
-    border: 2px solid #191a16;
-    box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
-    border-radius: 20px;
-    padding: 1rem 1.25rem;
+    .saving,
+    .expense,
+    .monthly-saving,
+    .history-con,
+    .history-overview {
+      background: var(--component-color);
+      border: 2px solid #191a16;
+      box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
+      border-radius: 20px;
+      padding: 1rem 1.25rem;
   }
 
   .table, th, td {
@@ -133,6 +132,6 @@ const DashboardStyled = styled.div`
       grid-template-columns: 1fr;
     }
   }
-`;
+`
 
-export default DashboardPage;
+export default DashboardPage

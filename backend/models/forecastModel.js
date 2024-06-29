@@ -48,19 +48,39 @@ const createModel = (timeSteps) => {
   return model;
 };
 
-// Function to train the model
+// Custom logging callback
+class LoggingCallback extends tf.Callback {
+  onEpochEnd(epoch, logs) {
+    console.log(`Epoch ${epoch + 1}: loss = ${logs.loss}, val_loss = ${logs.val_loss}`);
+  }
+  onTrainEnd(logs) {
+    console.log('Training completed.');
+  }
+}
+
+// Function to train the model with early stopping and logging
 const trainModel = async (model, xTrain, yTrain) => {
   console.log('Training model...');
+
+  const earlyStoppingCallback = tf.callbacks.earlyStopping({
+    monitor: 'val_loss',
+    patience: 10
+  });
+
+  const loggingCallback = new LoggingCallback();
+
+  // Check the shapes of xTrain and yTrain
+  console.log('xTrain shape:', xTrain.shape);
+  console.log('yTrain shape:', yTrain.shape);
+
+  const validationSplit = xTrain.shape[0] > 1 ? 0.2 : 0; // Use validation split only if there's enough data
 
   // fit model with training data
   await model.fit(xTrain, yTrain, {
     epochs: 50,
     batchSize: 32,
-    callbacks: {
-      onEpochEnd: (epoch, logs) => {
-        console.log(`Epoch ${epoch + 1}: loss = ${logs.loss}`);
-      }
-    }
+    validationSplit: validationSplit,
+    callbacks: validationSplit > 0 ? [earlyStoppingCallback, loggingCallback] : [loggingCallback],
   });
   console.log('Model trained.');
 };
@@ -106,6 +126,10 @@ const prepareData = (data, amountField, min, max) => {
 
   const latestInput = tf.tensor3d([amounts.slice(amounts.length - timeSteps).map(value => [value])], [1, timeSteps, features]);
 
+  // Log tensor shapes
+  console.log('xTrainTensor shape:', xTrainTensor.shape);
+  console.log('yTrainTensor shape:', yTrainTensor.shape);
+
   return { xTrain: xTrainTensor, yTrain: yTrainTensor, latestInput, timeSteps };
 };
 
@@ -118,4 +142,13 @@ const forecastNext = (model, latestInput, min, max) => {
   return actualPrediction;
 };
 
-module.exports = { createModel, trainModel, prepareData, forecastNext };
+const calculateMAE = (actual, predicted) => { // function to calculate Absolute Error (MAE)
+  const n = actual.length;
+  let sum = 0;
+  for (let i = 0; i < n; i++) {
+    sum += Math.abs(actual[i] - predicted[i]);
+  }
+  return sum / n;
+};
+
+module.exports = { createModel, trainModel, prepareData, forecastNext, calculateMAE };
