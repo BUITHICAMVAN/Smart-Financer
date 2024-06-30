@@ -1,16 +1,25 @@
-import React, { useDebugValue, useState } from 'react'
-import styled from 'styled-components'
-import { Table } from 'antd'
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
+import { Table } from 'antd';
+import { formatForecastData } from '../../utils/format/ForecastDataFormat';
 
 const ForecastTable = ({ data }) => {
-  const [dataSource, setDataSource] = useState([])
-  useDebugValue(() => {
-    if (Array.isArray(data.categories)) {
-      setDataSource(data.categories)
-    }
-  }, [data])
+  const [dataSource, setDataSource] = useState([]);
 
-  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+  useEffect(() => {
+    if (data) {
+      setDataSource(formatForecastData(data));
+    }
+  }, [data]);
+
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth();
+  const nextMonth = (currentMonth + 1) % 12;
+
+  const months = [];
+  for (let i = nextMonth; i < 12; i++) {
+    months.push(new Date(0, i).toLocaleString('default', { month: 'long' }).toLowerCase());
+  }
 
   const columns = [
     {
@@ -19,49 +28,27 @@ const ForecastTable = ({ data }) => {
       key: 'category',
       width: '20%',
       fixed: 'left',
-      render: (text, record) => {
-        if (record.children) {
-          return {
-            children: text,
-            props: {
-              colSpan: 1,
-            },
-          }
-        }
-        return text
-      },
     },
     ...months.map(month => ({
-      title: month,
-      dataIndex: month.toLowerCase(),
-      key: month.toLowerCase(),
-      render: (text) => <span>${text || 0}</span>,
-    }))
-  ]
-
-  const mergedColumns = columns.map((col) => {
-    return {
-      ...col,
-      onCell: (record) => ({
-        record,
-        dataIndex: col.dataIndex,
-        title: col.title
-      }),
-    }
-  })
+      title: month.charAt(0).toUpperCase() + month.slice(1),
+      dataIndex: month,
+      key: month,
+      render: (text) => <span>{typeof text === 'number' ? `$${text.toFixed(2)}` : 'N/A'}</span>,
+    })),
+  ];
 
   return (
     <ForecastTableStyled>
       <Table
-        dataSource={data}
+        dataSource={dataSource}
         pagination={false}
-        columns={mergedColumns}
+        columns={columns}
         rowKey="key"
         scroll={{ x: 1500 }}
       />
     </ForecastTableStyled>
-  )
-}
+  );
+};
 
 
 const ForecastTableStyled = styled.div`
@@ -108,17 +95,14 @@ const ForecastTableStyled = styled.div`
     justify-content: center;
     margin: 0;
   }
-
   .ant-table-tbody > tr > td {
     &.parent-row {
       background-color: var(--color-yellow);
     }
   }
-
   .parent-row > td:first-child {
     background-color: var(--color-yellow) !important;
   }
-
   .child-row > td:first-child {
     padding-left: 2rem;
   }

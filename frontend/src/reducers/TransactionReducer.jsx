@@ -76,30 +76,31 @@ export const deleteTransactionActionAsync = (type, id) => async (dispatch) => {
 
 export const addTransactionActionAsync = (type, formData) => async (dispatch) => {
     try {
-        const apiType = mapTransactionType(type) // convert type incomes (frontend) to income (backend)
+        const apiType = mapTransactionType(type);
 
-        const dateFormat = 'YYYY-MM-DD' // define date format
+        const dateFormat = 'YYYY-MM-DD';
 
         if (typeof formData[`${apiType}_created_at`] === 'string') {
-            formData[`${apiType}_created_at`] = moment(formData[`${apiType}_created_at`])
+            formData[`${apiType}_created_at`] = moment(formData[`${apiType}_created_at`]);
         }
 
         if (formData[`${apiType}_created_at`] && formData[`${apiType}_created_at`].format) {
-            formData[`${apiType}_created_at`] = formData[`${apiType}_created_at`].format(dateFormat)
+            formData[`${apiType}_created_at`] = formData[`${apiType}_created_at`].format(dateFormat);
         } else {
-            console.error("Date is undefined or not a moment object")
-            throw new Error("Invalid date")
+            console.error("Date is undefined or not a moment object");
+            throw new Error("Invalid date");
         }
 
-        const res = await http.post(`${type}`, formData) // tells js to pause untill the Promise resolves
-        dispatch(addTransactionAction({ transType: type, transForm: formData })) // add payload and dispatch action
-        alert('Transaction added successfully!')
-        dispatch(getTransactionsActionAsync(`${type}`))
+        const res = await http.post(`${type}`, formData);
+        dispatch(addTransactionAction({ transType: type, transForm: formData }));
+        dispatch(getTransactionsActionAsync(`${type}`));
+        alert('Transaction added successfully!');
     } catch (error) {
-        console.error('Failed to add transaction:', error)
-        alert('Failed to add transaction.')
+        console.error('Failed to add transaction:', error);
+        alert('Failed to add transaction.');
     }
-}
+};
+
 
 export const editTransactionActionAsync = (type, newData, id) => async (dispatch) => {
     try {

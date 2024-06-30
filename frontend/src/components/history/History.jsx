@@ -101,11 +101,11 @@ const History = () => {
                                 <tr key={expense.expense_id}>
                                     <td><span className="white-text">{dateFormat(expense.expense_created_at)}</span></td>
                                     <td><span className="white-text">{getExpenseTypeName(expense.expense_type_id, expenseTypes)}</span></td>
-                                    <td><span className={expense.expense_type_id === 1 ? "white-text" : "na-text"}>
-                                        {expense.expense_type_id === 1 ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
+                                    <td><span className={expense.ExpenseType.ExpenseCategory.expense_category_name === 'essentials' ? "white-text" : "na-text"}>
+                                        {expense.ExpenseType.ExpenseCategory.expense_category_name === 'essentials' ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
                                     </span></td>
-                                    <td><span className={expense.expense_type_id === 2 ? "white-text" : "na-text"}>
-                                        {expense.expense_type_id === 2 ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
+                                    <td><span className={expense.ExpenseType.ExpenseCategory.expense_category_name === 'non-essentials' ? "white-text" : "na-text"}>
+                                        {expense.ExpenseType.ExpenseCategory.expense_category_name === 'non-essentials' ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
                                     </span></td>
                                     <td><span className='edit-btn' onClick={() => handleEdit(expense)}>Edit</span></td>
                                     <td><span className='del-btn' onClick={() => handleDelete(expense.expense_id)}>Delete</span></td>

@@ -8,7 +8,7 @@ import { fetchUserAsync } from '../../reducers/UserReducer';
 import { getCurrencySymbol } from '../../utils/format/CurrencySymbol';
 import { calculateTotalAmount } from '../../utils/calculate/totalAmount';
 import useTransaction from '../../customHooks/TransactionHook';
-import { getExpenseActionAsync } from '../../reducers/ExpenseReducer';
+import { fetchCurrentMonthExpensesByTypeAsync, getExpenseActionAsync } from '../../reducers/ExpenseReducer';
 import { getCurrentMonth } from '../../utils/CurrentDate';
 
 const DashboardPage = () => {
@@ -48,6 +48,9 @@ const DashboardPage = () => {
         fetchCurrentMonthSaving()
     }, [])
 
+    useEffect(() => {
+        dispatch(fetchCurrentMonthExpensesByTypeAsync(), [])
+    })
     return (
         <DashboardStyled>
             <InnerLayout>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Form, Input, InputNumber, DatePicker, Select } from 'antd';
+import { Modal, Form, InputNumber, DatePicker, Select } from 'antd';
 import moment from 'moment';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
@@ -91,12 +91,12 @@ const ExpenseModal = ({ open, onCreate, onCancel, onEdit, initialData }) => {
             rules={[{ required: true, message: 'Please select the type!' }]}
           >
             <Select
-              showSearch
-              placeholder="Select a type"
-              optionFilterProp="children"
-              filterOption={(input, option) =>
-                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }
+               showSearch
+               placeholder="Select a type"
+               optionFilterProp="children"
+               filterOption={(input, option) =>
+                   option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+               }
             >
               {expenseTypes.map((item) => (
                 <Select.Option key={item.expense_type_id} value={item.expense_type_name}>

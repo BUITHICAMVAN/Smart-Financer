@@ -1,8 +1,9 @@
 const Expense = require('../models/expense/expenseModel');
 const Income = require('../models/income/incomeModel');
 const Saving = require('../models/saving/savingModel');
-const { createModel, trainModel, prepareData, forecastNext, calculateMAE } = require('../models/forecastModel');
+const { createModel, trainModel, prepareData, forecastNext } = require('../models/forecastModel');
 const moment = require('moment');
+const connectRedis = require('../redis/redisClient');
 
 // Function to fetch data for the user
 const fetchData = async (userId) => {
@@ -21,7 +22,6 @@ const fetchData = async (userId) => {
     order: [['saving_created_at', 'ASC']]
   });
 
-  // console.log('Fetched Data:', { incomes, expenses, savings }); // Debugging statement
   return { incomes, expenses, savings };
 };
 
@@ -70,18 +70,27 @@ const aggregateDataByTypeAndMonth = (data, typeField, amountField, dateField) =>
     aggregatedData[key].totalAmount += amount;
   });
 
-  // Log the final aggregated data for debugging
-  console.log('Final Aggregated Data:', aggregatedData);
   return Object.values(aggregatedData);
 };
 
 // Main function to forecast the next month
 const forecastNextMonth = async (req, res) => {
+  let client;
   try {
     const userId = req.user.user_id;
 
     if (!userId) {
       throw new Error('User ID is missing');
+    }
+
+    client = await connectRedis();
+
+    const cacheKey = `forecast_${userId}`;
+    const cachedData = await client.get(cacheKey);
+
+    if (cachedData) {
+      console.log('Returning cached data');
+      return res.json(JSON.parse(cachedData));
     }
 
     const { min, max } = await fetchDataAndCalculateMinMax();
@@ -94,7 +103,6 @@ const forecastNextMonth = async (req, res) => {
     };
 
     const predictions = {};
-    const actualValues = {};
 
     for (const [dataType, { data, typeField, amountField, dateField }] of Object.entries(types)) {
       const aggregatedData = aggregateDataByTypeAndMonth(data, typeField, amountField, dateField);
@@ -105,17 +113,6 @@ const forecastNextMonth = async (req, res) => {
       for (const typeId of typeIds) {
         const filteredData = aggregatedData.filter(item => item.typeId === typeId);
         console.log(`Filtered Data for ${dataType}_${typeId}:`, filteredData); // Debugging statement
-
-        // Get actual values for the next month to calculate MAE later
-        const actualData = filteredData.filter(item => {
-          const itemDate = moment(item.month, 'YYYY-MM');
-          const nextMonthDate = moment().add(1, 'months');
-          return itemDate.isSame(nextMonthDate, 'month');
-        }).map(item => item.totalAmount);
-
-        if (actualData.length > 0) {
-          actualValues[`${dataType}_${typeId}`] = actualData;
-        }
 
         const { xTrain, yTrain, latestInput, timeSteps } = prepareData(filteredData, 'totalAmount', min, max);
 
@@ -135,22 +132,21 @@ const forecastNextMonth = async (req, res) => {
 
     console.log('Predictions:', predictions); // Debugging statement
 
-    // Calculate MAE using actual values for the next month
-    const predictedValues = Object.values(predictions).filter(value => typeof value === 'number');
-    const actualValuesArray = Object.values(actualValues).flat();
+    // save data to cache
+    await client.set(cacheKey, JSON.stringify({ predictions }), {
+      EX: 86400 // Cache for 1 day
+    });
 
-    if (actualValuesArray.length === predictedValues.length) {
-      const mae = calculateMAE(actualValuesArray, predictedValues);
-      console.log('Mean Absolute Error (MAE):', mae); // Log the MAE
-      res.json({ predictions, mae });
-    } else {
-      console.log('Cannot calculate MAE due to mismatch in actual and predicted values.');
-      res.json({ predictions, mae: 'N/A' });
-    }
+    res.json({ predictions });
   } catch (error) {
     console.error('Error during prediction:', error); // Log the error for better visibility
     res.status(500).json({ error: error.message });
-  }
+  } 
+  // finally {
+  //   if (client && client.isOpen) {
+  //     await client.quit(); // Ensure the Redis client is closed
+  //   }
+  // }
 };
 
 module.exports = { forecastNextMonth };

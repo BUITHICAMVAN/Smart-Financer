@@ -24,8 +24,8 @@ const ExpensePage = () => {
   const expenses = useSelector(state => state.expenseReducer.currentMonthExpenses);
   const expenseTypes = useSelector(state => state.expenseTypeReducer.expenseTypes);
 
-  const wants = expenses.filter(expense => expense.expense_category_id === 1);
-  const needs = expenses.filter(expense => expense.expense_category_id === 2);
+  const needs = expenses.filter(expense => expense.ExpenseType.ExpenseCategory.expense_category_name === 'essentials');
+  const wants = expenses.filter(expense => expense.ExpenseType.ExpenseCategory.expense_category_name === 'non-essentials');
 
   const totalNeedsAmount = needs.reduce((total, expense) => {
     const amount = parseFloat(expense.expense_amount) || 0;
@@ -153,11 +153,11 @@ const ExpensePage = () => {
                       <tr key={expense.expense_id}>
                         <td><span className="white-text">{dateFormat(expense.expense_created_at)}</span></td>
                         <td><span className="white-text">{getExpenseTypeName(expense.expense_type_id, expenseTypes)}</span></td>
-                        <td><span className={expense.expense_category_id === 2 ? "white-text" : "na-text"}>
-                          {expense.expense_category_id === 2 ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
+                        <td><span className={expense.ExpenseType.ExpenseCategory.expense_category_name === 'essentials' ? "white-text" : "na-text"}>
+                          {expense.ExpenseType.ExpenseCategory.expense_category_name === 'essentials' ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
                         </span></td>
-                        <td><span className={expense.expense_category_id === 1 ? "white-text" : "na-text"}>
-                          {expense.expense_category_id === 1 ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
+                        <td><span className={expense.ExpenseType.ExpenseCategory.expense_category_name === 'non-essentials' ? "white-text" : "na-text"}>
+                          {expense.ExpenseType.ExpenseCategory.expense_category_name === 'non-essentials' ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
                         </span></td>
                         <td><span className='edit-btn' onClick={() => handleEdit(expense)}>Edit</span></td>
                         <td><span className='del-btn' onClick={() => handleDelete(expense.expense_id)}>Delete</span></td>
@@ -185,7 +185,7 @@ const ExpensePage = () => {
                     </div>
                   </div>
                 </div>
-                <div className="money-left">
+                {/* <div className="money-left">
                   <span className='insight-title'>Money Left</span>
                   <div className="main">
                     <div className="amount">
@@ -197,15 +197,15 @@ const ExpensePage = () => {
                       <p>{getCurrencySymbol(currentUnit)}{currentMonthSaving}</p>
                     </div>
                   </div>
-                </div>
-                <div className="saving">
+                </div> */}
+                {/* <div className="saving">
                   <span className='insight-title'>Savings</span>
                   <div className="main">
                     <div className="amount">
                       <p>Total Savings: {getCurrencySymbol(currentUnit)}</p>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

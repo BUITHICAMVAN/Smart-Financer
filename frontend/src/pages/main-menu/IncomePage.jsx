@@ -1,94 +1,104 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { InnerLayout } from '../../styles/Layouts';
-import { useSelector } from 'react-redux';
-import useTransaction from '../../customHooks/TransactionHook';
-import TransactionModal from '../../components/modals/TransactionModal';
-import { dateFormat } from '../../utils/format/DateFormat';
-import { calculateTotalAmount } from '../../utils/calculate/totalAmount';
-import { getCurrencySymbol } from '../../utils/format/CurrencySymbol';
+import styled from 'styled-components'
+import { InnerLayout } from '../../styles/Layouts'
+import { useDispatch, useSelector } from 'react-redux'
+import useTransaction from '../../customHooks/TransactionHook'
+import TransactionModal from '../../components/modals/TransactionModal'
+import { dateFormat } from '../../utils/format/DateFormat'
+import { calculateTotalAmount } from '../../utils/calculate/totalAmount'
+import { getCurrencySymbol } from '../../utils/format/CurrencySymbol'
+import { getTransactionsActionAsync } from '../../reducers/TransactionReducer';
 
 const IncomePage = () => {
-  const { addTransaction, removeTransaction, editTransaction, fetchMonthlyTransaction } = useTransaction('incomes');
-  const [confirmLoading, setConfirmLoading] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [initialData, setInitialData] = useState(null); // For editing
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const dispatch = useDispatch()
+  const { fetchTransactions, addTransaction, removeTransaction, editTransaction, fetchMonthlyTransaction } = useTransaction('incomes')
+  const [confirmLoading, setConfirmLoading] = useState(false)
+  const [open, setOpen] = useState(false)
+  const [initialData, setInitialData] = useState(null) // For editing
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(10)
 
-  const currentMonthTransactions = useSelector(state => state.transactionReducer.currentMonthTransactions);
-  const incomes = currentMonthTransactions.incomes || [];
-  const incomeTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.incomeTypes);
+  const currentMonthTransactions = useSelector(state => state.transactionReducer.currentMonthTransactions)
+  const incomes = currentMonthTransactions.incomes || []
+  const incomeTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.incomeTypes)
 
-  const totalAmount = calculateTotalAmount(incomes, 'income_amount');
-  const currentUnit = useSelector(state => state.userReducer.userCurrencyUnit);
+  const totalAmount = calculateTotalAmount(incomes, 'income_amount')
+  const currentUnit = useSelector(state => state.userReducer.userCurrencyUnit)
 
   const showModal = () => {
-    setInitialData(null); // Clear initial data for adding
-    setOpen(true);
-  };
+    setInitialData(null) // Clear initial data for adding
+    setOpen(true)
+  }
 
   const handleCancel = () => {
-    setOpen(false);
-    setInitialData(null); // Clear initial data when closing modal
-  };
+    setOpen(false)
+    setInitialData(null) // Clear initial data when closing modal
+  }
 
   const handleCreate = async (data) => {
-    setConfirmLoading(true);
+    setConfirmLoading(true)
     try {
-      await addTransaction(data);
-      setOpen(false);
+      await addTransaction(data)
+      setOpen(false)
+      await fetchTransactions()
     } catch (error) {
-      console.error('Failed to add transaction:', error);
-      alert('Failed to add transaction.');
+      console.error('Failed to add transaction:', error)
+      alert('Failed to add transaction.')
     } finally {
-      setConfirmLoading(false);
+      setConfirmLoading(false)
     }
-  };
+  }
 
-  const handleDelete = (id) => {
-    removeTransaction(id);
+  const handleDelete = async (id) => {
+    try {
+      await removeTransaction(id)
+      dispatch(getTransactionsActionAsync())
+    } catch (error) {
+      console.error('Failed to delete transaction:', error);
+      alert('Failed to delete transaction.');
+    }
   };
 
   const handleEdit = (data) => {
-    setInitialData(data); // Set data to edit
-    setOpen(true);
-  };
+    setInitialData(data) // Set data to edit
+    setOpen(true)
+  }
 
-  const handleSaveEdit = (data, id) => {
-    setConfirmLoading(true);
+  const handleSaveEdit = async (data, id) => {
+    setConfirmLoading(true)
     try {
-      editTransaction(data, id);
-      setOpen(false);
+      await editTransaction(data, id)
+      setOpen(false)
+      await fetchTransactions()
     } catch (error) {
-      console.error('Failed to edit transaction:', error);
-      alert('Failed to edit transaction.');
+      console.error('Failed to edit transaction:', error)
+      alert('Failed to edit transaction.')
     } finally {
-      setConfirmLoading(false);
+      setConfirmLoading(false)
     }
-  };
+  }
 
   const getIncomeTypeName = (id) => {
-    const incomeType = incomeTypes.find(type => type.income_type_id === id);
-    return incomeType ? incomeType.income_type_name : 'Unknown';
-  };
+    const incomeType = incomeTypes.find(type => type.income_type_id === id)
+    return incomeType ? incomeType.income_type_name : 'Unknown'
+  }
 
   useEffect(() => {
-    fetchMonthlyTransaction();
-  }, []);
+    fetchMonthlyTransaction()
+  }, [])
 
   const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
+    setCurrentPage(pageNumber)
+  }
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = incomes.slice(indexOfFirstItem, indexOfLastItem);
+  const indexOfLastItem = currentPage * itemsPerPage
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  const currentItems = incomes.slice(indexOfFirstItem, indexOfLastItem)
 
   const renderPagination = () => {
-    const pageNumbers = [];
+    const pageNumbers = []
     for (let i = 1; i <= Math.ceil(incomes.length / itemsPerPage); i++) {
-      pageNumbers.push(i);
+      pageNumbers.push(i)
     }
     return (
       <Pagination>
@@ -98,8 +108,8 @@ const IncomePage = () => {
           </PaginationItem>
         ))}
       </Pagination>
-    );
-  };
+    )
+  }
 
   return (
     <IncomePageStyled>
@@ -151,8 +161,8 @@ const IncomePage = () => {
         </div>
       </InnerLayout>
     </IncomePageStyled>
-  );
-};
+  )
+}
 
 export default IncomePage;
 

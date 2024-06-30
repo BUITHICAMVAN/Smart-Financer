@@ -86,11 +86,11 @@ const Navigation = () => {
                             {customize} <span>Customize</span>
                         </NavLink>
                     </li>
-                    <li>
+                    {/* <li>
                         <NavLink to="/profile-page">
                             {profile} <span>Profile</span>
                         </NavLink>
-                    </li>
+                    </li> */}
                 </ul>
                 <div className="bottom-nav">
                     <li>{signout} Sign Out</li>

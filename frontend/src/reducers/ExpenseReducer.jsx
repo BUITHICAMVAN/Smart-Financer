@@ -1,11 +1,13 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, current } from '@reduxjs/toolkit'
 import { http } from '../utils/Config'
 import moment from 'moment'
 
 const initialState = {
     expenses: [],
     expenseCategories: [], // Array to store expense categories
-    currentMonthExpenses: []
+    currentMonthExpenses: [],
+    currentMonthEssentialExpenses: [], // Array to store essential expenses
+    currentMonthNonEssentialExpenses: [] // Array to store non-essential expenses
 }
 
 const ExpenseReducer = createSlice({
@@ -34,11 +36,26 @@ const ExpenseReducer = createSlice({
         },
         setCurrentMonthExpenses: (state, action) => {
             state.currentMonthExpenses = action.payload
+        },
+        setCurrentMonthEssentialExpenses: (state, action) => {
+            state.currentMonthEssentialExpenses = action.payload
+        },
+        setCurrentMonthNonEssentialExpenses: (state, action) => {
+            state.currentMonthNonEssentialExpenses = action.payload
         }
     }
 })
 
-export const { getExpenseAction, addExpenseAction, editExpenseAction, deleteExpenseAction, setExpenseCategories, setCurrentMonthExpenses } = ExpenseReducer.actions
+export const { 
+    getExpenseAction, 
+    addExpenseAction, 
+    editExpenseAction, 
+    deleteExpenseAction, 
+    setExpenseCategories, 
+    setCurrentMonthExpenses,
+    setCurrentMonthEssentialExpenses,
+    setCurrentMonthNonEssentialExpenses 
+} = ExpenseReducer.actions
 
 export default ExpenseReducer.reducer
 
@@ -139,5 +156,33 @@ export const fetchCurrentMonthExpensesAsync = () => async (dispatch) => {
         dispatch(setCurrentMonthExpenses(currentMonthExpenses))
     } catch (error) {
         console.error('Failed to fetch current month expenses:', error)
+    }
+}
+
+// Function to fetch the expenses by type for the current month
+export const fetchCurrentMonthExpensesByTypeAsync = () => async (dispatch, getState) => {
+    try {
+        const res = await http.get('expenses')
+        const expenses = res.data
+
+        // Get start and end of the current month
+        const startOfMonth = moment().startOf('month')
+        const endOfMonth = moment().endOf('month')
+
+        // Filter expenses that fall within the current month
+        const currentMonthExpenses = expenses.filter(expense => {
+            const expenseDate = moment(expense.expense_created_at)
+            return expenseDate.isBetween(startOfMonth, endOfMonth, null, '[]')
+        })
+
+        // Separate expenses into essential and non-essential
+        const essentialExpenses = currentMonthExpenses.filter(expense => expense.ExpenseType.ExpenseCategory.expense_category_name === 'essentials')
+        const nonEssentialExpenses = currentMonthExpenses.filter(expense => expense.ExpenseType.ExpenseCategory.expense_category_name === 'non-essentials')
+
+        // Dispatch the expenses by type for the current month
+        dispatch(setCurrentMonthEssentialExpenses(essentialExpenses))
+        dispatch(setCurrentMonthNonEssentialExpenses(nonEssentialExpenses))
+    } catch (error) {
+        console.error('Failed to fetch current month expenses by type:', error)
     }
 }

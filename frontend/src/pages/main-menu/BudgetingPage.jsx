@@ -8,20 +8,30 @@ import { formatBudgetingData } from '../../utils/format/BudgetDataFormat'
 import useTransaction from '../../customHooks/TransactionHook'
 import { fetchCurrentMonthExpensesAsync } from '../../reducers/ExpenseReducer'
 import { getExpenseTypesActionAsync } from '../../reducers/ExpenseTypeReducer'
+import useTransactionType from '../../customHooks/TransactionTypeHook'
 
 const BudgetingPage = () => {
   const dispatch = useDispatch()
   const budgets = useSelector(state => state.budgetReducer.budgets)
   const { fetchMonthlyTransaction: fetchIncome } = useTransaction('incomes')
   const { fetchMonthlyTransaction: fetchSaving } = useTransaction('savings')
+  const { fetchTransactionTypes: fetchIncomeTypes } = useTransactionType("income")
+  const { fetchTransactionTypes: fetchSavingTypes } = useTransactionType("saving")
+
   const incomes = useSelector(state => state.transactionReducer.currentMonthTransactions.incomes)
   const savings = useSelector(state => state.transactionReducer.currentMonthTransactions.savings)
   const expenses = useSelector(state => state.expenseReducer.currentMonthExpenses)
   const [budgetingData, setBudgetingData] = useState({ categories: [] })
 
+  // HANDLE TRANSACTION TYPES
+  const incomeTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.incomeTypes || [])
+  const savingTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.savingTypes || [])
+  const expenseTypes = useSelector(state => state.expenseTypeReducer.expenseTypes)
+
+
   useEffect(() => {
     dispatch(getBudgetActionAsync())
-  }, [])
+  }, [dispatch])
 
   useEffect(() => {
     fetchIncome()
@@ -33,17 +43,22 @@ const BudgetingPage = () => {
 
   useEffect(() => {
     dispatch(fetchCurrentMonthExpensesAsync())
-  }, [])
+  }, [dispatch])
 
   useEffect(() => {
     dispatch(getExpenseTypesActionAsync())
+  }, [dispatch])
+
+  useEffect(() => { // fetch types
+    fetchIncomeTypes()
+    fetchSavingTypes()
   }, [])
 
   useEffect(() => {
-    if (budgets.length > 0 && incomes.length > 0 && savings.length > 0 && expenses.length > 0) {
-      setBudgetingData(formatBudgetingData(budgets, incomes, savings, expenses))
+    if (budgets.length > 0 && incomes.length > 0 && savings.length > 0 && expenses.length > 0 && incomeTypes.length > 0 && savingTypes.length > 0 && expenseTypes.length > 0) {
+      setBudgetingData(formatBudgetingData(budgets, incomes, savings, expenses, incomeTypes, savingTypes, expenseTypes));
     }
-  }, [])
+  }, []);
 
   const handleUpdateBudget = (budgetId, budgetAmount) => {
     dispatch(updateBudgetAmountAsync(budgetId, budgetAmount))
@@ -65,11 +80,11 @@ const BudgetingPage = () => {
               <h1 className='text-center'> -$1400.06 <br /> Left to budget</h1>
               <hr />
               <div className="summary">
-                <div className="income-insight">
+                {/* <div className="income-insight">
                   <h2 className='insight-title'>Income</h2>
                   <p>$100 earned / $10000 budget (10/100%)</p>
                 </div>
-                <hr />
+                <hr /> */}
                 <div className="ratio-insight">
                   <h2 className='insight-title'>Ratios</h2>
                   <p>50 - 30 - 20</p>

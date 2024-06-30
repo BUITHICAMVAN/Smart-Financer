@@ -32,23 +32,11 @@ const DuePage = () => {
     dispatch(getDuesActionAsync());
   }, [dispatch]);
 
-  const handleAddDue = (newDue) => {
-    dispatch(addDueActionAsync({ ...newDue, due_type: dueType }));
-  };
-
   const handlePayStatus = (due) => {
     setSelectedDue(due);
     setPayStatusOpen(true);
   };
-
-  const handleEditDue = (id, updatedDue) => {
-    dispatch(editDueActionAsync(id, updatedDue));
-  };
-
-  const handleDeleteDue = (id) => {
-    dispatch(deleteDueActionAsync(id));
-  };
-
+  
   const showModal = (type) => {
     setInitialData(null); // Clear initial data for adding
     setDueType(type); // Set the due type
@@ -132,10 +120,10 @@ const DuePage = () => {
   return (
     <DuePageStyled>
       <InnerLayout>
-        <div className="tooltip-container">
+        <div className="container content-container">
           <Tooltip
             title={
-              <div>
+              <div className="tooltip-content">
                 <p><strong>Dues</strong></p>
                 <p>1. Keep track of your pending dues and mark them as paid when cleared.</p>
                 <p>2. Once marked as paid, it will be reflected in the account you choose.</p>
@@ -144,8 +132,6 @@ const DuePage = () => {
           >
             <QuestionCircleOutlined className="tooltip-icon" />
           </Tooltip>
-        </div>
-        <div className="container content-container">
           <div className="due-amount text-center">
             <div className="due-payable">
               <p>{getCurrencySymbol(currentUnit)} {totalReceivableAmount}</p>
@@ -253,15 +239,19 @@ const DuePageStyled = styled.div`
     color: #ffffff;
   }
 
-  .tooltip-container {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
+  .tooltip-icon {
+    font-size: 30px;
+    color: #8c8c8c;
   }
 
-  .tooltip-icon {
-    font-size: 16px;
-    color: #8c8c8c;
+  .tooltip-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    p {
+      font-size: 0.65rem; /* Smaller text */
+      line-height: 0.85rem; /* Adjusted line height */
+    }
   }
 
   .amount-summary {
