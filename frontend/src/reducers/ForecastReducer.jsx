@@ -14,8 +14,6 @@ const formatForecastData = (forecast) => {
   const expenses = [];
   const savings = [];
 
-  console.log(forecast)
-
   Object.keys(forecast).forEach((key) => {
     const [type, typeId] = key.split('_');
     const value = forecast[key];

@@ -2,13 +2,37 @@ import React, { useEffect, useState } from 'react';
 import { Modal, Form, InputNumber, DatePicker, Select } from 'antd';
 import moment from 'moment';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getExpenseTypeId, getExpenseTypeName } from '../../utils/mapping/ExpenseTypeMapping';
+import useTransaction from '../../customHooks/TransactionHook';
+import { calculateTotalAmount } from '../../utils/calculate/totalAmount';
+import { useEssentialExpensesAmount, useNonEssentialExpensesAmount } from '../../utils/calculate/totalCurrentExpense';
+import { fetchCurrentMonthExpensesByTypeAsync } from '../../reducers/ExpenseReducer';
+import { getUserPercentAsync } from '../../reducers/UserReducer';
 
 const ExpenseModal = ({ open, onCreate, onCancel, onEdit, initialData }) => {
+  const dispatch = useDispatch()
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+
+  const { fetchTransactions: fetchIncomes, fetchMonthlyTransaction } = useTransaction('incomes')
   const expenseTypes = useSelector(state => state.expenseTypeReducer.expenseTypes);
+  const currentMonthTransactions = useSelector(state => state.transactionReducer.currentMonthTransactions);
+  const customPercent = useSelector(state => state.userReducer.customPercent);
+
+  // current month income
+  const incomes = currentMonthTransactions.incomes || [];
+  const currentMonthIncome = calculateTotalAmount(incomes, 'income_amount');
+
+  //current expenses
+  const totalEssentialSpent = useEssentialExpensesAmount();
+  const totalNonEssentialSpent = useNonEssentialExpensesAmount();
+
+  const maxNeedsAmount = (currentMonthIncome * customPercent.needPercent) / 100;
+  const maxWantsAmount = (currentMonthIncome * customPercent.wantPercent) / 100;
+
+  const needBalance = maxNeedsAmount - totalEssentialSpent
+  const wantBalance = maxWantsAmount - totalNonEssentialSpent
 
   const handleOk = async () => {
     setLoading(true);
@@ -53,6 +77,25 @@ const ExpenseModal = ({ open, onCreate, onCancel, onEdit, initialData }) => {
     }
   }, [open, initialData, form, expenseTypes]);
 
+  useEffect(() => {
+    fetchIncomes()
+  }, [])
+
+
+  useEffect(() => {
+    dispatch(getUserPercentAsync());
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchCurrentMonthExpensesByTypeAsync())
+  }, [totalEssentialSpent, totalNonEssentialSpent])
+
+  useEffect(() => {
+    fetchMonthlyTransaction();
+  }, [])
+
+
+
   return (
     <ExpenseModalStyled>
       <Modal
@@ -83,20 +126,25 @@ const ExpenseModal = ({ open, onCreate, onCancel, onEdit, initialData }) => {
               prefix="$"
               placeholder="Enter amount"
               style={{ width: '100%' }}
+              max={form.getFieldValue('expense_type_name') === 'Needs' ? needBalance : wantBalance}
             />
           </Form.Item>
+          <BalanceRow>
+              <BalanceLabel>Needs Balance: <span>${needBalance.toFixed(2)}</span></BalanceLabel>
+              <BalanceLabel>Wants Balance: <span>${wantBalance.toFixed(2)}</span></BalanceLabel>
+            </BalanceRow>
           <Form.Item
             name="expense_type_name"
             label="Expense Type"
             rules={[{ required: true, message: 'Please select the type!' }]}
           >
             <Select
-               showSearch
-               placeholder="Select a type"
-               optionFilterProp="children"
-               filterOption={(input, option) =>
-                   option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-               }
+              showSearch
+              placeholder="Select a type"
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
             >
               {expenseTypes.map((item) => (
                 <Select.Option key={item.expense_type_id} value={item.expense_type_name}>
@@ -116,32 +164,6 @@ const ExpenseModal = ({ open, onCreate, onCancel, onEdit, initialData }) => {
               disabledDate={(current) => current && current > moment().endOf('day')}
             />
           </Form.Item>
-          {/* <Form.Item
-            name="expense_type_name"
-            label="Expense Type"
-            rules={[{ required: true, message: 'Please select the type!' }]}
-          >
-            <StyledRadioGroup>
-              <StyledRadio value="essentials">
-                <RadioWrapper>
-                  <RadioContent>
-                    <span>Needs</span>
-                    <Description>It's a necessity.</Description>
-                  </RadioContent>
-                  <RadioButton />
-                </RadioWrapper>
-              </StyledRadio>
-              <StyledRadio value="nonEssentials">
-                <RadioWrapper>
-                  <RadioContent>
-                    <span>Wants</span>
-                    <Description>It's a luxury.</Description>
-                  </RadioContent>
-                  <RadioButton />
-                </RadioWrapper>
-              </StyledRadio>
-            </StyledRadioGroup>
-          </Form.Item> */}
         </Form>
       </Modal>
     </ExpenseModalStyled>
@@ -151,3 +173,17 @@ const ExpenseModal = ({ open, onCreate, onCancel, onEdit, initialData }) => {
 export default ExpenseModal;
 
 const ExpenseModalStyled = styled.div``;
+
+const BalanceRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+`;
+
+const BalanceLabel = styled.div`
+  font-weight: bold;
+  span {
+    margin-left: 5px;
+    color: var(--color-yellow);
+  }
+`;

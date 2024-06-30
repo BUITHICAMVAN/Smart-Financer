@@ -27,15 +27,12 @@ const ForecastPage = () => {
     }
   }, []);
 
-  console.log(forecastingData)
-
   useEffect(() => {
     fetchIncomeTypes()
     fetchSavingTypes()
     dispatch(getExpenseTypesActionAsync())
   }, [])
 
-  console.log(forecast)
   return (
     <ForecastPageStyled>
       <InnerLayout>

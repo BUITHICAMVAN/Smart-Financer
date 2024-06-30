@@ -174,9 +174,9 @@ export const fetchCurrentMonthExpensesByTypeAsync = () => async (dispatch, getSt
             const expenseDate = moment(expense.expense_created_at)
             return expenseDate.isBetween(startOfMonth, endOfMonth, null, '[]')
         })
-
         // Separate expenses into essential and non-essential
         const essentialExpenses = currentMonthExpenses.filter(expense => expense.ExpenseType.ExpenseCategory.expense_category_name === 'essentials')
+
         const nonEssentialExpenses = currentMonthExpenses.filter(expense => expense.ExpenseType.ExpenseCategory.expense_category_name === 'non-essentials')
 
         // Dispatch the expenses by type for the current month
