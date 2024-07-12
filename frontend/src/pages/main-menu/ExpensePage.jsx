@@ -185,7 +185,7 @@ const ExpensePage = () => {
                     </div>
                   </div>
                 </div>
-                {/* <div className="money-left">
+                <div className="money-left">
                   <span className='insight-title'>Money Left</span>
                   <div className="main">
                     <div className="amount">
@@ -197,15 +197,15 @@ const ExpensePage = () => {
                       <p>{getCurrencySymbol(currentUnit)}{currentMonthSaving}</p>
                     </div>
                   </div>
-                </div> */}
-                {/* <div className="saving">
+                </div>
+                <div className="saving">
                   <span className='insight-title'>Savings</span>
                   <div className="main">
                     <div className="amount">
                       <p>Total Savings: {getCurrencySymbol(currentUnit)}</p>
                     </div>
                   </div>
-                </div> */}
+                </div>
               </div>
             </div>
           </div>

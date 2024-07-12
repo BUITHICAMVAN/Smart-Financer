@@ -89,17 +89,17 @@ const History = () => {
                     <table className='table'>
                         <thead>
                             <tr>
-                                <th><span>Date & Time</span></th>
+                                <th className="date-time"><span>Date & Time</span></th>
                                 <th><span>Details</span></th>
                                 <th><span>Needs</span></th>
                                 <th><span>Wants</span></th>
-                                <th><span>Actions</span></th>
+                                <th className="action" colSpan="2"><span>Actions</span></th>
                             </tr>
                         </thead>
                         <tbody>
                             {currentItems.map((expense) => (
                                 <tr key={expense.expense_id}>
-                                    <td><span className="white-text">{dateFormat(expense.expense_created_at)}</span></td>
+                                    <td className="date-time"><span className="white-text">{dateFormat(expense.expense_created_at)}</span></td>
                                     <td><span className="white-text">{getExpenseTypeName(expense.expense_type_id, expenseTypes)}</span></td>
                                     <td><span className={expense.ExpenseType.ExpenseCategory.expense_category_name === 'essentials' ? "white-text" : "na-text"}>
                                         {expense.ExpenseType.ExpenseCategory.expense_category_name === 'essentials' ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
@@ -110,6 +110,7 @@ const History = () => {
                                     <td><span className='edit-btn' onClick={() => handleEdit(expense)}>Edit</span></td>
                                     <td><span className='del-btn' onClick={() => handleDelete(expense.expense_id)}>Delete</span></td>
                                 </tr>
+
                             ))}
                         </tbody>
                     </table>
@@ -142,8 +143,8 @@ const HistoryStyled = styled.div`
         font-weight: 400;
     }
     .na-text {
-        font-size: 0.7em; /* Decrease font size for "N/A" */
-        color: gray; /* Optional: Change color for "N/A" */
+        font-size: 0.7em; 
+        color: gray; 
     }
     .history-table {
       thead {
@@ -153,12 +154,12 @@ const HistoryStyled = styled.div`
         }
       }
       tbody > tr {
-        background: transparent;
+        position: relative;
+        background: var(--component-color);
+        border: 1px solid #191a16;
+        border-radius: 20%;
         td {
-            background: var(--component-color);
-            border: 1px solid #191a16;
-            border-radius: 10px;
-            padding: 0.5rem;
+            border-radius: none;
         }
         &:hover td {
             background: var(--hover-color); /* Optional: Change color on hover */
@@ -181,6 +182,12 @@ const HistoryStyled = styled.div`
     .del-btn {
         color: var(--delete-btn);
     }
+    @media screen and (max-width: 768px) {
+        .expense-row {
+            display: flex;
+        }
+    }
+
 `;
 
 export default History;

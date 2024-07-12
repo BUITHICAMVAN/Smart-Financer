@@ -105,7 +105,13 @@ const DashboardStyled = styled.div`
     }
 
     @media (max-width: 768px) {
-      grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        p, span {
+            font-size: 1.125rem;
+            line-height: 1.75rem;
+            font-weight: 700;
+            letter-spacing: .025em;
+        }
     }
   }
   .income,

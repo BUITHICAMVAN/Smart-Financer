@@ -1,16 +1,32 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Modal, Radio, Form } from 'antd'
 import styled from 'styled-components'
 
-const PayStatusModal = ({ open, onMarkAsPaid, onCancel }) => {
+const PayStatusModal = ({ open, onMarkAsPaid, onCancel, paymentType }) => {
     const [form] = Form.useForm()
     const [confirmLoading, setConfirmLoading] = useState(false)
-    const [selectedOption, setSelectedOption] = useState('savings')
+    const [selectedOption, setSelectedOption] = useState('')
+
+    useEffect(() => {
+        if (paymentType === 'receivable') {
+            setSelectedOption('incomes')
+        } else if (paymentType === 'payable') {
+            setSelectedOption('needs')
+        }
+    }, [paymentType])
 
     const handleOk = async () => {
         setConfirmLoading(true)
         try {
             const values = await form.validateFields()
+            // Add data to the appropriate table based on selectedOption
+            if (selectedOption === 'incomes') {
+                // Add to income table
+                await addIncomeToDatabase(values)
+            } else {
+                // Add to expenses table
+                await addExpenseToDatabase(values)
+            }
             onMarkAsPaid(values)
         } catch (error) {
             console.log('Validate Failed:', error)
@@ -22,6 +38,14 @@ const PayStatusModal = ({ open, onMarkAsPaid, onCancel }) => {
 
     const handleChange = (e) => {
         setSelectedOption(e.target.value)
+    }
+
+    const addIncomeToDatabase = async (values) => {
+        // Implement the logic to add income data to the income table in the database
+    }
+
+    const addExpenseToDatabase = async (values) => {
+        // Implement the logic to add expense data to the expense table in the database
     }
 
     return (
@@ -39,15 +63,20 @@ const PayStatusModal = ({ open, onMarkAsPaid, onCancel }) => {
                     form={form}
                     layout="vertical"
                     initialValues={{
-                        paymentSource: 'savings',
+                        paymentSource: selectedOption,
                     }}
                 >
                     <Form.Item name="paymentSource">
                         <Radio.Group onChange={handleChange} value={selectedOption}>
-                            <Radio value="savings">Savings</Radio>
-                            <Radio value="incomes">Incomes</Radio>
-                            <Radio value="needs">Needs</Radio>
-                            <Radio value="wants">Wants</Radio>
+                            {paymentType === 'receivable' && (
+                                <Radio value="incomes">Incomes</Radio>
+                            )}
+                            {paymentType === 'payable' && (
+                                <>
+                                    <Radio value="needs">Needs</Radio>
+                                    <Radio value="wants">Wants</Radio>
+                                </>
+                            )}
                         </Radio.Group>
                     </Form.Item>
                 </Form>

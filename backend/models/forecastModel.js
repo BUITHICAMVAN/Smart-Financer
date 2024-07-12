@@ -142,6 +142,28 @@ const forecastNext = (model, latestInput, min, max) => {
   return actualPrediction;
 };
 
+// Function to forecast using Linear Regression as a fallback
+const forecastWithLinearRegression = (data) => {
+  if (data.length < 2) {
+    return 'Not enough data'; // Linear regression requires at least two data points
+  }
+
+  const x = data.map((_, index) => index);
+  const y = data;
+
+  const xMean = tf.mean(x).arraySync();
+  const yMean = tf.mean(y).arraySync();
+
+  const numerator = tf.sum(tf.mul(tf.sub(x, xMean), tf.sub(y, yMean))).arraySync();
+  const denominator = tf.sum(tf.square(tf.sub(x, xMean))).arraySync();
+
+  const slope = numerator / denominator;
+  const intercept = yMean - (slope * xMean);
+
+  const nextValue = intercept + slope * x.length;
+  return nextValue;
+};
+
 const calculateMAE = (actual, predicted) => { // function to calculate Absolute Error (MAE)
   const n = actual.length;
   let sum = 0;
@@ -151,4 +173,4 @@ const calculateMAE = (actual, predicted) => { // function to calculate Absolute 
   return sum / n;
 };
 
-module.exports = { createModel, trainModel, prepareData, forecastNext, calculateMAE };
+module.exports = { createModel, trainModel, prepareData, forecastNext, calculateMAE, forecastWithLinearRegression };

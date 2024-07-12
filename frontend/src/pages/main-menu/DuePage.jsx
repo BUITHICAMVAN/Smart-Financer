@@ -86,7 +86,6 @@ const DuePage = () => {
   const handleMarkAsPaid = (values) => {
     console.log('Marked as paid with:', values);
     setPayStatusOpen(false);
-    // Implement logic to handle marking as paid
   };
 
   useEffect(() => {
@@ -115,6 +114,16 @@ const DuePage = () => {
         ))}
       </Pagination>
     );
+  };
+
+  const getPaymentType = (due) => {
+    // Determine payment type based on due_type_id or any other logic
+    if (due.due_type_id === 1) {
+      return 'receivable';
+    } else if (due.due_type_id === 2) {
+      return 'payable';
+    }
+    return '';
   };
 
   return (
@@ -163,6 +172,7 @@ const DuePage = () => {
             open={payStatusOpen}
             onMarkAsPaid={handleMarkAsPaid}
             onCancel={() => setPayStatusOpen(false)}
+            paymentType={selectedDue ? getPaymentType(selectedDue) : ''} 
           />
           <hr />
           <div className="due-content  text-center">
@@ -174,7 +184,7 @@ const DuePage = () => {
                   <th><span>Amount</span></th>
                   <th><span>Type</span></th>
                   <th><span>Status</span></th>
-                  <th><span>Due Date</span></th>
+                  <th><span>Due Date</span></th>a
                 </tr>
               </thead>
               <tbody>
