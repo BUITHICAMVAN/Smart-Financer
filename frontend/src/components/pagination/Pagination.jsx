@@ -18,16 +18,16 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 };
 
 const PaginationStyled = styled.div`
+    position: relative;
+    z-index: 1000;
     display: flex;
     justify-content: center;
-    margin-top: 1rem;
-
+    margin-top: .75rem;
     button {
         background: none;
         border: none;
         color: var(--color-white);
         cursor: pointer;
-        padding: 0.5rem 1rem;
         border-radius: 10px;
         transition: background 0.3s ease;
 
@@ -39,6 +39,9 @@ const PaginationStyled = styled.div`
         &:hover {
             background: rgba(255, 255, 255, 0.1);
         }
+    }
+    @media screen and (max-width: 768px) {
+        font-size: 10px;
     }
 `;
 

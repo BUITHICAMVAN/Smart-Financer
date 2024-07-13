@@ -22,14 +22,14 @@ const History = () => {
 
     const currentMonth = getCurrentMonth();
     const expenses = useSelector(state => state.expenseReducer.currentMonthExpenses);
-    const expenseTypes = useSelector(state => state.expenseTypeReducer.expenseTypes)
+    const expenseTypes = useSelector(state => state.expenseTypeReducer.expenseTypes);
 
-    const currentUnit = useSelector(state => state.userReducer.userCurrencyUnit)
+    const currentUnit = useSelector(state => state.userReducer.userCurrencyUnit);
 
     const handleCancel = () => {
-        setOpen(false)
-        setInitialData(null) // Clear initial data when closing modal
-    }
+        setOpen(false);
+        setInitialData(null); // Clear initial data when closing modal
+    };
 
     const handleDelete = (id) => {
         dispatch(deleteExpenseActionAsync(id));
@@ -42,13 +42,13 @@ const History = () => {
 
     const handleSaveEdit = async (id, formData) => {
         try {
-            await dispatch(editExpenseActionAsync(id, formData))
-            setOpen(false)
+            await dispatch(editExpenseActionAsync(id, formData));
+            setOpen(false);
         } catch (error) {
-            console.error('Failed to edit transaction:', error)
-            alert('Failed to edit transaction.')
+            console.error('Failed to edit transaction:', error);
+            alert('Failed to edit transaction.');
         }
-    }
+    };
 
     useEffect(() => {
         dispatch(setCurrentCurrencyAsync());
@@ -59,8 +59,8 @@ const History = () => {
     }, [dispatch]);
 
     useEffect(() => {
-        dispatch(getExpenseTypesActionAsync())
-    }, [])
+        dispatch(getExpenseTypesActionAsync());
+    }, []);
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
@@ -83,16 +83,16 @@ const History = () => {
                 />
                 <div className="history-title">
                     <h2>{currentMonth} Transactions</h2>
-                    <NavLink to='/expense-page' className={'history-detail'}><h2>View in detail</h2></NavLink>
+                    <NavLink to='/expense-page' className='history-detail'><h2>View in detail</h2></NavLink>
                 </div>
                 <div className="history-table text-center">
                     <table className='table'>
                         <thead>
                             <tr>
                                 <th className="date-time"><span>Date & Time</span></th>
-                                <th><span>Details</span></th>
-                                <th><span>Needs</span></th>
-                                <th><span>Wants</span></th>
+                                <th className="detail"><span>Details</span></th>
+                                <th className="want"><span>Needs</span></th>
+                                <th className="need"><span>Wants</span></th>
                                 <th className="action" colSpan="2"><span>Actions</span></th>
                             </tr>
                         </thead>
@@ -100,17 +100,16 @@ const History = () => {
                             {currentItems.map((expense) => (
                                 <tr key={expense.expense_id}>
                                     <td className="date-time"><span className="white-text">{dateFormat(expense.expense_created_at)}</span></td>
-                                    <td><span className="white-text">{getExpenseTypeName(expense.expense_type_id, expenseTypes)}</span></td>
-                                    <td><span className={expense.ExpenseType.ExpenseCategory.expense_category_name === 'essentials' ? "white-text" : "na-text"}>
+                                    <td className="detail"><span className="white-text">{getExpenseTypeName(expense.expense_type_id, expenseTypes)}</span></td>
+                                    <td className="need"><span className={expense.ExpenseType.ExpenseCategory.expense_category_name === 'essentials' ? "white-text" : "na-text"}>
                                         {expense.ExpenseType.ExpenseCategory.expense_category_name === 'essentials' ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
                                     </span></td>
-                                    <td><span className={expense.ExpenseType.ExpenseCategory.expense_category_name === 'non-essentials' ? "white-text" : "na-text"}>
+                                    <td className='want'><span className={expense.ExpenseType.ExpenseCategory.expense_category_name === 'non-essentials' ? "white-text" : "na-text"}>
                                         {expense.ExpenseType.ExpenseCategory.expense_category_name === 'non-essentials' ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
                                     </span></td>
-                                    <td><span className='edit-btn' onClick={() => handleEdit(expense)}>Edit</span></td>
-                                    <td><span className='del-btn' onClick={() => handleDelete(expense.expense_id)}>Delete</span></td>
+                                    <td className='action edit-action'><span className='edit-btn' onClick={() => handleEdit(expense)}>Edit</span></td>
+                                    <td className="action delete-action"><span className='del-btn' onClick={() => handleDelete(expense.expense_id)}>Delete</span></td>
                                 </tr>
-
                             ))}
                         </tbody>
                     </table>
@@ -127,8 +126,10 @@ const History = () => {
 
 const HistoryStyled = styled.div`
     .history-title {
-      display: flex;
-      justify-content: space-between;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
     }
     .history-detail {
         text-decoration: none;
@@ -147,47 +148,112 @@ const HistoryStyled = styled.div`
         color: gray; 
     }
     .history-table {
-      thead {
-        span {
-          font-weight: 600;
-          color: white;
+        thead {
+            span {
+                font-weight: 600;
+                color: white;
+            }
         }
-      }
-      tbody > tr {
-        position: relative;
-        background: var(--component-color);
-        border: 1px solid #191a16;
-        border-radius: 20%;
-        td {
-            border-radius: none;
+        tbody > tr {
+            position: relative;
+            background: rgba(12, 10, 9, 1);
+            border: 1px solid #191a16;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            td {
+                border: none;
+                padding: 0.5rem;
+            }
+            &:hover td {
+                background: var(--hover-color); 
+            }
         }
-        &:hover td {
-            background: var(--hover-color); /* Optional: Change color on hover */
-        }
-      }
-    }
-    .edit-btn, .del-btn {
-        color: var(--edit-btn);
-        margin-right: 10px;
-        cursor: pointer;
-        display: inline-block;
-        padding: 0.5rem;
-        border-radius: 5px;
-        transition: background 0.3s ease;
+        .edit-btn, .del-btn {
+            font-size: .75rem;
+            font-weight: 500;
+            color: var(--edit-btn);
+            margin-right: 10px;
+            cursor: pointer;
+            display: inline-block;
+            padding: 0.5rem;
+            border-radius: 5px;
+            transition: background 0.3s ease;
 
-        &:hover {
-            background: rgba(255, 255, 255, 0.1);
+            &:hover {
+                background: rgba(255, 255, 255, 0.1);
+            }
         }
-    }
-    .del-btn {
-        color: var(--delete-btn);
-    }
-    @media screen and (max-width: 768px) {
-        .expense-row {
-            display: flex;
+        .del-btn {
+            color: var(--delete-btn);
         }
     }
 
+    @media screen and (max-width: 1280px) {
+        table {
+            position: relative;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            tr {
+                display: block;
+            }
+            th {
+                display: inline-block;
+                width: 30%;
+            }
+            .date-time, .action {
+                display: none;
+            }
+        }
+
+        tbody {
+            tr {
+                display: block;
+            }
+            .detail, .need, .want {
+                display: inline-block;
+                width: 30%;
+            }
+            .date-time {
+                position: absolute;
+                top: 82px;
+                right: 20px;
+                align-self: flex-end;
+                border-radius: 5px;
+                color: white;
+                span {
+                    font-size: 10px;
+                    background-color: #444;
+                    padding: .25rem .5rem;
+                    border-end-end-radius: 10px;
+                    border-bottom-left-radius: 10px;
+                }
+            }
+            .action {
+                display: inline-block;
+                width: 100%;
+            }
+            .edit-action, .delete-action {
+                width: auto;
+                display: inline-block;
+            }
+            .edit-btn, .del-btn {
+                color: var(--edit-btn);
+                cursor: pointer;
+                display: inline-block;
+                border-radius: 5px;
+                transition: background 0.3s ease;
+                &:hover {
+                    background: rgba(255, 255, 255, 0.1);
+                }
+            }
+            .del-btn {
+                color: var(--delete-btn);
+            }
+        }
+    }
 `;
 
 export default History;

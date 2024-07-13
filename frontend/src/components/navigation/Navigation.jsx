@@ -8,7 +8,6 @@ import {
     expenses,
     income,
     piggy,
-    profile,
     report,
     signout,
 } from "../../utils/icons/Icons";
@@ -66,12 +65,12 @@ const Navigation = () => {
                         </NavLink>
                     </li>
                     <li>
-                        <NavLink to="/expense-page" >
+                        <NavLink to="/expense-page">
                             {expenses} <span>Expenses</span>
                         </NavLink>
                     </li>
                     <li>
-                        <NavLink to="/due-page" >
+                        <NavLink to="/due-page">
                             {report} <span>Dues</span>
                         </NavLink>
                     </li>
@@ -103,6 +102,7 @@ const Navigation = () => {
 
 const NavWrapper = styled.div`
     position: relative;
+    z-index: 1000; 
 `;
 
 const ToggleButton = styled.button`
@@ -115,7 +115,6 @@ const ToggleButton = styled.button`
     font-size: 1.5rem;
     cursor: pointer;
     display: none;
-
     @media (max-width: 1280px) {
         display: block;
     }
@@ -128,7 +127,6 @@ const Overlay = styled.div`
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 1;
 `;
 
 const NavStyled = styled.nav`
@@ -137,6 +135,7 @@ const NavStyled = styled.nav`
     display: flex;
     flex-direction: column;
     color: var(--color-white);
+    z-index: 1000; 
     span {
         font-weight: 400;
     }
@@ -219,6 +218,8 @@ const NavStyled = styled.nav`
         &.active {
             transform: translateX(0);
         }
+
+        
     }
 `;
 
