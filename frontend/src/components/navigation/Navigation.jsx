@@ -101,7 +101,7 @@ const Navigation = () => {
 };
 
 const NavWrapper = styled.div`
-    position: relative;
+    /* position: relative; */
     z-index: 1000; 
 `;
 
@@ -109,13 +109,15 @@ const ToggleButton = styled.button`
     position: absolute;
     top: 1rem;
     right: 1rem;
-    background: var(--color-yellow);
+    color: white;
+    background: transparent;
     border: none;
     padding: 0.5rem 1rem;
     font-size: 1.5rem;
     cursor: pointer;
     display: none;
-    @media (max-width: 1280px) {
+    z-index: 1000;
+    @media screen and (max-width: 1280px) {
         display: block;
     }
 `;
@@ -204,7 +206,7 @@ const NavStyled = styled.nav`
     .bottom-nav {
         flex: 1;
     }
-    @media (max-width: 1280px) {
+    @media screen and (max-width: 1280px) {
         width: 250px;
         position: fixed;
         top: 0;
@@ -218,8 +220,6 @@ const NavStyled = styled.nav`
         &.active {
             transform: translateX(0);
         }
-
-        
     }
 `;
 

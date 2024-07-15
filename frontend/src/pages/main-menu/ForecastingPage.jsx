@@ -6,6 +6,7 @@ import ForecastTable from '../../components/tables/ForecastTable';
 import { fetchForecastDataAsync } from '../../reducers/ForecastReducer';
 import useTransactionType from '../../customHooks/TransactionTypeHook';
 import { getExpenseTypesActionAsync } from '../../reducers/ExpenseTypeReducer';
+import ReturnButton from '../../components/button/ReturnButton';
 
 const ForecastPage = () => {
   const dispatch = useDispatch();
@@ -36,6 +37,7 @@ const ForecastPage = () => {
   return (
     <ForecastPageStyled>
       <InnerLayout>
+        <ReturnButton />
         <div className="container">
           <div className="content-container text-center">
             <h3 className="text-center">Forecast Actual Transactions</h3>
@@ -44,6 +46,7 @@ const ForecastPage = () => {
           </div>
         </div>
       </InnerLayout>
+      <MobileMessage>This feature is only available on website or desktop screen.</MobileMessage>
     </ForecastPageStyled>
   );
 };
@@ -94,6 +97,32 @@ const ForecastPageStyled = styled.div`
   .del-btn {
     color: var(--delete-btn);
   }
+
+  @media (max-width: 1280px) {
+    .container, .budgeting-container {
+      display: none;
+    }
+  }
 ;
 `
+const MobileMessage = styled.div`
+  display: none;
+  font-family: "Courier Prime", monospace;
+  font-size: 1rem;
+  font-weight: 400;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 1rem;
+  text-align: center;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  
+  @media (max-width: 1280px) {
+    display: block;
+  }
+`;
+
 export default ForecastPage;

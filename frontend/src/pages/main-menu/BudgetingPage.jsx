@@ -9,6 +9,7 @@ import useTransaction from '../../customHooks/TransactionHook';
 import { fetchCurrentMonthExpensesAsync } from '../../reducers/ExpenseReducer';
 import { getExpenseTypesActionAsync } from '../../reducers/ExpenseTypeReducer';
 import useTransactionType from '../../customHooks/TransactionTypeHook';
+import ReturnButton from '../../components/button/ReturnButton';
 
 const BudgetingPage = () => {
   const dispatch = useDispatch();
@@ -66,6 +67,7 @@ const BudgetingPage = () => {
   return (
     <BudgetingPageStyled>
       <InnerLayout>
+        <ReturnButton/>
         <div className="container">
           <div className="budgeting-container">
             <div className="content-container content-left text-center">
@@ -103,11 +105,13 @@ const BudgetingPage = () => {
           </div>
         </div>
       </InnerLayout>
+      <MobileMessage>This feature is only available on website or desktop screen.</MobileMessage>
     </BudgetingPageStyled>
   );
 };
 
 const BudgetingPageStyled = styled.div`
+  position: relative;
   h1 {
     font-size: 1.6rem;
     font-weight: 700;
@@ -183,10 +187,36 @@ const BudgetingPageStyled = styled.div`
       line-height: 2rem;
     }
   }
+  
+  @media (max-width: 1280px) {
+    .container, .budgeting-container {
+      display: none;
+    }
+  }
 `;
 
 const BudgetingTableStyled = styled.div`
   margin: 2rem 0rem;
+`;
+
+const MobileMessage = styled.div`
+  display: none;
+  font-family: "Courier Prime", monospace;
+  font-size: 1rem;
+  font-weight: 400;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 1rem;
+  text-align: center;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  
+  @media (max-width: 1280px) {
+    display: block;
+  }
 `;
 
 export default BudgetingPage;

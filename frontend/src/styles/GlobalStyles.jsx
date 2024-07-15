@@ -28,15 +28,16 @@ export const GlobalStyle = createGlobalStyle`
         --color-white: #ffff;
         --color-accent: #F56692;
         --color-delete: #FF0000;
-        --color-yellow: #FACC15;
+        --color-yellow: #bb8b11;
         --color-grey: #A8A29E;
+        --color-no-entry: rgba(161, 161, 170, 1)
         --color-h2: rgba(168, 162, 158, 1);
         --table-color: rgba(28, 25, 23, 1);
         --input-color: rgba(39, 39, 42, 1);
         --category-color: rgba(51, 53, 43, 1);
-        --edit-btn: rgba(187, 139, 17, 1);
+        --edit-btn: #bb8b11;
         --delete-btn: rgba(219, 72, 72, 1);
-        --bracket-color: rgba(168, 162, 158, 1);
+        --bracket-color: #080706;
         --table-row: rgba(40, 41, 35, 1);
         --select-color: rgba(24, 24, 27, 1);
         --modal-color: rgba(24, 24, 27, 1);

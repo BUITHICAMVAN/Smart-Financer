@@ -26,7 +26,7 @@ const TransactionReducer = createSlice({
         deleteTransactionAction: (state, action) => {
             const { transType, transId } = action.payload
             state.transactions[transType] = state.transactions[transType].filter(
-                item => item.id !== transId // Assumes each transaction has a unique `id`
+                item => item.id !== transId 
             )
         },
         addTransactionAction: (state, action) => {
@@ -34,10 +34,16 @@ const TransactionReducer = createSlice({
             state.transactions[transType].push(transForm)
         },
         editTransactionAction: (state, action) => {
-            const { transType, transId, transNew } = action.payload
-            const index = state.transactions[transType].findIndex(item => item.id === transId)
-            state.transactions[transType][index] = transNew
-        },
+            const { transType, transId, transNew } = action.payload;
+            const index = state.transactions[transType].findIndex(item => item.id === transId);
+            if (index !== -1) {
+              state.transactions[transType] = [
+                ...state.transactions[transType].slice(0, index),
+                { ...state.transactions[transType][index], ...transNew },
+                ...state.transactions[transType].slice(index + 1)
+              ];
+            }
+          },
         setMonthlyAmountAction: (state, action) => {
             state.currentMonthSaving = action.payload
         },
@@ -66,7 +72,6 @@ export const deleteTransactionActionAsync = (type, id) => async (dispatch) => {
         const res = await http.delete(`${type}/${id}`)
         if (res.status === 200) {
             dispatch(deleteTransactionAction({ transType: type, transId: id }))
-            alert('Transaction deleted successfully!')
             dispatch(getTransactionsActionAsync(`${type}`))
         }
     } catch (error) {
@@ -92,12 +97,10 @@ export const addTransactionActionAsync = (type, formData) => async (dispatch) =>
         }
 
         const res = await http.post(`${type}`, formData);
-        dispatch(addTransactionAction({ transType: type, transForm: formData }));
-        dispatch(getTransactionsActionAsync(`${type}`));
-        alert('Transaction added successfully!');
+        dispatch(addTransactionAction({ transType: type, transForm: formData }))
+        dispatch(getTransactionsActionAsync(`${type}`))
     } catch (error) {
         console.error('Failed to add transaction:', error);
-        alert('Failed to add transaction.');
     }
 };
 
@@ -106,11 +109,9 @@ export const editTransactionActionAsync = (type, newData, id) => async (dispatch
     try {
         const res = await http.put(`${type}/${id}`, newData)
         dispatch(editTransactionAction({ transType: type, transId: id, transNew: newData }))
-        alert('Transaction updated successfully!')
         dispatch(getTransactionsActionAsync(`${type}`))
     } catch (error) {
         console.error('Failed to edit transaction:', error)
-        alert('Failed to edit transaction.')
     }
 }
 

@@ -27,7 +27,7 @@ const ReturnedButtonStyled = styled.button`
   width: 2.25rem;
   height: 2.25rem;
   border: solid grey .1px;
-  border-radius: 20px;
+  border-radius: 10px;
   background-color: transparent;
   cursor: pointer;
   z-index: 1000;
@@ -40,7 +40,7 @@ const ReturnedButtonStyled = styled.button`
     background-color: var(--button-hover-bg-color, #e0e0e0);
   }
 
-  @media (min-width: 768px) {
+  @media screen and (min-width: 1280px) {
     display: none;
   }
 `;

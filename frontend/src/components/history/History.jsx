@@ -11,12 +11,19 @@ import Pagination from '../pagination/Pagination';
 import ExpenseModal from '../modals/ExpenseModal';
 import { getExpenseTypeName } from '../../utils/mapping/ExpenseTypeMapping';
 import { getExpenseTypesActionAsync } from '../../reducers/ExpenseTypeReducer';
+import ConfirmModal from '../modals/ConfirmModal';
 
 const History = () => {
     const dispatch = useDispatch();
-    const [open, setOpen] = useState(false); // open modal
-    const [initialData, setInitialData] = useState(null); // table data for editing modal
+    const [confirmLoading, setConfirmLoading] = useState(false);
+    const [open, setOpen] = useState(false);
+    const [initialData, setInitialData] = useState(null); // For editing
     const [currentPage, setCurrentPage] = useState(1);
+    const [alertVisible, setAlertVisible] = useState(false);
+    const [alertMessage, setAlertMessage] = useState("");
+    const [confirmVisible, setConfirmVisible] = useState(false);
+    const [confirmMessage, setConfirmMessage] = useState("");
+    const [confirmAction, setConfirmAction] = useState(null);
 
     const itemsPerPage = 5;
 
@@ -31,23 +38,43 @@ const History = () => {
         setInitialData(null); // Clear initial data when closing modal
     };
 
-    const handleDelete = (id) => {
-        dispatch(deleteExpenseActionAsync(id));
+    const handleDelete = async (id) => {
+        setConfirmMessage("Are you absolutely sure? This action cannot be undone. This will permanently delete this entry from your income.")
+        setConfirmVisible(true)
+        setConfirmAction(() => async () => {
+            try {
+                await dispatch(deleteExpenseActionAsync(id));
+                await dispatch(fetchCurrentMonthExpensesAsync())
+                setAlertMessage("Your entry has been deleted successfully.")
+            } catch (error) {
+                console.error("Failed to delete transaction:", error)
+                setAlertMessage("Failed to delete transaction.")
+            } finally {
+                setAlertVisible(true);
+            }
+        });
     };
-
     const handleEdit = (data) => {
         setInitialData(data); // Set data to edit
         setOpen(true);
     };
 
-    const handleSaveEdit = async (id, formData) => {
-        try {
-            await dispatch(editExpenseActionAsync(id, formData));
-            setOpen(false);
-        } catch (error) {
-            console.error('Failed to edit transaction:', error);
-            alert('Failed to edit transaction.');
-        }
+    const handleSaveEdit = async (id, data) => {
+        setConfirmMessage("Are you sure to edit this transaction?");
+        setConfirmVisible(true);
+        setConfirmAction(() => async () => {
+            try {
+                await dispatch(editExpenseActionAsync(id, data));
+                setOpen(false)
+                await dispatch(fetchCurrentMonthExpensesAsync())
+                setAlertMessage("Your entry has been edited succesfully.")
+            } catch (error) {
+                console.error("Failed to edit transaction:", error)
+                setAlertMessage("Failed to edit transaction.")
+            } finally {
+                setAlertVisible(true)
+            }
+        });
     };
 
     useEffect(() => {
@@ -96,22 +123,28 @@ const History = () => {
                                 <th className="action" colSpan="2"><span>Actions</span></th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {currentItems.map((expense) => (
-                                <tr key={expense.expense_id}>
-                                    <td className="date-time"><span className="white-text">{dateFormat(expense.expense_created_at)}</span></td>
-                                    <td className="detail"><span className="white-text">{getExpenseTypeName(expense.expense_type_id, expenseTypes)}</span></td>
-                                    <td className="need"><span className={expense.ExpenseType.ExpenseCategory.expense_category_name === 'essentials' ? "white-text" : "na-text"}>
-                                        {expense.ExpenseType.ExpenseCategory.expense_category_name === 'essentials' ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
-                                    </span></td>
-                                    <td className='want'><span className={expense.ExpenseType.ExpenseCategory.expense_category_name === 'non-essentials' ? "white-text" : "na-text"}>
-                                        {expense.ExpenseType.ExpenseCategory.expense_category_name === 'non-essentials' ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
-                                    </span></td>
-                                    <td className='action edit-action'><span className='edit-btn' onClick={() => handleEdit(expense)}>Edit</span></td>
-                                    <td className="action delete-action"><span className='del-btn' onClick={() => handleDelete(expense.expense_id)}>Delete</span></td>
-                                </tr>
-                            ))}
-                        </tbody>
+                        {expenses.length === 0 ? (
+                            <div className="no-entries">
+                                <p>No entries added yet.<br />Add your first entry of the month!</p>
+                            </div>
+                        ) : (
+                            <tbody>
+                                {currentItems.map((expense) => (
+                                    <tr key={expense.expense_id}>
+                                        <td className="date-time"><span className="white-text">{dateFormat(expense.expense_created_at)}</span></td>
+                                        <td className="detail"><span className="white-text">{getExpenseTypeName(expense.expense_type_id, expenseTypes)}</span></td>
+                                        <td className="need"><span className={expense.ExpenseType.ExpenseCategory.expense_category_name === 'essentials' ? "white-text" : "na-text"}>
+                                            {expense.ExpenseType.ExpenseCategory.expense_category_name === 'essentials' ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
+                                        </span></td>
+                                        <td className='want'><span className={expense.ExpenseType.ExpenseCategory.expense_category_name === 'non-essentials' ? "white-text" : "na-text"}>
+                                            {expense.ExpenseType.ExpenseCategory.expense_category_name === 'non-essentials' ? `${getCurrencySymbol(currentUnit)}${expense.expense_amount}` : 'N/A'}
+                                        </span></td>
+                                        <td className='action edit-action'><span className='edit-btn' onClick={() => handleEdit(expense)}>Edit</span></td>
+                                        <td className="action delete-action"><span className='del-btn' onClick={() => handleDelete(expense.expense_id)}>Delete</span></td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        )}
                     </table>
                 </div>
                 <Pagination
@@ -120,6 +153,25 @@ const History = () => {
                     onPageChange={handlePageChange}
                 />
             </div>
+            <ConfirmModal
+                title="Confirm"
+                visible={confirmVisible}
+                onConfirm={() => {
+                    confirmAction();
+                    setConfirmVisible(false);
+                }}
+                onCancel={() => setConfirmVisible(false)}
+                confirmLoading={confirmLoading}
+                content={confirmMessage}
+            />
+            <ConfirmModal
+                visible={alertVisible}
+                onConfirm={() => setAlertVisible(false)}
+                onCancel={() => setAlertVisible(false)}
+                confirmLoading={false}
+                content={alertMessage}
+                type="alert"
+            />
         </HistoryStyled>
     );
 }
@@ -152,6 +204,15 @@ const HistoryStyled = styled.div`
             span {
                 font-weight: 600;
                 color: white;
+            }
+        }
+        .no-entries {
+            p { 
+                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+                color: grey;
+                padding-top: 1rem;
+                font-size: 1rem;
+                font-weight: 400;
             }
         }
         tbody > tr {
@@ -238,19 +299,6 @@ const HistoryStyled = styled.div`
             .edit-action, .delete-action {
                 width: auto;
                 display: inline-block;
-            }
-            .edit-btn, .del-btn {
-                color: var(--edit-btn);
-                cursor: pointer;
-                display: inline-block;
-                border-radius: 5px;
-                transition: background 0.3s ease;
-                &:hover {
-                    background: rgba(255, 255, 255, 0.1);
-                }
-            }
-            .del-btn {
-                color: var(--delete-btn);
             }
         }
     }

@@ -5,34 +5,29 @@ const useTransaction = (type) => {
     const dispatch = useDispatch()
 
     const fetchTransactions = () => {
-        const action = getTransactionsActionAsync(type)
-        dispatch(action)
-    }
+        dispatch(getTransactionsActionAsync(type));
+    };
 
     const addTransaction = async (formTrans) => {
-        const action = addTransactionActionAsync(type, formTrans)
-        dispatch(action)
-    }
+        await dispatch(addTransactionActionAsync(type, formTrans));
+    };
 
-    const removeTransaction = (id) => {
-        const action = deleteTransactionActionAsync(type, id)
-        dispatch(action)
-    }
+    const removeTransaction = async (id) => {
+        await dispatch(deleteTransactionActionAsync(type, id));
+    };
 
-    const editTransaction = (incomeEdit, id) => {
-        const action = editTransactionActionAsync(type, incomeEdit, id)
-        dispatch(action)
-    }
+    const editTransaction = async (incomeEdit, id) => {
+        await dispatch(editTransactionActionAsync(type, incomeEdit, id));
+    };
 
     const fetchCurrentMonthSaving = () => {
-        const action = fetchMonthlyAmountAsync(type)
-        dispatch(action)
-    }
+        dispatch(fetchMonthlyAmountAsync(type));
+    };
 
     const fetchMonthlyTransaction = () => {
-        const action = fetchMonthlyTransactionAsync(type)
-        dispatch(action)
-    }
+        dispatch(fetchMonthlyTransactionAsync(type));
+    };
+
 
     return { fetchTransactions, addTransaction, removeTransaction, editTransaction, fetchCurrentMonthSaving, fetchMonthlyTransaction }
 }

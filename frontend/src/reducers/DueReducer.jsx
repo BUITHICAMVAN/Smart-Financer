@@ -21,17 +21,24 @@ const DueReducer = createSlice({
       const { due } = action.payload
       const index = state.dues.findIndex(d => d.due_id === due.due_id)
       if (index !== -1) {
-        state.dues[index] = due
+        state.dues[index] = { ...state.dues[index], ...due }
       }
     },
     deleteDueAction: (state, action) => {
       const { id } = action.payload
       state.dues = state.dues.filter(due => due.due_id !== id)
+    },
+    markDueAsPaidAction: (state, action) => {
+      const { due_id, paid_status } = action.payload
+      const index = state.dues.findIndex(due => due.due_id === due_id)
+      if (index !== -1) {
+        state.dues[index].paid_status = paid_status
+      }
     }
   }
 })
 
-export const { getDuesAction, addDueAction, editDueAction, deleteDueAction } = DueReducer.actions
+export const { getDuesAction, addDueAction, editDueAction, deleteDueAction, markDueAsPaidAction } = DueReducer.actions
 
 export default DueReducer.reducer
 
@@ -55,15 +62,11 @@ export const addDueActionAsync = (formData) => async (dispatch) => {
     }
     const res = await http.post('due', formData)
     dispatch(addDueAction({ due: res.data }))
-    alert('Due added successfully!')
     dispatch(getDuesActionAsync())
   } catch (error) {
     console.error('Failed to add due:', error)
-    alert('Failed to add due.')
   }
 }
-
-
 
 export const editDueActionAsync = (id, formData) => async (dispatch) => {
   try {
@@ -80,13 +83,11 @@ export const editDueActionAsync = (id, formData) => async (dispatch) => {
       throw new Error('Invalid date')
     }
 
-    await http.put(`due/${id}`, formData)
-    dispatch(editDueAction({ due: formData }))
-    alert('Due edited successfully!')
+    const res = await http.put(`due/${id}`, formData)
+    dispatch(editDueAction({ due: { ...formData, due_id: id } }))
     dispatch(getDuesActionAsync())
   } catch (error) {
     console.error('Failed to edit due:', error)
-    alert('Failed to edit due.')
   }
 }
 
@@ -94,11 +95,19 @@ export const deleteDueActionAsync = (id) => async (dispatch) => {
   try {
     await http.delete(`due/${id}`)
     dispatch(deleteDueAction({ id }))
-    alert('Due deleted successfully!')
     dispatch(getDuesActionAsync())
   } catch (error) {
     console.error('Failed to delete due:', error)
-    alert('Failed to delete due.')
+  }
+}
+
+export const markDueAsPaidActionAsync = (id) => async (dispatch) => {
+  try {
+    const res = await http.patch(`due/${id}/mark-as-paid`)
+    dispatch(markDueAsPaidAction({ due_id: id, paid_status: true }))
+    dispatch(getDuesActionAsync())
+  } catch (error) {
+    console.error('Failed to mark due as paid:', error)
   }
 }
 
