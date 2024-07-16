@@ -24,13 +24,15 @@ const ExpenseModal = ({ open, onCreate, onCancel, onEdit, initialData }) => {
   const incomes = currentMonthTransactions.incomes || [];
   const currentMonthIncome = calculateTotalAmount(incomes, 'income_amount');
 
-  //current expenses
+  //current month expenses logged on the table
   const totalEssentialSpent = useEssentialExpensesAmount();
   const totalNonEssentialSpent = useNonEssentialExpensesAmount();
 
+  // max need and want amount 
   const maxNeedsAmount = (currentMonthIncome * customPercent.needPercent) / 100;
   const maxWantsAmount = (currentMonthIncome * customPercent.wantPercent) / 100;
 
+  // need and want balance after minus to expenses that logged in 
   const needBalance = maxNeedsAmount - totalEssentialSpent
   const wantBalance = maxWantsAmount - totalNonEssentialSpent
 
@@ -60,7 +62,7 @@ const ExpenseModal = ({ open, onCreate, onCancel, onEdit, initialData }) => {
 
   useEffect(() => {
     if (open) {
-      if (initialData) { // if it has data
+      if (initialData) { 
         const expenseTypeName = getExpenseTypeName(initialData.expense_type_id, expenseTypes);
         form.setFieldsValue({
           expense_category: initialData.expense_category,
@@ -81,7 +83,6 @@ const ExpenseModal = ({ open, onCreate, onCancel, onEdit, initialData }) => {
     fetchIncomes()
   }, [])
 
-
   useEffect(() => {
     dispatch(getUserPercentAsync());
   }, [dispatch]);
@@ -93,8 +94,6 @@ const ExpenseModal = ({ open, onCreate, onCancel, onEdit, initialData }) => {
   useEffect(() => {
     fetchMonthlyTransaction();
   }, [])
-
-
 
   return (
     <ExpenseModalStyled>

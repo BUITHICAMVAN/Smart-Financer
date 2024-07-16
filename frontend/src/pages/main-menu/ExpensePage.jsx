@@ -1,171 +1,171 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
-import { InnerLayout } from "../../styles/Layouts";
-import ExpenseModal from "../../components/modals/ExpenseModal";
-import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components"
+import { InnerLayout } from "../../styles/Layouts"
+import ExpenseModal from "../../components/modals/ExpenseModal"
+import { useDispatch, useSelector } from "react-redux"
 import {
   addExpenseActionAsync,
   deleteExpenseActionAsync,
   editExpenseActionAsync,
   fetchCurrentMonthExpensesAsync,
-} from "../../reducers/ExpenseReducer";
-import { dateFormat } from "../../utils/format/DateFormat";
-import { getCurrencySymbol } from "../../utils/format/CurrencySymbol";
-import useTransaction from "../../customHooks/TransactionHook";
-import { getCurrentMonth } from "../../utils/CurrentDate";
-import { setCurrentCurrencyAsync } from "../../reducers/UserReducer";
-import { getExpenseTypeName } from "../../utils/mapping/ExpenseTypeMapping";
-import { getExpenseTypesActionAsync } from "../../reducers/ExpenseTypeReducer";
-import ReturnButton from "../../components/button/ReturnButton";
-import ConfirmModal from "../../components/modals/ConfirmModal";
+  fetchCurrentMonthExpensesByTypeAsync,
+} from "../../reducers/ExpenseReducer"
+import { dateFormat } from "../../utils/format/DateFormat"
+import { getCurrencySymbol } from "../../utils/format/CurrencySymbol"
+import useTransaction from "../../customHooks/TransactionHook"
+import { getCurrentMonth } from "../../utils/CurrentDate"
+import { setCurrentCurrencyAsync } from "../../reducers/UserReducer"
+import { getExpenseTypeName } from "../../utils/mapping/ExpenseTypeMapping"
+import { getExpenseTypesActionAsync } from "../../reducers/ExpenseTypeReducer"
+import ReturnButton from "../../components/button/ReturnButton"
+import ConfirmModal from "../../components/modals/ConfirmModal"
+import { useEssentialExpensesAmount, useNonEssentialExpensesAmount } from "../../utils/calculate/totalCurrentExpense"
+import { calculateTotalAmount } from "../../utils/calculate/totalAmount"
 
 const ExpensePage = () => {
-  const dispatch = useDispatch();
-  const { fetchCurrentMonthSaving } = useTransaction("savings");
+  const dispatch = useDispatch()
 
-  const [confirmLoading, setConfirmLoading] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [initialData, setInitialData] = useState(null); // For editing
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [confirmVisible, setConfirmVisible] = useState(false);
-  const [confirmMessage, setConfirmMessage] = useState("");
-  const [confirmAction, setConfirmAction] = useState(null);
+  const { fetchTransactions: fetchIncomes, fetchMonthlyTransaction } = useTransaction('incomes')
+  const expenses = useSelector((state) => state.expenseReducer.currentMonthExpenses)
+  const expenseTypes = useSelector((state) => state.expenseTypeReducer.expenseTypes)
+  const currentMonthTransactions = useSelector(state => state.transactionReducer.currentMonthTransactions)
+  const currentUnit = useSelector((state) => state.userReducer.userCurrencyUnit)
+  const customPercent = useSelector(state => state.userReducer.customPercent)
 
-  const expenses = useSelector(
-    (state) => state.expenseReducer.currentMonthExpenses
-  );
-  const expenseTypes = useSelector(
-    (state) => state.expenseTypeReducer.expenseTypes
-  );
+  const [confirmLoading, setConfirmLoading] = useState(false)
+  const [open, setOpen] = useState(false)
+  const [initialData, setInitialData] = useState(null)
 
-  const needs = expenses.filter(
-    (expense) =>
-      expense.ExpenseType.ExpenseCategory.expense_category_name === "essentials"
-  );
-  const wants = expenses.filter(
-    (expense) =>
-      expense.ExpenseType.ExpenseCategory.expense_category_name ===
-      "non-essentials"
-  );
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(10)
+  const [alertVisible, setAlertVisible] = useState(false)
+  const [alertMessage, setAlertMessage] = useState("")
+  const [confirmVisible, setConfirmVisible] = useState(false)
+  const [confirmMessage, setConfirmMessage] = useState("")
+  const [confirmAction, setConfirmAction] = useState(null)
 
-  const totalNeedsAmount = needs.reduce((total, expense) => {
-    const amount = parseFloat(expense.expense_amount) || 0;
-    return total + amount;
-  }, 0);
+  const currentMonth = getCurrentMonth()
 
-  const totalWantsAmount = wants.reduce((total, expense) => {
-    const amount = parseFloat(expense.expense_amount) || 0;
-    return total + amount;
-  }, 0);
+  // current month income
+  const incomes = currentMonthTransactions.incomes || []
+  const currentMonthIncome = calculateTotalAmount(incomes, 'income_amount')
 
-  const currentUnit = useSelector(
-    (state) => state.userReducer.userCurrencyUnit
-  );
-  const currentMonth = getCurrentMonth();
-  const currentMonthSaving = useSelector(
-    (state) => state.transactionReducer.currentMonthSaving
-  );
+  //current month expenses logged on the table
+  const totalEssentialSpent = useEssentialExpensesAmount()
+  const totalNonEssentialSpent = useNonEssentialExpensesAmount()
+  // max need and want amount 
+  const maxNeedsAmount = (currentMonthIncome * customPercent.needPercent) / 100
+  const maxWantsAmount = (currentMonthIncome * customPercent.wantPercent) / 100
+  // need and want balance after minus to expenses that logged in 
+  const needBalance = maxNeedsAmount - totalEssentialSpent
+  const wantBalance = maxWantsAmount - totalNonEssentialSpent
 
   const showModal = () => {
-    setInitialData(null); // Clear initial data for adding
-    setOpen(true);
-  };
+    setInitialData(null)
+    setOpen(true)
+  }
 
   const handleCancel = () => {
-    setOpen(false);
-    setInitialData(null); // Clear initial data when closing modal
-  };
+    setOpen(false)
+    setInitialData(null) // Clear initial data when closing modal
+  }
 
   const handleCreate = async (data) => {
-    setConfirmMessage("Are you sure to add this transaction");
-    setConfirmVisible(true);
+    setConfirmMessage("Are you sure to add this transaction")
+    setConfirmVisible(true)
     setConfirmAction(() => async () => {
       try {
-        await dispatch(addExpenseActionAsync(data));
-        await dispatch(fetchCurrentMonthExpensesAsync());
-        setOpen(false);
-        await setAlertMessage("Your entry has been added succesfully.");
+        await dispatch(addExpenseActionAsync(data))
+        await dispatch(fetchCurrentMonthExpensesAsync())
+        setOpen(false)
+        await setAlertMessage("Your entry has been added succesfully.")
       } catch (error) {
-        console.error("Failed to add transaction:", error);
-        setAlertMessage("Failed to add transaction.");
+        console.error("Failed to add transaction:", error)
+        setAlertMessage("Failed to add transaction.")
       } finally {
-        setAlertVisible(true);
+        setAlertVisible(true)
       }
-    });
-  };
+    })
+  }
 
   const handleDelete = async (id) => {
     setConfirmMessage(
       "Are you absolutely sure? This action cannot be undone. This will permanently delete this entry from your income."
-    );
-    setConfirmVisible(true);
+    )
+    setConfirmVisible(true)
     setConfirmAction(() => async () => {
       try {
-        await dispatch(deleteExpenseActionAsync(id));
-        await dispatch(fetchCurrentMonthExpensesAsync());
-        setAlertMessage("Your entry has been deleted successfully.");
+        await dispatch(deleteExpenseActionAsync(id))
+        await dispatch(fetchCurrentMonthExpensesAsync())
+        setAlertMessage("Your entry has been deleted successfully.")
       } catch (error) {
-        console.error("Failed to delete transaction:", error);
-        setAlertMessage("Failed to delete transaction.");
+        console.error("Failed to delete transaction:", error)
+        setAlertMessage("Failed to delete transaction.")
       } finally {
-        setAlertVisible(true);
+        setAlertVisible(true)
       }
-    });
-  };
+    })
+  }
+
   const handleEdit = (data) => {
-    setInitialData(data); // Set data to edit
-    setOpen(true);
-  };
+    setInitialData(data) // Set data to edit
+    setOpen(true)
+  }
 
   const handleSaveEdit = async (id, data) => {
-    setConfirmMessage("Are you sure to edit this transaction?");
-    setConfirmVisible(true);
+    setConfirmMessage("Are you sure to edit this transaction?")
+    setConfirmVisible(true)
     setConfirmAction(() => async () => {
       try {
-        await dispatch(editExpenseActionAsync(id, data));
-        setOpen(false);
-        await dispatch(fetchCurrentMonthExpensesAsync());
-        setAlertMessage("Your entry has been edited succesfully.");
+        await dispatch(editExpenseActionAsync(id, data))
+        setOpen(false)
+        await dispatch(fetchCurrentMonthExpensesAsync())
+        setAlertMessage("Your entry has been edited succesfully.")
       } catch (error) {
-        console.error("Failed to edit transaction:", error);
-        setAlertMessage("Failed to edit transaction.");
+        console.error("Failed to edit transaction:", error)
+        setAlertMessage("Failed to edit transaction.")
       } finally {
-        setAlertVisible(true);
+        setAlertVisible(true)
       }
-    });
-  };
+    })
+  }
 
   useEffect(() => {
-    dispatch(fetchCurrentMonthExpensesAsync());
-  }, [dispatch]);
+    dispatch(fetchCurrentMonthExpensesAsync())
+  }, [dispatch])
 
   useEffect(() => {
-    dispatch(getExpenseTypesActionAsync());
-  }, [dispatch]);
+    dispatch(getExpenseTypesActionAsync())
+  }, [dispatch])
 
   useEffect(() => {
-    dispatch(setCurrentCurrencyAsync());
-  }, [dispatch]);
+    dispatch(setCurrentCurrencyAsync())
+  }, [dispatch])
 
   useEffect(() => {
-    fetchCurrentMonthSaving();
-  }, [fetchCurrentMonthSaving]);
+    dispatch(fetchCurrentMonthExpensesByTypeAsync())
+  }, [totalEssentialSpent, totalNonEssentialSpent])
+
+  useEffect(() => {
+    fetchMonthlyTransaction()
+  }, [])
+
+  useEffect(() => {
+    fetchIncomes()
+  }, [])
 
   const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
+    setCurrentPage(pageNumber)
+  }
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = expenses.slice(indexOfFirstItem, indexOfLastItem);
+  const indexOfLastItem = currentPage * itemsPerPage
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  const currentItems = expenses.slice(indexOfFirstItem, indexOfLastItem)
 
   const renderPagination = () => {
-    const pageNumbers = [];
+    const pageNumbers = []
     for (let i = 1; i <= Math.ceil(expenses.length / itemsPerPage); i++) {
-      pageNumbers.push(i);
+      pageNumbers.push(i)
     }
     return (
       <Pagination>
@@ -179,8 +179,8 @@ const ExpensePage = () => {
           </PaginationItem>
         ))}
       </Pagination>
-    );
-  };
+    )
+  }
 
   return (
     <ExpensePageStyled>
@@ -302,49 +302,55 @@ const ExpensePage = () => {
               <h1 className="text-center">Expense Insights</h1>
               <hr />
               <div className="insight">
-                <div className="spending">
+                <div className="insight-top allotment">
+                  <span className="insight-title">Allotment</span>
+                  <div className="main">
+                    <div className="amount">
+                      <p>
+                        Needs: {getCurrencySymbol(currentUnit)} {maxNeedsAmount}
+                      </p>
+                      <p>
+                        Wants: {getCurrencySymbol(currentUnit)} {maxWantsAmount}
+                      </p>
+                    </div>
+                    <div className="bracket">
+                      <p>{"}"}</p>
+                      <p>
+                        {getCurrencySymbol(currentUnit)} {maxNeedsAmount + maxWantsAmount}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="insight-top spending">
                   <span className="insight-title">Spendings</span>
                   <div className="main">
                     <div className="amount">
                       <p>
-                        Needs: {getCurrencySymbol(currentUnit)}
-                        {totalNeedsAmount}
+                        Needs: {getCurrencySymbol(currentUnit)} {totalEssentialSpent}
                       </p>
                       <p>
-                        Wants: {getCurrencySymbol(currentUnit)}
-                        {totalWantsAmount}
+                        Wants: {getCurrencySymbol(currentUnit)} {totalNonEssentialSpent}
                       </p>
                     </div>
                     <div className="bracket">
                       <p>{"}"}</p>
                       <p>
-                        {getCurrencySymbol(currentUnit)}
-                        {totalNeedsAmount + totalWantsAmount}
+                        {getCurrencySymbol(currentUnit)} {totalEssentialSpent + totalNonEssentialSpent}
                       </p>
                     </div>
                   </div>
                 </div>
-                <div className="money-left">
+                <div className="insight-down money-left">
                   <span className="insight-title">Money Left</span>
                   <div className="main">
                     <div className="amount">
-                      <p>Needs: {getCurrencySymbol(currentUnit)}</p>
-                      <p>Wants: {getCurrencySymbol(currentUnit)}</p>
+                      <p>Needs: {getCurrencySymbol(currentUnit)} {needBalance}</p>
+                      <p>Wants: {getCurrencySymbol(currentUnit)} {wantBalance}</p>
                     </div>
                     <div className="bracket">
                       <p>{"}"}</p>
-                      <p>
-                        {getCurrencySymbol(currentUnit)}
-                        {currentMonthSaving}
+                      <p>{getCurrencySymbol(currentUnit)} {needBalance + wantBalance}
                       </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="saving">
-                  <span className="insight-title">Savings</span>
-                  <div className="main">
-                    <div className="amount">
-                      <p>Total Savings: {getCurrencySymbol(currentUnit)}</p>
                     </div>
                   </div>
                 </div>
@@ -357,8 +363,8 @@ const ExpensePage = () => {
         title="Confirm"
         visible={confirmVisible}
         onConfirm={() => {
-          confirmAction();
-          setConfirmVisible(false);
+          confirmAction()
+          setConfirmVisible(false)
         }}
         onCancel={() => setConfirmVisible(false)}
         confirmLoading={confirmLoading}
@@ -373,8 +379,8 @@ const ExpensePage = () => {
         type="alert"
       />
     </ExpensePageStyled>
-  );
-};
+  )
+}
 
 const ExpensePageStyled = styled.div`
   h1 {
@@ -399,6 +405,9 @@ const ExpensePageStyled = styled.div`
       border-radius: 20px;
       padding: 0.5rem 1rem;
       text-align: center;
+    }
+    button:hover {
+      
     }
   }
   .expense-container {
@@ -502,13 +511,16 @@ const ExpensePageStyled = styled.div`
           padding: 0 1rem;
           font-family: "Courier Prime", monospace;
           font-weight: 400;
+          font-size: 1rem;
         }
         p:first-child {
           font-size: 3rem;
-          color: var(--bracket-color);
+          color: white;
+          font-weight: 400;
         }
         p:nth-child(2) {
           font-size: 2rem;
+          font-weight: 600;
           color: white;
           padding: 0;
           margin: 0;
@@ -588,6 +600,39 @@ const ExpensePageStyled = styled.div`
       }
       span {
         color: white;
+      }
+    }
+    .insight {
+      .insight-title {
+          font-size: .9rem;
+        }
+      .main {
+        .amount p {
+          font-size: .9rem;
+          line-height: 1rem;
+        }
+        .bracket {
+          p {
+            padding: 0 1rem;
+            font-family: "Courier Prime", monospace;
+            font-weight: 400;
+            font-size: .9rem;
+            line-height: 1rem;
+          }
+          p:first-child {
+            font-size: 2rem;
+            color: white;
+            font-weight: 400;
+            line-height: 2rem;
+          }
+          p:nth-child(2) {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            padding: 0;
+            margin: 0;
+          }
+        }
       }
     }
   }
