@@ -114,7 +114,7 @@ const SavingPage = () => {
   };
   const getSavingTypeName = (id) => {
     const savingType = savingTypes.find((type) => type.saving_type_id === id);
-    return savingType ? savingType.saving_type_name : "Unknown";
+    return savingType ? savingType.saving_type_name : "others";
   };
 
   useEffect(() => {
@@ -295,6 +295,7 @@ const SavingPageStyled = styled.div`
   }
   .table {
     .no-entries {
+    text-align: center;
       p {
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
           Liberation Mono, Courier New, monospace;

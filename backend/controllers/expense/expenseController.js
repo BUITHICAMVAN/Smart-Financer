@@ -6,8 +6,8 @@ exports.addExpense = async (req, res) => {
     const { expense_amount, expense_type_id, expense_note, expense_created_at } = req.body;
 
     // Validations to match model fields
-    if (!expense_amount || !expense_type_id) {
-        return res.status(400).json({ message: 'Amount and type are required!' });
+    if (!expense_amount) {
+        return res.status(400).json({ message: 'Amount is required!' });
     }
 
     if (expense_amount <= 0 || typeof expense_amount !== 'number') {
@@ -77,8 +77,8 @@ exports.updateExpense = async (req, res) => {
     const { expense_amount, expense_type_id, expense_note, expense_created_at } = req.body;
 
     // Basic validations
-    if (!expense_amount || !expense_type_id) {
-        return res.status(400).json({ message: 'Amount and type are required!' });
+    if (!expense_amount) {
+        return res.status(400).json({ message: 'Amount is required!' });
     }
 
     if (expense_amount <= 0 || typeof expense_amount !== 'number') {

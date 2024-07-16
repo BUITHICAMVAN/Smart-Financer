@@ -112,7 +112,7 @@ const IncomePage = () => {
 
   const getIncomeTypeName = (id) => {
     const incomeType = incomeTypes.find((type) => type.income_type_id === id);
-    return incomeType ? incomeType.income_type_name : "Unknown";
+    return incomeType ? incomeType.income_type_name : "others";
   };
 
   useEffect(() => {

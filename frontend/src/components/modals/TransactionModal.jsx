@@ -39,7 +39,7 @@ const TransactionModal = ({ type, open, onCreate, onCancel, onEdit, initialData 
             const typeName = transactionTypes.find(item => item[`${type}_type_id`] === initialData[`${type}_type_id`])?.[`${type}_type_name`] || '';
             form.setFieldsValue({
                 [`${type}_amount`]: initialData[`${type}_amount`],
-                [`${type}_type_id`]: initialData[`${type}_type_id`],
+                [`${type}_type_id`]: initialData[`${type}_type_id`] || null,
                 [`${type}_note`]: initialData[`${type}_note`],
                 [`${type}_created_at`]: moment(initialData[`${type}_created_at`])
             });
@@ -73,6 +73,10 @@ const TransactionModal = ({ type, open, onCreate, onCancel, onEdit, initialData 
                 [`${type}_type_id`]: values[`${type}_type_id`],
                 [`${type}_created_at`]: values[`${type}_created_at`].format('YYYY-MM-DD')
             };
+            // Set income_type_id to null if not selected
+            if (!values[`${type}_type_id`]) {
+                transformedValues[`${type}_type_id`] = null;
+            }
             if (initialData) {
                 onEdit(transformedValues, initialData[`${type}_id`]);
             } else {
@@ -127,7 +131,7 @@ const TransactionModal = ({ type, open, onCreate, onCancel, onEdit, initialData 
                     <Form.Item
                         name={`${type}_type_id`}
                         label="Type"
-                        rules={[{ required: true, message: 'Please select the type!' }]}
+                    // rules={[{ required: true, message: 'Please select the type!' }]}
                     >
                         <Select
                             showSearch

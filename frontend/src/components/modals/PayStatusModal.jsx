@@ -20,6 +20,8 @@ const PayStatusModal = ({ open, onMarkAsPaid, onCancel, paymentType }) => {
         try {
             const values = await form.validateFields()
             // Add data to the appropriate table based on selectedOption
+            values.status = 'paid' // Change status
+
             if (selectedOption === 'incomes') {
                 // Add to income table
                 await addIncomeToDatabase(values)
@@ -42,6 +44,7 @@ const PayStatusModal = ({ open, onMarkAsPaid, onCancel, paymentType }) => {
 
     const addIncomeToDatabase = async (values) => {
         // Implement the logic to add income data to the income table in the database
+        console.log(values)
     }
 
     const addExpenseToDatabase = async (values) => {
