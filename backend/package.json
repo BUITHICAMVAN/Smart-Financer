@@ -19,11 +19,11 @@
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "nodemon": "^3.1.0",
-    "pg": "^8.11.5",
+    "pg": "^8.12.0",
     "pg-hstore": "^2.3.4",
     "redis": "^4.6.14",
     "seedrandom": "^3.0.5",
-    "sequelize": "^6.37.2",
+    "sequelize": "^6.37.3",
     "util": "^0.12.5"
   }
 }

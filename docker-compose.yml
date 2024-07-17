@@ -1,41 +1,56 @@
-version: '3.8'
 
 services:
   backend:
+    container_name: smartfinancer_backend
     build: ./backend
     ports:
-      - "3000:3000"
+      - "5000:5000"
     environment:
       - REDIS_HOST=redis
       - DB_HOST=db
       - DB_USER=postgres
-      - DB_PASSWORD=0812
+      - DB_PASSWORD=Btcv0812
       - DB_NAME=smartfinancer
       - DB_PORT=5432
     depends_on:
       - db
       - redis
+    networks:
+      - smartfinancer-network
 
   frontend:
+    container_name: smartfinancer_frontend
     build: ./frontend
     ports:
-      - "5000:5000"
+      - "3000:3000"
+    networks:
+      - smartfinancer-network
 
-  db:
-    image: postgres:13
+  db: 
+    container_name: smartfinancer_db
+    build: ./backend/db
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 0812
+      POSTGRES_PASSWORD: Btcv0812
       POSTGRES_DB: smartfinancer
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - smartfinancer-network
 
   redis:
-    image: redis:alpine
+    container_name: smartfinancer_redis
+    build: ./backend/redis
     ports:
       - "6379:6379"
+    networks:
+      - smartfinancer-network
 
 volumes:
   postgres-data:
+
+networks:
+  smartfinancer-network:
+    driver: bridge

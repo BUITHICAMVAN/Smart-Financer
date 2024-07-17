@@ -49,8 +49,8 @@ const DashboardPage = () => {
     }, [])
 
     useEffect(() => {
-        dispatch(fetchCurrentMonthExpensesByTypeAsync(), [])
-    })
+        dispatch(fetchCurrentMonthExpensesByTypeAsync())
+    }, [])
     return (
         <DashboardStyled>
             <InnerLayout>

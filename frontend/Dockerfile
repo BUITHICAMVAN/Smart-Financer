@@ -1,26 +1,31 @@
-# Use the official Node.js image
-FROM node:21.2.0
+# Stage 1: Build the application using Node.js
+FROM node:20-alpine as build
 
-# Create and change to the app directory
 WORKDIR /app
 
 # Copy package.json and package-lock.json first for better caching
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm ci
 
 # Copy the rest of the application files
 COPY . .
 
-# Build the app
+# Build the application
 RUN npm run build
 
-# Install serve to serve the build
-RUN npm install -g serve
+# Stage 2: Serve the application using Nginx
+FROM nginx:stable-alpine
 
-# Expose the port serve runs on
-EXPOSE 5000
+# Copy built files from the build stage
+COPY --from=build /app/build /usr/share/nginx/html
 
-# Start the app
-CMD ["serve", "-s", "build"]
+# Copy custom Nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Expose the port Nginx will serve on
+EXPOSE 3000
+
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]
