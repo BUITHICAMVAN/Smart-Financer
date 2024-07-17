@@ -1,58 +1,58 @@
-import React, { useEffect, useState } from 'react'
-import { Modal, Form, Input, InputNumber, DatePicker } from 'antd'
-import moment from 'moment'
-import styled from 'styled-components'
+import React, { useEffect, useState } from 'react';
+import { Modal, Form, Input, InputNumber, DatePicker } from 'antd';
+import moment from 'moment';
+import styled from 'styled-components';
 
 const DueModal = ({ open, onCreate, onCancel, onEdit, initialData, dueType }) => {
-    const [form] = Form.useForm()
-    const [loading, setLoading] = useState(false)
+    const [form] = Form.useForm();
+    const [loading, setLoading] = useState(false);
 
     const handleOk = async () => {
-        setLoading(true)
+        setLoading(true);
         try {
-            const values = await form.validateFields()
+            const values = await form.validateFields();
             const transformedValues = {
                 ...values,
-                due_type_id: dueType, // Map the dueType name to its ID
+                due_type_id: dueType,
                 due_due_date: values.due_date.format('YYYY-MM-DD')
-            }
+            };
             if (initialData) {
-                onEdit(initialData.due_id, transformedValues)
+                await onEdit(initialData.due_id, transformedValues);
             } else {
-                onCreate(transformedValues)
+                await onCreate(transformedValues);
             }
         } catch (error) {
-            console.log('Validate Failed:', error)
+            console.log('Validate Failed:', error);
         } finally {
-            setLoading(false)
-            onCancel()
+            setLoading(false);
+            onCancel();
         }
-    }
+    };
 
     const getTitle = () => {
         if (initialData) {
-            return dueType === 'payable' ? 'Edit Due Payable' : 'Edit Due Receivable'
+            return dueType === 1 ? 'Edit Due Receivable' : 'Edit Due Payable';
         } else {
-            return dueType === 'payable' ? 'Add Due Payable' : 'Add Due Receivable'
+            return dueType === 1 ? 'Add Due Receivable' : 'Add Due Payable';
         }
-    }
+    };
 
     useEffect(() => {
         if (open) {
-            if (initialData) { // if it has data
+            if (initialData) {
                 form.setFieldsValue({
                     due_details: initialData.due_details,
                     due_amount: initialData.due_amount,
-                    due_date: moment(initialData.due_date)
-                })
+                    due_date: moment(initialData.due_due_date)
+                });
             } else {
-                form.resetFields()
+                form.resetFields();
                 form.setFieldsValue({
                     due_date: moment()
-                })
+                });
             }
         }
-    }, [open, initialData, form])
+    }, [open, initialData, form]);
 
     return (
         <DueModalStyled>
@@ -108,9 +108,9 @@ const DueModal = ({ open, onCreate, onCancel, onEdit, initialData, dueType }) =>
                 </Form>
             </Modal>
         </DueModalStyled>
-    )
-}
+    );
+};
 
-export default DueModal
+export default DueModal;
 
-const DueModalStyled = styled.div``
+const DueModalStyled = styled.div``;

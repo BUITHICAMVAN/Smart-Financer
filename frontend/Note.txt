@@ -11,7 +11,8 @@ Cai dat thu vien:
 - history: chuyen huong nhung trang khong phai component
 - styled-components
 - moment 
-- @tensorflow/tfjs
+- @tensorflow/tfjs @tensorflow/tfjs-node tensorflow-decision-forests temporian
+
 
 - tanstack query 
 - zustard

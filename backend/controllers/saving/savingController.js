@@ -3,8 +3,8 @@ const Saving = require("../../models/saving/savingModel"); // Adjust the path as
 exports.addSaving = async (req, res) => {
     const { saving_amount, saving_type_id, saving_note, saving_created_at } = req.body;
 
-    if (!saving_amount || !saving_type_id) {
-        return res.status(400).json({ message: 'Amount and type are required!' });
+    if (!saving_amount) {
+        return res.status(400).json({ message: 'Amount is required!' });
     }
 
     if (saving_amount <= 0 || typeof saving_amount !== 'number') {
@@ -51,7 +51,7 @@ exports.updateSaving = async (req, res) => {
             return res.status(404).json({ message: 'Saving not found' });
         }
         saving.saving_amount = saving_amount;
-        saving.saving_type_id = saving_type_id;
+        saving.ssaving_type_id = saving_type_id;
         saving.saving_note = saving_note;
         saving.saving_created_at = saving_created_at || saving.saving_created_at;
         await saving.save();

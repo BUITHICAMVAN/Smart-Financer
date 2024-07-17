@@ -8,7 +8,7 @@ import { fetchUserAsync } from '../../reducers/UserReducer';
 import { getCurrencySymbol } from '../../utils/format/CurrencySymbol';
 import { calculateTotalAmount } from '../../utils/calculate/totalAmount';
 import useTransaction from '../../customHooks/TransactionHook';
-import { getExpenseActionAsync } from '../../reducers/ExpenseReducer';
+import { fetchCurrentMonthExpensesByTypeAsync, getExpenseActionAsync } from '../../reducers/ExpenseReducer';
 import { getCurrentMonth } from '../../utils/CurrentDate';
 
 const DashboardPage = () => {
@@ -48,6 +48,9 @@ const DashboardPage = () => {
         fetchCurrentMonthSaving()
     }, [])
 
+    useEffect(() => {
+        dispatch(fetchCurrentMonthExpensesByTypeAsync())
+    }, [])
     return (
         <DashboardStyled>
             <InnerLayout>
@@ -96,6 +99,20 @@ const DashboardStyled = styled.div`
     grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
     margin: 1.25rem 0;
+
+    @media (max-width: 1024px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+        p, span {
+            font-size: 1.125rem;
+            line-height: 1.75rem;
+            font-weight: 700;
+            letter-spacing: .025em;
+        }
+    }
   }
   .income,
     .saving,
@@ -119,14 +136,11 @@ const DashboardStyled = styled.div`
     display: grid;
     grid-template-columns: 4fr 2fr;
     gap: 1rem;
-    .edit-btn {
-      color: var(--edit-btn);
-    }
-    .del-btn {
-      color: var(--delete-btn); 
+
+    @media (max-width: 1024px) {
+      grid-template-columns: 1fr;
     }
   }
 `
-
 
 export default DashboardPage

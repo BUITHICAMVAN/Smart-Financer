@@ -8,7 +8,11 @@ const initialState = {
         incomes: [],
         savings: []
     },
-    currentMonthSaving: 0
+    currentMonthSaving: 0,
+    currentMonthTransactions: {
+        incomes: [],
+        savings: []
+    }
 }
 
 const TransactionReducer = createSlice({
@@ -22,7 +26,7 @@ const TransactionReducer = createSlice({
         deleteTransactionAction: (state, action) => {
             const { transType, transId } = action.payload
             state.transactions[transType] = state.transactions[transType].filter(
-                item => item.id !== transId // Assumes each transaction has a unique `id`
+                item => item.id !== transId 
             )
         },
         addTransactionAction: (state, action) => {
@@ -30,17 +34,27 @@ const TransactionReducer = createSlice({
             state.transactions[transType].push(transForm)
         },
         editTransactionAction: (state, action) => {
-            const { transType, transId, transNew } = action.payload
-            const index = state.transactions[transType].findIndex(item => item.id === transId)
-            state.transactions[transType][index] = transNew
-        },
+            const { transType, transId, transNew } = action.payload;
+            const index = state.transactions[transType].findIndex(item => item.id === transId);
+            if (index !== -1) {
+              state.transactions[transType] = [
+                ...state.transactions[transType].slice(0, index),
+                { ...state.transactions[transType][index], ...transNew },
+                ...state.transactions[transType].slice(index + 1)
+              ];
+            }
+          },
         setMonthlyAmountAction: (state, action) => {
             state.currentMonthSaving = action.payload
+        },
+        setMonthlyTransactionAction: (state, action) => {
+            const { type, data } = action.payload
+            state.currentMonthTransactions[type] = data
         }
     }
 })
 
-export const { getTransactionsAction, deleteTransactionAction, addTransactionAction, editTransactionAction, setMonthlyAmountAction } = TransactionReducer.actions
+export const { getTransactionsAction, deleteTransactionAction, addTransactionAction, editTransactionAction, setMonthlyAmountAction, setMonthlyTransactionAction } = TransactionReducer.actions
 
 export default TransactionReducer.reducer
 
@@ -58,7 +72,6 @@ export const deleteTransactionActionAsync = (type, id) => async (dispatch) => {
         const res = await http.delete(`${type}/${id}`)
         if (res.status === 200) {
             dispatch(deleteTransactionAction({ transType: type, transId: id }))
-            alert('Transaction deleted successfully!')
             dispatch(getTransactionsActionAsync(`${type}`))
         }
     } catch (error) {
@@ -68,40 +81,37 @@ export const deleteTransactionActionAsync = (type, id) => async (dispatch) => {
 
 export const addTransactionActionAsync = (type, formData) => async (dispatch) => {
     try {
-        const apiType = mapTransactionType(type) // convert type incomes (frontend) to income (backend)
+        const apiType = mapTransactionType(type);
 
-        const dateFormat = 'YYYY-MM-DD' // define date format
+        const dateFormat = 'YYYY-MM-DD';
 
         if (typeof formData[`${apiType}_created_at`] === 'string') {
-            formData[`${apiType}_created_at`] = moment(formData[`${apiType}_created_at`])
+            formData[`${apiType}_created_at`] = moment(formData[`${apiType}_created_at`]);
         }
 
         if (formData[`${apiType}_created_at`] && formData[`${apiType}_created_at`].format) {
-            formData[`${apiType}_created_at`] = formData[`${apiType}_created_at`].format(dateFormat)
+            formData[`${apiType}_created_at`] = formData[`${apiType}_created_at`].format(dateFormat);
         } else {
-            console.error("Date is undefined or not a moment object")
-            throw new Error("Invalid date")
+            console.error("Date is undefined or not a moment object");
+            throw new Error("Invalid date");
         }
 
-        const res = await http.post(`${type}`, formData) // tells js to pause untill the Promise resolves
-        dispatch(addTransactionAction({ transType: type, transForm: formData })) // add payload and dispatch action
-        alert('Transaction added successfully!')
+        const res = await http.post(`${type}`, formData);
+        dispatch(addTransactionAction({ transType: type, transForm: formData }))
         dispatch(getTransactionsActionAsync(`${type}`))
     } catch (error) {
-        console.error('Failed to add transaction:', error)
-        alert('Failed to add transaction.')
+        console.error('Failed to add transaction:', error);
     }
-}
+};
+
 
 export const editTransactionActionAsync = (type, newData, id) => async (dispatch) => {
     try {
         const res = await http.put(`${type}/${id}`, newData)
         dispatch(editTransactionAction({ transType: type, transId: id, transNew: newData }))
-        alert('Transaction updated successfully!')
         dispatch(getTransactionsActionAsync(`${type}`))
     } catch (error) {
         console.error('Failed to edit transaction:', error)
-        alert('Failed to edit transaction.')
     }
 }
 
@@ -139,3 +149,27 @@ export const fetchMonthlyAmountAsync = (type) => async (dispatch) => {
         console.error('Failed to fetch monthly amount:', error)
     }
 };
+
+export const fetchMonthlyTransactionAsync = (type) => async (dispatch) => {
+    try {
+        const res = await http.get(`${type}`)
+        const transactions = res.data
+
+        // Get start and end of the current month
+        const startOfMonth = moment().startOf('month')
+        const endOfMonth = moment().endOf('month')
+
+        const typeMapping = mapTransactionType(type)
+
+        // Filter transactions that fall within the current month
+        const monthlyTransactions = transactions.filter(trans => {
+            const transDate = moment(trans[`${typeMapping}_created_at`])
+            return transDate.isBetween(startOfMonth, endOfMonth, null, '[]')
+        })
+
+        // Dispatch the transactions for the current month
+        dispatch(setMonthlyTransactionAction({ type, data: monthlyTransactions }))
+    } catch (error) {
+        console.error('Failed to fetch monthly transactions:', error)
+    }
+}

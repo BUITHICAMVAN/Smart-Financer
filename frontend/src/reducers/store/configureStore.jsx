@@ -7,6 +7,8 @@ import ExpenseTypeReducer from '../ExpenseTypeReducer'
 import DueReducer from '../DueReducer'
 import CategoryFormReducer from '../CategoryFormReducer'
 import RatesReducer from '../RatesReducer'
+import BudgetReducer from '../BudgetReducer'
+import ForecastReducer from '../ForecastReducer'
 
 export const store = configureStore({
     reducer: {
@@ -17,7 +19,8 @@ export const store = configureStore({
         expenseReducer: ExpenseReducer,
         expenseTypeReducer: ExpenseTypeReducer,
         dueReducer: DueReducer,
-        categoryFormReducer: CategoryFormReducer
-        
+        categoryFormReducer: CategoryFormReducer,
+        budgetReducer: BudgetReducer,
+        forecastReducer: ForecastReducer
     }
 })

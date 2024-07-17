@@ -38,6 +38,7 @@ exports.addIncomeType = async (req, res) => {
         }
 
         const newIncomeType = await IncomeType.create({ income_type_name });
+        const newBudgetType = await BudgetType.create({budget_type_name: `Income + ${income_type_name}`})
         res.status(201).json(newIncomeType);
     } catch (error) {
         console.error('Failed to add income type:', error);

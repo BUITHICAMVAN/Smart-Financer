@@ -5,20 +5,22 @@ exports.addIncome = async (req, res) => {
     const { income_amount, income_type_id, income_note, income_created_at } = req.body;
 
     // Corrected data validations to match the model fields
-    if (!income_amount || !income_type_id) {
-        return res.status(400).json({ message: 'Amount and type are required!' });
+    if (!income_amount) {
+        return res.status(400).json({ message: 'Amount are required!' });
     }
 
     if (income_amount <= 0 || typeof income_amount !== 'number') {
         return res.status(400).json({ message: 'Amount must be a positive number!' });
     }
 
-    const incomeTypeExist = await IncomeType.findOne({
-        where: { income_type_id: income_type_id }
-    })
+    if (income_type_id) {
+        const incomeTypeExist = await IncomeType.findOne({
+            where: { income_type_id: income_type_id }
+        })
 
-    if (!incomeTypeExist) {
-        return res.status(404).json({ message: 'Income type does not exist!' });
+        if (!incomeTypeExist) {
+            return res.status(404).json({ message: 'Income type does not exist!' });
+        }
     }
     const income = new Income({
         income_user_id: req.user.user_id,

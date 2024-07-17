@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS public.income_type (
     income_type_name VARCHAR(100) NOT NULL UNIQUE
 );
 INSERT INTO public.income_type (income_type_name) VALUES ('Bouygues Company'), ('Private Tutoring'), ('Mentoring Cybersoft');
+
 -- Income Table
 CREATE TABLE IF NOT EXISTS public.income(
     income_id SERIAL PRIMARY KEY,
@@ -60,6 +61,7 @@ CREATE TABLE IF NOT EXISTS public.saving_type (
     saving_type_name VARCHAR(255) NOT NULL
 );
 INSERT INTO public.saving_type (saving_type_name) VALUES ('Emergency Fund'), ('Housing'), ('Education');
+
 -- Saving Table
 CREATE TABLE IF NOT EXISTS public.saving(
     saving_id SERIAL PRIMARY KEY,
@@ -70,33 +72,38 @@ CREATE TABLE IF NOT EXISTS public.saving(
     CONSTRAINT saving_saving_type_id FOREIGN KEY (saving_type_id) REFERENCES public.saving_type (saving_type_id),
     CONSTRAINT saving_saving_user_id FOREIGN KEY (saving_user_id) REFERENCES public.user(user_id)
 );
-
 ALTER TABLE public.saving ADD COLUMN saving_note TEXT;
 
 
-CREATE TABLE IF NOT EXISTS public.expense
+-- Table: public.expense_category
+CREATE TABLE IF NOT EXISTS public.expense_category
 (
-    expense_id integer NOT NULL DEFAULT nextval('expense_expense_id_seq'::regclass),
-    expense_user_id integer NOT NULL,
-    expense_type_id integer,
-    expense_amount numeric(15,2) NOT NULL,
-    expense_created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
-    expense_note text COLLATE pg_catalog."default",
-    CONSTRAINT expense_pkey PRIMARY KEY (expense_id),
-    CONSTRAINT expense_expense_type_id FOREIGN KEY (expense_type_id)
-        REFERENCES public.expense_type (expense_type_id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION,
-    CONSTRAINT expense_expense_user_id FOREIGN KEY (expense_user_id)
-        REFERENCES public."user" (user_id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-)
+    expense_category_id SERIAL PRIMARY KEY,
+    expense_category_name VARCHAR(100) NOT NULL UNIQUE
+);
 
-TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS public.expense
-    OWNER to postgres;
+-- Create Expense Types Table
+CREATE TABLE IF NOT EXISTS public.expense_type(
+    expense_type_id SERIAL PRIMARY KEY,
+    expense_type_name VARCHAR(100) NOT NULL UNIQUE
+);
+
+-- Populate the Expense Types table with initial data
+INSERT INTO public.expense_type (expense_type_name) VALUES ('non-essential'), ('essential');
+
+-- Create Expense Table
+CREATE TABLE IF NOT EXISTS public.expense(
+    expense_id SERIAL PRIMARY KEY,
+    expense_user_id INTEGER NOT NULL,
+    expense_type_id INTEGER,
+    expense_amount DECIMAL(15, 2) NOT NULL,
+    expense_created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    expense_note TEXT,
+    expense_category VARCHAR(50),
+    CONSTRAINT expense_expense_user_id FOREIGN KEY(expense_user_id) REFERENCES public.user(user_id),
+    CONSTRAINT expense_expense_type_id FOREIGN KEY (expense_type_id) REFERENCES public.expense_type(expense_type_id)
+);
 
 
 -- Due Types Table
@@ -130,4 +137,38 @@ CREATE TABLE IF NOT EXISTS public.due (
     CONSTRAINT due_due_user_id FOREIGN KEY (due_user_id) REFERENCES public.user(user_id),
     CONSTRAINT due_due_type_id FOREIGN KEY (due_type_id) REFERENCES public.due_type(due_type_id),
     CONSTRAINT due_due_status_id FOREIGN KEY (due_status_id) REFERENCES public.due_status(due_status_id)
+);
+
+-- Table: public.budget_type
+CREATE TABLE IF NOT EXISTS public.budget_type
+(
+    budget_type_id SERIAL PRIMARY KEY,
+    budget_type_name VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- Table: public.budget
+CREATE TABLE IF NOT EXISTS public.budget
+(
+    budget_id SERIAL PRIMARY KEY,
+    budget_user_id INTEGER NOT NULL,
+    budget_budget_type_id INTEGER NOT NULL,
+    budget_related_id INTEGER, -- This references either income_type_id, saving_type_id, or expense_type_id
+    budget_related_type VARCHAR(20) NOT NULL, -- 'income', 'saving', or 'expense'
+    budget_amount NUMERIC(15,2) NOT NULL,
+    budget_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    budget_created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (budget_user_id) REFERENCES public.user(user_id),
+    FOREIGN KEY (budget_budget_type_id) REFERENCES public.budget_type(budget_type_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.forecast (
+    forecast_id SERIAL PRIMARY KEY,
+    forecast_user_id INTEGER NOT NULL,
+    forecast_related_type VARCHAR(50) NOT NULL,  -- e.g., 'Income', 'Expense', 'Saving'
+    forecast_related_id VARCHAR(50) NOT NULL,  -- e.g., 'Base Salary', 'Coffee', 'Renting'
+    forecast_month VARCHAR(20) NOT NULL,  -- e.g., 'January', 'February'
+    forecast_amount DECIMAL(10, 2) NOT NULL,
+    forecast_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    forecast_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (forecast_user_id) REFERENCES public.user(user_id)
 );

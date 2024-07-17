@@ -8,11 +8,11 @@ import useTransactionType from "../../customHooks/TransactionTypeHook"
 import { getCurrencySymbol } from "../../utils/format/CurrencySymbol"
 import { fetchUserAsync, getUserExpectedIncomeAsync, getUserPercentAsync } from "../../reducers/UserReducer"
 import { calcMoneyAllocation } from "../../utils/calculate/MoneyAllocation"
-import { getExpenseCategoriesAsync } from "../../reducers/ExpenseReducer"
 import { handleCategoryFormSubmitAsync } from "../../reducers/CategoryFormReducer"
 import { addTransactionTypeAsync, getTransactionTypesAsync, updateTransactionTypeAsync } from "../../reducers/TransactionTypeReducer"
 import { addExpenseTypeAsync, getExpenseTypesActionAsync, updateExpenseTypeAsync } from "../../reducers/ExpenseTypeReducer"
 import { Input } from "antd"
+import ReturnButton from "../../components/button/ReturnButton"
 
 const CategoryPage = () => {
   const dispatch = useDispatch()
@@ -68,7 +68,6 @@ const CategoryPage = () => {
       await dispatch(handleCategoryFormSubmitAsync(processedValues))
     }
   })
-
 
   const incomeData = categoryForm.values.incomeType.map((item, index) => ({ key: `income-${index}`, income: item.type }))
   const savingData = categoryForm.values.savingType.map((item, index) => ({ key: `saving-${index}`, saving: item.type }))
@@ -288,8 +287,9 @@ const CategoryPage = () => {
             onSubmit={categoryForm.handleSubmit}
             className="category-container category-form"
           >
+            <ReturnButton />
             <h3>Tailor My Budget</h3>
-            <div className="form-group">
+            <div className="form-group currency">
               <label htmlFor="currency">Currency <i className="fa-solid fa-money-check-dollar"></i></label>
               <select
                 className="form-select form-select-lg border-shadow mb-3"
@@ -303,7 +303,7 @@ const CategoryPage = () => {
                 <option value="EUR">{getCurrencySymbol("USD")} EUR</option>
               </select>
             </div>
-            <div className="form-group">
+            <div className="form-group expected-month">
               <label htmlFor="expectedIncome">Expected monthly income</label>
               <div className="input-group input-group-sm border-shadow">
                 <span className="input-group-text">{getCurrencySymbol(categoryForm.values.currency)}</span>
@@ -352,7 +352,7 @@ const CategoryPage = () => {
               </div>
             </div>
             {showCustomRatio && (
-              <div className="form-group">
+              <div className="form-group show-custom-ratio">
                 <div className="custom-percent border-shadow">
                   <div className="input-group input-group-sm">
                     <label htmlFor="need-ratio">Need ratio</label>
@@ -374,16 +374,13 @@ const CategoryPage = () => {
             )}
             <div className="form-group money-allocation">
               <span className="font-mono">
-                Needs: {getCurrencySymbol(categoryForm.values.currency)}
-                {categoryForm.values.needAllocation}
+                Needs: {getCurrencySymbol(categoryForm.values.currency)} {categoryForm.values.needAllocation}
               </span>
               <span className="font-mono">
-                Savings: {getCurrencySymbol(categoryForm.values.currency)}
-                {categoryForm.values.savingAllocation}
+                Savings: {getCurrencySymbol(categoryForm.values.currency)} {categoryForm.values.savingAllocation}
               </span>
               <span className="font-mono">
-                Wants: {getCurrencySymbol(categoryForm.values.currency)}
-                {categoryForm.values.wantAllocation}
+                Wants: {getCurrencySymbol(categoryForm.values.currency)} {categoryForm.values.wantAllocation}
               </span>
             </div>
             <div className="form-group btn-submit">
@@ -414,7 +411,7 @@ const CategoryPage = () => {
                       saving: <Input value={row.type} onChange={(e) => handleRowChange('saving', index, e.target.value)} />
                     }))}
                     rowClassName={() => 'editable-row'}
-                  /> 
+                  />
                   <div className="add-row" onClick={() => addNewRow('saving')}>+ Add entry</div>
                 </div>
                 <div className="expense-table">
@@ -486,7 +483,6 @@ const CategoryStyle = styled.div`
     border: none;
     color: rgba(113, 113, 122, 1);
   }
-
   .category-form {
     .form-group {
       margin: 1.6rem 0;
@@ -551,6 +547,7 @@ const CategoryStyle = styled.div`
       }
       .input-group {
         width: 30%;
+        margin-bottom: 1rem;
       }
     }
     .money-allocation  {
@@ -570,7 +567,6 @@ const CategoryStyle = styled.div`
       }
     }
   }
-
   .category-content {
     display: flex;
     flex-direction: row;
@@ -578,7 +574,6 @@ const CategoryStyle = styled.div`
     text-align: center;
     margin: 1.25rem 0;
   }
-
   .income-table,
   .saving-table,
   .expense-table {
@@ -586,25 +581,20 @@ const CategoryStyle = styled.div`
     padding: 1rem 1.25rem;
     border-radius: 20px;
   }
-
   .income-table {
     width: 20%;
   }
-
   .saving-table {
     width: 20%;
   }
-
   .expense-table {
     width: 50%;
   }
-
   .th-expense-table {
     font-size: 1rem;
     font-weight: 600;
     padding-bottom: 1rem;
   }
-
   .expense-table-columns {
     display: flex;
     flex-direction: row;
@@ -620,6 +610,69 @@ const CategoryStyle = styled.div`
     color: var(--color-grey);
     font-style: italic;
     padding: 16px;
+  }
+  @media screen and (max-width: 1280px) and (min-width: 769px) {
+    .category-content {
+      display: block;
+      .income-table,
+      .saving-table{
+        display: inline-block;
+        justify-content: flex-start;
+        width: 45%;
+        margin-bottom: 1rem;
+      }
+      .income-table {
+        margin-right: .5rem;
+      }
+      .expense-table {
+        width: 100%;
+      }
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .category-form {
+      .form-group {
+        label {
+          font-size: .8rem;
+        }
+        span {
+          font-size: .7rem;
+        }
+      }
+      .custom-percent {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        .input-group {
+          width: 100%;
+        }
+      }
+      .money-allocation {
+        display: flex;
+        span {
+          font-size: .7rem;
+        }
+      }
+      .form-check-title {
+      .form-check-label {
+        font-size: .8rem;
+      }
+      span {
+        font-size: 0.7rem;
+      }
+    }
+    }
+    .category-content{
+      flex-direction: column;
+      justify-content: center;
+    }
+    .income-table,
+    .saving-table,
+    .expense-table {
+      width: 100%;
+      margin-bottom: 1rem;
+    }
   }
 `
 
