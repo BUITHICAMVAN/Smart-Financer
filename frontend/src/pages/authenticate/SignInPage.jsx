@@ -1,11 +1,26 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { useDispatch, useSelector } from "react-redux";
+import { signInAsync } from "../../reducers/SignInReducer";
+import { useNavigate } from "react-router-dom";
 
 const SignInPage = () => {
-  const [username, setUsername] = useState();
-  const [password, setPassword] = useState();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { error, isAuthenticated } = useSelector(
+    (state) => state.signinReducer
+  );
 
-  const submit = async (e) => {};
+  const submit = async (e) => {
+    e.preventDefault();
+    dispatch(signInAsync({ username, password }));
+  };
+
+  if (isAuthenticated) {
+    navigate("/dashboard-page");
+  }
 
   return (
     <SignInStyle>
@@ -14,7 +29,7 @@ const SignInPage = () => {
           <div className="text">Login</div>
           <div className="underline"></div>
         </div>
-        <form className="inputs" action="POST">
+        <form className="inputs" onSubmit={submit}>
           <div className="input">
             <span className="label-value">Username</span>
             <div className="input-value">
@@ -47,13 +62,9 @@ const SignInPage = () => {
             </a>
             ?
           </p>
+          {error && <p className="error-message">{error}</p>}
           <div className="d-grid gap-2 mt-3">
-            <input
-              className="btn btn-primary"
-              type="submit"
-              onClick={submit}
-              value="login"
-            />
+            <input className="btn btn-primary" type="submit" value="login" />
           </div>
         </form>
       </div>
@@ -160,5 +171,9 @@ const SignInStyle = styled.div`
     background-color: #5454b8;
     border: #5454b8;
   }
+  .error-message {
+    color: red;
+  }
 `;
+
 export default SignInPage;
