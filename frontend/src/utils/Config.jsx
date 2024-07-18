@@ -18,7 +18,7 @@ export const http = axios.create({
 http.interceptors.request.use((config) => {
     // Tat ca cac request gui di se duoc chua trong phan header la token dang nhap
     const token = localStorage.getItem(TOKEN)
-    config.headers['Authorization'] = token ? `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo4LCJpYXQiOjE3MTg2MDU5MjZ9.DZBl3XrCVqEb8WXqZBzvwoKvYNT3p03DFPqBPzvg77Y` : ''
+    config.headers['Authorization'] = token ? `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo4LCJpYXQiOjE3MjEyNjMxNzN9.E6ogsww8VYw7tRLlm16OomUp1DMwwJ8ByLpEnIuSR8o` : ''
     return config
 }, error => {
     return Promise.reject(error)
