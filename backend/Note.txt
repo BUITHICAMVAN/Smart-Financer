@@ -1,7 +1,6 @@
 npm install @tensorflow/tfjs
 npm install -g windows-build-tools
 npm install @tensorflow/tfjs-node
-
 npm install redis
 
 // install these for auto migration
@@ -15,10 +14,10 @@ docker scout quickview
 
 //  check for images existing
 docker images 
-// run backend image
-docker run -p 3000:3000 830e753bf73c
-// run frontend image
-docker run -p 5000:5000 7054a52cae47
+    // run backend image
+    docker run -p 3000:3000 830e753bf73c
+    // run frontend image
+    docker run -p 5000:5000 7054a52cae47
 
 // stop container running port
 docker ps
@@ -32,62 +31,65 @@ docker-compose logs frontend
 docker run --rm -v "C:\Users\DELL\docker\postgres\16:/var/lib/postgresql/data" -p 5432:5432 --name smartfinancer_db -e POSTGRES_PASSWORD=0812 -d postgres:16
 
 // after fix
-Step 1: rebuild
+// optional
 cd backend
 docker build -t vanbui0812/backend:v0.0.1 . 
 docker push vanbui0812/backend:v0.0.1
-
 cd frontend
 docker build -t vanbui0812/frontend:v0.0.1 .
 docker push vanbui0812/frontend:v0.0.1
 
-Step 2: recompose
+// recompose 
 docker-compose down
-docker system prune -a --volumes
+docker-compose build
+sudo docker-compose build --no-cache 
+docker system prune -a --volumes // only use when not use it anymore
 docker-compose up -d
 
-Step 3: verify
+// verify success comopse
 docker-compose ps
 docker-compose logs backend
 docker-compose logs frontend
 docker-compose logs db
 docker-compose logs redis
 
-# Step 1: Drop the existing database (if needed)
+// drop db
 docker exec -it smartfinancer_db psql -U postgres -d postgres -c "DROP DATABASE IF EXISTS smartfinancer;"
 
-# Step 2: Create the smartfinancer database
+//create db 
 docker exec -it smartfinancer_db psql -U postgres -d postgres -c "CREATE DATABASE smartfinancer;"
 
-# Step 3: Copy the dump file to the container (assuming this step is already done)
-docker cp ./backend/db/dbdump.sql smartfinancer_db:/dbdump.sql
+// dumb manually
+    // access postgre container db
+    docker exec -it smartfinancer_db bash
+    // import the dump file into the smartfinancer database
+    psql -U postgres -d smartfinancer -f /dbdump.sql
 
-# Import the Dump File
-\i /dbdump.sql
+    // verify db
+    psql -U postgres -d smartfinancer // check if db exists
+    \dt // check relation exists
+    SELECT * FROM public."user" WHERE user_id = 8; // check data exists
 
-# Step 4: Access the PostgreSQL container
-docker exec -it smartfinancer_db bash
+    // exit
 
-# Step 5: Import the dump file into the smartfinancer database
-psql -U postgres -d smartfinancer -f /dbdump.sql
-
-# Step 6: Verify the database
-psql -U postgres -d smartfinancer
-\dt
-SELECT * FROM public."user" WHERE user_id = 8;
-
+// erase redis cache
 docker ps
 docker exec -it smartfinancer_redis redis-cli
 FLUSHALL
 
-verify redis server is running
+// verify redis server is running
 docker ps
 docker exec -it my-redis redis-cli
 PING
 
-Add user to docker group (if not already added)
-sudo usermod -aG docker $USER
-2. create a symbolic link to /usr/bin using the following command
-$ sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
-3. Restart docker service
-$ sudo service docker restart
+// cai docker compose on vm 
+sudo curl -L https://github.com/docker/compose/releases/dow...-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+// cannot start docker daemon
+    // add user to docker group (if not already added)
+    sudo usermod -aG docker $USER
+    // create a symbolic link to /usr/bin using the following command
+    sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+    // Restart docker service
+    sudo service docker restart
