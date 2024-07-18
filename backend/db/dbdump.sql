@@ -13,6 +13,8 @@ SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
+CREATE DATABASE IF NOT EXISTS smartfinancer;
+
 CREATE TABLE public.account (
     account_id character varying(255) NOT NULL,
     account_user_id integer NOT NULL,
