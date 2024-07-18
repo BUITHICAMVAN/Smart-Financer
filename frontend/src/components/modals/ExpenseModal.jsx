@@ -91,11 +91,11 @@ const ExpenseModal = ({ open, onCreate, onCancel, onEdit, initialData }) => {
 
   useEffect(() => {
     dispatch(fetchCurrentMonthExpensesByTypeAsync());
-  }, [dispatch, totalEssentialSpent, totalNonEssentialSpent]);
+  }, [dispatch]);
 
   useEffect(() => {
     fetchMonthlyTransaction();
-  }, [fetchMonthlyTransaction]);
+  }, []);
 
   const handleCategoryChange = (e) => {
     setExpenseCategory(e.target.value);
@@ -139,15 +139,15 @@ const ExpenseModal = ({ open, onCreate, onCancel, onEdit, initialData }) => {
             // label="Expense Category"
             rules={[{ required: true, message: 'Please select the category!' }]}
           >
-            <Radio.Group onChange={handleCategoryChange} value={expenseCategory}>
-              <Radio value={2}>Needs Balance: <span>${needBalance.toFixed(2)}</span></Radio>
-              <Radio value={1}>Wants Balance: <span>${wantBalance.toFixed(2)}</span></Radio>
-            </Radio.Group>
+            <StyledRadioGroup onChange={handleCategoryChange} value={expenseCategory}>
+              <StyledRadio value={2}>Needs Balance: <span>${needBalance.toFixed(2)}</span></StyledRadio>
+              <StyledRadio value={1}>Wants Balance: <span>${wantBalance.toFixed(2)}</span></StyledRadio>
+            </StyledRadioGroup>
           </Form.Item>
           <Form.Item
             name="expense_type_name"
             label="Expense Type"
-            // rules={[{ required: true, message: 'Please select the type!' }]}
+          // rules={[{ required: true, message: 'Please select the type!' }]}
           >
             <Select
               showSearch
@@ -187,3 +187,30 @@ const ExpenseModal = ({ open, onCreate, onCancel, onEdit, initialData }) => {
 export default ExpenseModal;
 
 const ExpenseModalStyled = styled.div``;
+
+const StyledRadioGroup = styled(Radio.Group)`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
+const StyledRadio = styled(Radio)`
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  transition: all 0.3s;
+  span {
+    font-weight: 400;
+    color: var(--color-yellow)
+  }
+  &:hover {
+    background-color: #f5f5f5;
+  }
+  &.ant-radio-wrapper-checked {
+    background-color: #ffffff;
+    border-color: #ffffff;
+    color: var(--color-yellow)
+  }
+`;

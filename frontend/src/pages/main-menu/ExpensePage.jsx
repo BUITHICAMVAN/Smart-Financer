@@ -144,7 +144,7 @@ const ExpensePage = () => {
 
   useEffect(() => {
     dispatch(fetchCurrentMonthExpensesByTypeAsync())
-  }, [totalEssentialSpent, totalNonEssentialSpent])
+  }, [])
 
   useEffect(() => {
     fetchMonthlyTransaction()
