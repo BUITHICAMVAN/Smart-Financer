@@ -28,6 +28,7 @@ services:
       - smartfinancer-network
 
   db:
+    container_name: smartfinancer_db
     build: ./backend/db
     environment:
       POSTGRES_USER: postgres
