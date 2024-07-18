@@ -10,6 +10,7 @@ import { fetchCurrentMonthExpensesAsync } from '../../reducers/ExpenseReducer';
 import { getExpenseTypesActionAsync } from '../../reducers/ExpenseTypeReducer';
 import useTransactionType from '../../customHooks/TransactionTypeHook';
 import ReturnButton from '../../components/button/ReturnButton';
+import { getCurrentMonth } from '../../utils/CurrentDate';
 
 const BudgetingPage = () => {
   const dispatch = useDispatch();
@@ -28,6 +29,8 @@ const BudgetingPage = () => {
   const incomeTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.incomeTypes || []);
   const savingTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.savingTypes || []);
   const expenseTypes = useSelector(state => state.expenseTypeReducer.expenseTypes);
+
+  const currentMonth = getCurrentMonth()
 
   useEffect(() => {
     dispatch(getBudgetActionAsync());
@@ -71,7 +74,7 @@ const BudgetingPage = () => {
         <div className="container">
           <div className="budgeting-container">
             <div className="content-container content-left text-center">
-              <h1 className='text-center'>June Budgeting</h1>
+              <h1 className='text-center'>{currentMonth} Budgeting</h1>
               <hr />
               <BudgetingTableStyled>
                 <BudgetingTable data={budgetingData} onUpdateBudget={handleUpdateBudget} />

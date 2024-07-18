@@ -5,7 +5,7 @@ const seedrandom = require('seedrandom');
 const seed = 42;
 seedrandom(seed, { global: true });
 
-const maxTimeSteps = 4; // Maximum number of time steps to use as input features
+const maxTimeSteps = 2; // Maximum number of time steps to use as input features
 const features = 1;      // Number of features (e.g., amount)
 
 // Normalize value to a range of [0, 1]

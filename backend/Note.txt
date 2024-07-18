@@ -76,3 +76,11 @@ psql -U postgres -d smartfinancer
 \dt
 SELECT * FROM public."user" WHERE user_id = 8;
 
+docker ps
+docker exec -it smartfinancer_redis redis-cli
+FLUSHALL
+
+verify redis server is running
+docker ps
+docker exec -it my-redis redis-cli
+PING

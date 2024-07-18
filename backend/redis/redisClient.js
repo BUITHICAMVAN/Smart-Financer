@@ -4,7 +4,12 @@ let client;
 
 const connectRedis = async () => {
   if (!client) {
-    client = createClient();
+    const redisHost = process.env.REDIS_HOST || 'localhost';
+    const redisPort = process.env.REDIS_PORT || 6379;
+
+    client = createClient({
+      url: `redis://${redisHost}:${redisPort}`
+    });
 
     client.on('connect', () => {
       console.log('Connected to Redis');
