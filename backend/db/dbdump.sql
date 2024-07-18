@@ -336,6 +336,19 @@ SELECT pg_catalog.setval('public.saving_saving_id_seq', 194, true);
 SELECT pg_catalog.setval('public.saving_type_saving_type_id_seq', 6, true);
 SELECT pg_catalog.setval('public.user_user_id_seq', 14, true);
 
+INSERT INTO public."user" (user_id, user_fullname, user_email, user_email_verified, user_password_hash, user_is_verified, user_image, user_currency_unit, user_created_at, user_default_language, user_need_ratio, user_want_ratio, user_saving_ratio, user_expected_income) VALUES
+(8, 'Bui Cam Van', 'buicamvan.work@gmail.com', '2024-04-30 01:59:01.587', '$2b$15$V0rDAr4CA7Q3wQGEFHBFeelG.lmdClXOEnVl8Nv4oMowHvois.fte', 'f', 'https://i.pravatar.cc/300', 'USD', '2024-04-30 01:59:01.587244+07', 'Vietnamese', 50, 20, 30, 500),
+(14, 'Huỳnh Tấn Thiên', 'huynhtanthien@gmail.com', '2024-07-11 08:45:49.212', NULL, 'f', 'http://placeimg.com/640/480/people', 'VND', '2024-07-11 15:45:49.212+07', 'Vietnamese', 40, 30, 30, 14000000),
+(1, 'Bui Thi Cam Van', 'buivancam02@gmail.com', '2024-04-04 14:13:17.807', '$2y$10$tV4e.hMHMK945i3q0fPMh.HRcf0Wyft0E1FlnoT7PAFJm2Nn/ILWu', 'f', 'https://i.pravatar.cc/300', 'VND', '2024-04-04 21:13:17.807+07', 'Vietnamese', 50, 20, 30, NULL),
+(4, 'Nguyen Thi Tham', 'ngTham@gmail.com', '2024-04-05 11:56:58.123', '$2a$15$jphmRfWM7o8iHdFGZZ7SP.PJC/KnMjepgWFY61KWLVN/d/HYROZxm', 'f', 'https://i.pravatar.cc/300', 'VND', '2024-04-05 18:56:58.123+07', 'Vietnamese', 50, 20, 30, NULL),
+(5, 'Tran Nguyen Trung Quan', 'ngoclinh@gmail.com', '2024-04-05 11:58:57.086', '$2a$15$279BjUWHv6.O8lixqUthnOoWdv.tiyMRHXW6JKwA4RLK7YeraC3fi', 'f', 'https://i.pravatar.cc/300', 'VND', '2024-04-05 18:58:57.086+07', 'Vietnamese', 50, 20, 30, NULL),
+(7, 'Han Ngoc Linh', 'ngoclinh1412@gmail.com', '2024-04-05 12:10:10.76', '$2a$15$F4R7N099AmR4rRTk6kbF6.jCzZZOLhBQigXTElEhhvKXWMLv74IWW', 'f', 'https://i.pravatar.cc/300', 'USD', '2024-04-05 19:10:10.76+07', 'English', 50, 20, 30, NULL),
+(9, 'Alda_Jakubowski40', 'Donald10@yahoo.com', '2024-05-04 03:25:40.423', '$2b$15$qLtuXOh3deKdFXExOwvuOeqeMfcQBql2aiXX9LktDhv4P3Zi4LXs6', 'f', 'https://i.pravatar.cc/300', 'USD', '2024-05-04 10:25:40.423+07', 'English', 50, 20, 30, NULL),
+(10, 'Tuyet Hong', 'tuyethong@gmail.com', '2024-05-29 09:37:42.707', NULL, 'f', 'https://i.pravatar.cc/300', 'USD', '2024-05-29 16:37:42.707+07', NULL, 50, 20, 30, NULL),
+(11, 'Quynh Hoa', 'quynhhoa@gmail.com', '2024-05-29 09:42:16.129', NULL, 'f', 'https://i.pravatar.cc/300', 'USD', '2024-05-29 16:42:16.129+07', NULL, 50, 20, 30, NULL),
+(12, 'Chris Lebsack', 'Giuseppe32@gmail.com', '2024-05-29 09:45:36.418', NULL, 'f', 'http://placeimg.com/640/480/people', 'USD', '2024-05-29 16:45:36.418+07', NULL, 50, 20, 30, NULL),
+(13, 'Ismael Weber', 'Eve.Luettgen@hotmail.com', '2024-05-29 09:46:58.934', NULL, 'f', 'http://placeimg.com/640/480/people', 'USD', '2024-05-29 16:46:58.934+07', 'English', 40, 30, 30, 5000);
+
 INSERT INTO public.budget_type (budget_type_id, budget_type_name) VALUES
 (1, 'monthly-budget'),
 (2, 'yearly-budget'),
@@ -897,15 +910,3 @@ INSERT INTO public.saving (saving_id, saving_user_id, saving_amount, saving_crea
 (193, 8, 20.00, '2024-07-17 07:00:00+07', NULL),
 (194, 8, 19.00, '2024-07-16 07:00:00+07', NULL);
 
-INSERT INTO public."user" (user_id, user_fullname, user_email, user_email_verified, user_password_hash, user_is_verified, user_image, user_currency_unit, user_created_at, user_default_language, user_need_ratio, user_want_ratio, user_saving_ratio, user_expected_income) VALUES
-(8, 'Bui Cam Van', 'buicamvan.work@gmail.com', '2024-04-30 01:59:01.587', '$2b$15$V0rDAr4CA7Q3wQGEFHBFeelG.lmdClXOEnVl8Nv4oMowHvois.fte', 'f', 'https://i.pravatar.cc/300', 'USD', '2024-04-30 01:59:01.587244+07', 'Vietnamese', 50, 20, 30, 500),
-(14, 'Huỳnh Tấn Thiên', 'huynhtanthien@gmail.com', '2024-07-11 08:45:49.212', NULL, 'f', 'http://placeimg.com/640/480/people', 'VND', '2024-07-11 15:45:49.212+07', 'Vietnamese', 40, 30, 30, 14000000),
-(1, 'Bui Thi Cam Van', 'buivancam02@gmail.com', '2024-04-04 14:13:17.807', '$2y$10$tV4e.hMHMK945i3q0fPMh.HRcf0Wyft0E1FlnoT7PAFJm2Nn/ILWu', 'f', 'https://i.pravatar.cc/300', 'VND', '2024-04-04 21:13:17.807+07', 'Vietnamese', 50, 20, 30, NULL),
-(4, 'Nguyen Thi Tham', 'ngTham@gmail.com', '2024-04-05 11:56:58.123', '$2a$15$jphmRfWM7o8iHdFGZZ7SP.PJC/KnMjepgWFY61KWLVN/d/HYROZxm', 'f', 'https://i.pravatar.cc/300', 'VND', '2024-04-05 18:56:58.123+07', 'Vietnamese', 50, 20, 30, NULL),
-(5, 'Tran Nguyen Trung Quan', 'ngoclinh@gmail.com', '2024-04-05 11:58:57.086', '$2a$15$279BjUWHv6.O8lixqUthnOoWdv.tiyMRHXW6JKwA4RLK7YeraC3fi', 'f', 'https://i.pravatar.cc/300', 'VND', '2024-04-05 18:58:57.086+07', 'Vietnamese', 50, 20, 30, NULL),
-(7, 'Han Ngoc Linh', 'ngoclinh1412@gmail.com', '2024-04-05 12:10:10.76', '$2a$15$F4R7N099AmR4rRTk6kbF6.jCzZZOLhBQigXTElEhhvKXWMLv74IWW', 'f', 'https://i.pravatar.cc/300', 'USD', '2024-04-05 19:10:10.76+07', 'English', 50, 20, 30, NULL),
-(9, 'Alda_Jakubowski40', 'Donald10@yahoo.com', '2024-05-04 03:25:40.423', '$2b$15$qLtuXOh3deKdFXExOwvuOeqeMfcQBql2aiXX9LktDhv4P3Zi4LXs6', 'f', 'https://i.pravatar.cc/300', 'USD', '2024-05-04 10:25:40.423+07', 'English', 50, 20, 30, NULL),
-(10, 'Tuyet Hong', 'tuyethong@gmail.com', '2024-05-29 09:37:42.707', NULL, 'f', 'https://i.pravatar.cc/300', 'USD', '2024-05-29 16:37:42.707+07', NULL, 50, 20, 30, NULL),
-(11, 'Quynh Hoa', 'quynhhoa@gmail.com', '2024-05-29 09:42:16.129', NULL, 'f', 'https://i.pravatar.cc/300', 'USD', '2024-05-29 16:42:16.129+07', NULL, 50, 20, 30, NULL),
-(12, 'Chris Lebsack', 'Giuseppe32@gmail.com', '2024-05-29 09:45:36.418', NULL, 'f', 'http://placeimg.com/640/480/people', 'USD', '2024-05-29 16:45:36.418+07', NULL, 50, 20, 30, NULL),
-(13, 'Ismael Weber', 'Eve.Luettgen@hotmail.com', '2024-05-29 09:46:58.934', NULL, 'f', 'http://placeimg.com/640/480/people', 'USD', '2024-05-29 16:46:58.934+07', 'English', 40, 30, 30, 5000);
