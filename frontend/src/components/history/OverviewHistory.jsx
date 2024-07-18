@@ -18,7 +18,7 @@ const OverviewHistory = () => {
 
     useEffect(() => {
         fetchCurrentMonthSaving()
-    }, [fetchCurrentMonthSaving])
+    }, [])
 
     return (
         <OverviewHistoryStyled>

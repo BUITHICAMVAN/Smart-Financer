@@ -70,14 +70,20 @@ const BudgetingPage = () => {
   return (
     <BudgetingPageStyled>
       <InnerLayout>
-        <ReturnButton/>
+        <ReturnButton />
         <div className="container">
           <div className="budgeting-container">
             <div className="content-container content-left text-center">
               <h1 className='text-center'>{currentMonth} Budgeting</h1>
               <hr />
               <BudgetingTableStyled>
-                <BudgetingTable data={budgetingData} onUpdateBudget={handleUpdateBudget} />
+                {budgetingData.categories.length > 0 ? (
+                  <BudgetingTable data={budgetingData} onUpdateBudget={handleUpdateBudget} />
+                ) : (
+                  <div className="no-entries">
+                    <p>No entries added yet.<br />Add your first entry of the month!</p>
+                  </div>
+                )}
               </BudgetingTableStyled>
             </div>
             <div className="content-container content-right text-left">
@@ -115,6 +121,16 @@ const BudgetingPage = () => {
 
 const BudgetingPageStyled = styled.div`
   position: relative;
+      .no-entries {
+      p {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          Liberation Mono, Courier New, monospace;
+        color: grey;
+        padding-top: 1rem;
+        font-size: 1rem;
+        font-weight: 400;
+      }
+    }
   h1 {
     font-size: 1.6rem;
     font-weight: 700;
