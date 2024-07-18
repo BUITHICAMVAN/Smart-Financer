@@ -13,6 +13,7 @@ SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
+DROP DATABASE smartfinancer;
 CREATE DATABASE IF NOT EXISTS smartfinancer;
 
 CREATE TABLE public.account (
@@ -909,6 +910,6 @@ INSERT INTO public.saving (saving_id, saving_user_id, saving_amount, saving_crea
 (186, 8, 20.00, '2024-06-30 07:00:00+07', 3, 'huhu'),
 (187, 8, 20.00, '2024-06-30 07:00:00+07', 6, 'haha'),
 (188, 8, 30.00, '2024-06-30 07:00:00+07', 4, 'hahahaha aaa'),
-(193, 8, 20.00, '2024-07-17 07:00:00+07', NULL),
-(194, 8, 19.00, '2024-07-16 07:00:00+07', NULL);
+(193, 8, 20.00, '2024-07-17 07:00:00+07', NULL, NULL),
+(194, 8, 19.00, '2024-07-16 07:00:00+07', NULL, NULL);
 
