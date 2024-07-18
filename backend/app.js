@@ -6,7 +6,7 @@ const { readdirSync } = require('fs');
 const cookieParser = require('cookie-parser')
 require('dotenv').config(); //library to get what inside .env
 
-const PORT = process.env.PORT || 3000; // Provide a default value for PORT
+const PORT = process.env.PORT || 5000; // Provide a default value for PORT
 
 require('./models/associateModel')
 
