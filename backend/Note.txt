@@ -84,3 +84,10 @@ verify redis server is running
 docker ps
 docker exec -it my-redis redis-cli
 PING
+
+Add user to docker group (if not already added)
+sudo usermod -aG docker $USER
+2. create a symbolic link to /usr/bin using the following command
+$ sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+3. Restart docker service
+$ sudo service docker restart
