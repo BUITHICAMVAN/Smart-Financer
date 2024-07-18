@@ -27,7 +27,6 @@ services:
       - smartfinancer-network
 
   db: 
-    image: postgres:latest
     build: ./backend/db
     environment:
       POSTGRES_USER: postgres
