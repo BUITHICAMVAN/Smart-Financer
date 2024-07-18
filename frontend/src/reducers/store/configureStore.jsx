@@ -9,13 +9,11 @@ import CategoryFormReducer from "../CategoryFormReducer";
 import RatesReducer from "../RatesReducer";
 import BudgetReducer from "../BudgetReducer";
 import ForecastReducer from "../ForecastReducer";
-import SignUpReducer from "../SignUpReducer";
-import SignInReducer from "../SignInReducer";
+import AuthReducer from "../AuthReducer";
 
 export const store = configureStore({
   reducer: {
-    signupReducer: SignUpReducer,
-    signinReducer: SignInReducer,
+    authReducer: AuthReducer,
     transactionTypeReducer: TransactionTypeReducer,
     transactionReducer: TransactionReducer,
     ratesReducer: RatesReducer,

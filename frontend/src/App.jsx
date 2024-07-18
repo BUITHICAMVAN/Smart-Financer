@@ -24,15 +24,17 @@ const App = () => {
     dispatch(fetchCurrencyRatesAsync());
   }, [dispatch]);
 
-  useEffect(() => { //getCurrent
-    dispatch(setCurrentCurrencyAsync(userId));
+  useEffect(() => { // getCurrent
+    if (userId) {
+      dispatch(setCurrentCurrencyAsync(userId));
+    }
   }, [dispatch, userId]);
 
   return (
     <AppStyled className="App">
       {orbMemo}
       <MainLayout>
-        <Navigation />
+        {userId && <Navigation />} 
         <main>
           <Outlet />
         </main>

@@ -1,26 +1,23 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { signInAsync } from "../../reducers/SignInReducer";
-import { useNavigate } from "react-router-dom";
+import { Form, Input, Button } from "antd";
+import { useNavigate, NavLink } from "react-router-dom";
+import { signInAsync } from "../../reducers/AuthReducer";
 
 const SignInPage = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [form] = Form.useForm();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { error, isAuthenticated } = useSelector(
-    (state) => state.signinReducer
+    (state) => state.authReducer || { error: null, isAuthenticated: false }
   );
 
-  const submit = async (e) => {
-    e.preventDefault();
-    dispatch(signInAsync({ username, password }));
+  const submit = async (values) => {
+    const { email, password } = values;
+    await dispatch(signInAsync({ email, password }));
+    navigate("/dashboard-page"); // Navigate to DashboardPage after successful sign-in
   };
-
-  if (isAuthenticated) {
-    navigate("/dashboard-page");
-  }
 
   return (
     <SignInStyle>
@@ -29,44 +26,42 @@ const SignInPage = () => {
           <div className="text">Login</div>
           <div className="underline"></div>
         </div>
-        <form className="inputs" onSubmit={submit}>
-          <div className="input">
-            <span className="label-value">Username</span>
-            <div className="input-value">
-              <input
-                type="text"
-                onChange={(e) => {
-                  setUsername(e.target.value);
-                }}
-                placeholder=""
-              />
-            </div>
-          </div>
-          <div className="input">
-            <span className="label-value">Password</span>
-            <div className="input-value">
-              <input
-                type="password"
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                }}
-                placeholder=""
-              />
-            </div>
-          </div>
-          <p className="forgot-password text-right mt-2">
+        <Form form={form} onFinish={submit} className="form">
+          <Form.Item
+            name="email"
+            rules={[
+              { required: true, message: "Email is required" },
+              { type: "email", message: "The input is not valid E-mail!" }
+            ]}
+          >
+            <Input placeholder="Email" />
+          </Form.Item>
+          <Form.Item
+            name="password"
+            rules={[{ required: true, message: "Password is required" }]}
+          >
+            <Input.Password placeholder="Password" />
+          </Form.Item>
+          {/* <p className="forgot-password text-right mt-2">
             Forgot{" "}
-            <a href="#" style={{ textDecoration: "none", color: "white" }}>
+            <a href="#" style={{ textDecoration: "none", color: "var(--color-yellow)" }}>
               {" "}
               password
             </a>
             ?
-          </p>
-          {error && <p className="error-message">{error}</p>}
-          <div className="d-grid gap-2 mt-3">
-            <input className="btn btn-primary" type="submit" value="login" />
-          </div>
-        </form>
+          </p> */}
+          <Form.Item>
+            <Button type="primary" htmlType="submit" className="submit-button">
+              Login
+            </Button>
+          </Form.Item>
+        </Form>
+        <div className="signup-link">
+          <span>Don't have an account? </span>
+          <NavLink to="/signup-page" className="signup-button">
+            Sign Up
+          </NavLink>
+        </div>
       </div>
     </SignInStyle>
   );
@@ -74,14 +69,15 @@ const SignInPage = () => {
 
 const SignInStyle = styled.div`
   * {
-    color: #ffffff;
-    background-color: #070734;
+    color: var(--color-yellow);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
   }
 
   .container {
     display: flex;
     flex-direction: column;
     margin: auto;
+    width: 300px;
   }
 
   .header {
@@ -96,83 +92,56 @@ const SignInStyle = styled.div`
   .text {
     font-size: 48px;
     font-weight: 600;
+    color: var(--color-yellow);
   }
 
   .underline {
     width: 100px;
     height: 5px;
     border-radius: 9px;
-    background-color: #ffffff;
+    background-color: var(--color-yellow);
   }
 
-  .inputs {
+  .form {
     margin-top: 55px;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    gap: 25px;
+  }
+
+  .submit-button {
     width: 100%;
-  }
-  .input .label-value {
-    font-size: 18px;
-    font-weight: 500;
-  }
-
-  .input-value {
-    display: flex;
-    align-items: center;
-    margin-top: 5px;
-    width: 100%;
-    height: 40px;
-    border-radius: 6px;
-    background-color: #ffffff;
-    opacity: 0.3;
+    background-color: var(--color-yellow);
+    border-color: var(--color-yellow);
+    color: black; /* Button text color */
   }
 
-  .input input {
-    height: 40px;
-    width: 300px;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: #070734;
-    font-size: 16px;
+  .submit-button:hover {
+    background-color: #e0b800;
+    border-color: #e0b800;
+    color: black; /* Button text color */
   }
 
-  .input select {
-    height: 40px;
-    width: 300px;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: #070734;
-    font-size: 16px;
-  }
   .forgot-password {
-    margin-bottom: 0;
-    font-size: 16px;
+    color: var(--color-yellow);
   }
 
-  .d-grid .btn {
-    margin-top: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 300px;
-    background-color: #5454b8;
-    border: #5454b8;
-    font-size: 20px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  .d-grid .btn:focus {
-    display: flex;
-    background-color: #5454b8;
-    border: #5454b8;
-  }
   .error-message {
     color: red;
+  }
+
+  .signup-link {
+    margin-top: 20px;
+    text-align: center;
+    color: var(--color-yellow);
+
+    .signup-button {
+      color: var(--color-yellow);
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s;
+
+      &:hover {
+        color: #e0b800;
+      }
+    }
   }
 `;
 

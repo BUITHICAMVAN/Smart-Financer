@@ -1,27 +1,38 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { signUpAsync } from "../../reducers/SignUpReducer"; // Adjust the import path as needed
-import { useNavigate } from "react-router-dom";
+import { Form, Input, Button } from "antd";
+import { useNavigate, NavLink } from "react-router-dom";
+import { signUpAsync } from "../../reducers/AuthReducer";
 
 const SignUpPage = () => {
-  const [fullname, setFullname] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [form] = Form.useForm();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { error, isAuthenticated } = useSelector(
-    (state) => state.signupReducer || { error: null, isAuthenticated: false }
+    (state) => state.authReducer || { error: null, isAuthenticated: false }
   );
 
-  const submit = async (e) => {
-    e.preventDefault();
-    dispatch(signUpAsync(fullname, email, password));
+  const validateEmail = (_, email) => {
+    const re = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    if (!email || re.test(String(email).toLowerCase())) {
+      return Promise.resolve();
+    }
+    return Promise.reject(new Error("Invalid email format. Email must end with @gmail.com"));
   };
 
-  if (isAuthenticated) {
-    navigate("/dashboard-page");
-  }
+  const validatePassword = (_, password) => {
+    if (!password || password.length >= 6) {
+      return Promise.resolve();
+    }
+    return Promise.reject(new Error("Password must be at least 6 characters long"));
+  };
+
+  const submit = async (values) => {
+    const { fullname, email, password } = values;
+    await dispatch(signUpAsync(fullname, email, password));
+    navigate("/signin-page"); // Navigate to SignInPage after successful sign-up
+  };
 
   return (
     <SignUpStyle>
@@ -30,48 +41,37 @@ const SignUpPage = () => {
           <div className="text">Sign Up</div>
           <div className="underline"></div>
         </div>
-        <form className="inputs" onSubmit={submit}>
-          <div className="input">
-            <span className="label-value">Full Name</span>
-            <div className="input-value">
-              <input
-                type="text"
-                onChange={(e) => {
-                  setFullname(e.target.value);
-                }}
-                placeholder=""
-              />
-            </div>
-          </div>
-          <div className="input">
-            <span className="label-value">Email</span>
-            <div className="input-value">
-              <input
-                type="email"
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                }}
-                placeholder=""
-              />
-            </div>
-          </div>
-          <div className="input">
-            <span className="label-value">Password</span>
-            <div className="input-value">
-              <input
-                type="password"
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                }}
-                placeholder=""
-              />
-            </div>
-          </div>
-          {error && <p className="error-message">{error}</p>}
-          <div className="d-grid gap-2 mt-3">
-            <input className="btn btn-primary" type="submit" value="Sign Up" />
-          </div>
-        </form>
+        <Form form={form} onFinish={submit} className="form">
+          <Form.Item
+            name="fullname"
+            rules={[{ required: true, message: "Full Name is required" }]}
+          >
+            <Input placeholder="Full Name" />
+          </Form.Item>
+          <Form.Item
+            name="email"
+            rules={[{ required: true, message: "Email is required" }, { validator: validateEmail }]}
+          >
+            <Input placeholder="Email" />
+          </Form.Item>
+          <Form.Item
+            name="password"
+            rules={[{ required: true, message: "Password is required" }, { validator: validatePassword }]}
+          >
+            <Input.Password placeholder="Password" />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" className="submit-button">
+              Sign Up
+            </Button>
+          </Form.Item>
+        </Form>
+        <div className="signin-link">
+          <span>Already have an account? </span>
+          <NavLink to="/signin-page" className="signin-button">
+            Sign In
+          </NavLink>
+        </div>
       </div>
     </SignUpStyle>
   );
@@ -79,14 +79,15 @@ const SignUpPage = () => {
 
 const SignUpStyle = styled.div`
   * {
-    color: #ffffff;
-    background-color: #070734;
+    color: var(--color-yellow);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
   }
 
   .container {
     display: flex;
     flex-direction: column;
     margin: auto;
+    width: 300px;
   }
 
   .header {
@@ -101,76 +102,48 @@ const SignUpStyle = styled.div`
   .text {
     font-size: 48px;
     font-weight: 600;
+    color: var(--color-yellow);
   }
 
   .underline {
     width: 100px;
     height: 5px;
     border-radius: 9px;
-    background-color: #ffffff;
+    background-color: var(--color-yellow);
   }
 
-  .inputs {
+  .form {
     margin-top: 55px;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    gap: 25px;
+  }
+
+  .submit-button {
     width: 100%;
-  }
-  .input .label-value {
-    font-size: 18px;
-    font-weight: 500;
-  }
-
-  .input-value {
-    display: flex;
-    align-items: center;
-    margin-top: 5px;
-    width: 100%;
-    height: 40px;
-    border-radius: 6px;
-    background-color: #ffffff;
-    opacity: 0.3;
+    background-color: var(--color-yellow);
+    border-color: var(--color-yellow);
+    color: black; /* Button text color */
   }
 
-  .input input {
-    height: 40px;
-    width: 300px;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: #070734;
-    font-size: 16px;
+  .submit-button:hover {
+    background-color: #e0b800;
+    border-color: #e0b800;
+    color: black; /* Button text color */
   }
 
-  .input select {
-    height: 40px;
-    width: 300px;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: #070734;
-    font-size: 16px;
-  }
+  .signin-link {
+    margin-top: 20px;
+    text-align: center;
+    color: var(--color-yellow);
 
-  .d-grid .btn {
-    margin-top: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 300px;
-    background-color: #5454b8;
-    border: #5454b8;
-    font-size: 20px;
-    font-weight: 600;
-    cursor: pointer;
-  }
+    .signin-button {
+      color: var(--color-yellow);
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s;
 
-  .d-grid .btn:focus {
-    display: flex;
-    background-color: #5454b8;
-    border: #5454b8;
+      &:hover {
+        color: #e0b800;
+      }
+    }
   }
 
   .error-message {
