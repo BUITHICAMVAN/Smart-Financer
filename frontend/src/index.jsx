@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { Provider } from 'react-redux'
-import { store } from './reducers/store/ConfigureStore'
+import { store } from './reducers/store/configureStore'
 import { GlobalStyle } from './styles/GlobalStyles'
 import { Routes, Route, unstable_HistoryRouter as HistoryRouter } from 'react-router-dom'
 import App from './App'
