@@ -3,7 +3,7 @@ import { jwtDecode } from "jwt-decode"
 import { history } from "../"
 
 export const TOKEN = 'token'
-export const DOMAIN_BACKEND = 'http://localhost:5000/api/v1/'
+export const DOMAIN_BACKEND = 'http://34.95.3.154:5000/api/v1/'
 
 // Cau hinh cho cac file dung chung cho he thong 
 //  Cau hinh interceptor cho axios (cau hinh cho tat ca request va response khi su dung axios)
