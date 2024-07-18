@@ -1,4 +1,3 @@
-version: '3.1'
 services:
   backend:
     container_name: smartfinancer_backend
@@ -27,7 +26,7 @@ services:
       - smartfinancer-network
 
   db: 
-    image: postgres:latest
+    container_name: smartfinancer_db
     build: ./backend/db
     environment:
       POSTGRES_USER: postgres
@@ -41,7 +40,7 @@ services:
       - smartfinancer-network
 
   redis:
-    image: redis:alpine
+    container_name: smartfinancer_redis
     build: ./backend/redis
     ports:
       - "6379:6379"
