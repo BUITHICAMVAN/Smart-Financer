@@ -3,36 +3,50 @@ import styled from 'styled-components';
 import { InnerLayout } from '../../styles/Layouts';
 import { useDispatch, useSelector } from 'react-redux';
 import ForecastTable from '../../components/tables/ForecastTable';
-import { fetchForecastDataAsync } from '../../reducers/ForecastReducer';
+import { fetchForecastDataAsync, setForecastAction } from '../../reducers/ForecastReducer';
 import useTransactionType from '../../customHooks/TransactionTypeHook';
 import { getExpenseTypesActionAsync } from '../../reducers/ExpenseTypeReducer';
 import ReturnButton from '../../components/button/ReturnButton';
+import { formatForecastData } from '../../utils/format/ForecastDataFormat';
 
 const ForecastPage = () => {
   const dispatch = useDispatch();
-  const forecast = useSelector(state => state.forecastReducer)
-  const { fetchTransactionTypes: fetchIncomeTypes } = useTransactionType("income")
-  const { fetchTransactionTypes: fetchSavingTypes } = useTransactionType("saving")
-  const incomeTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.incomeTypes || [])
-  const savingTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.savingTypes || [])
-  const expenseTypes = useSelector(state => state.expenseTypeReducer.expenseTypes)
+  const forecast = useSelector(state => state.forecastReducer);
+  const { fetchTransactionTypes: fetchIncomeTypes } = useTransactionType("income");
+  const { fetchTransactionTypes: fetchSavingTypes } = useTransactionType("saving");
+  const incomeTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.incomeTypes || []);
+  const savingTypes = useSelector(state => state.transactionTypeReducer.transactionTypes.savingTypes || []);
+  const expenseTypes = useSelector(state => state.expenseTypeReducer.expenseTypes);
   const [forecastingData, setForecastingData] = useState([]);
 
   useEffect(() => {
+    console.log("Dispatching fetchForecastDataAsync");
     dispatch(fetchForecastDataAsync());
   }, [dispatch]);
 
   useEffect(() => {
-    if (forecast) {
-      setForecastingData(forecast);
-    }
-  }, []);
+    console.log("Fetching income and saving types");
+    fetchIncomeTypes();
+    fetchSavingTypes();
+    dispatch(getExpenseTypesActionAsync());
+  }, [dispatch]);
 
   useEffect(() => {
-    fetchIncomeTypes()
-    fetchSavingTypes()
-    dispatch(getExpenseTypesActionAsync())
-  }, [])
+    if (forecast.incomes.length && forecast.expenses.length && forecast.savings.length) {
+      setForecastingData(formatForecastData(forecast, incomeTypes, expenseTypes, savingTypes));
+    }
+  }, [forecast]);
+
+  useEffect(() => {
+    console.log("Fetching income and saving types");
+    fetchIncomeTypes();
+    fetchSavingTypes();
+    dispatch(getExpenseTypesActionAsync());
+  }, [dispatch]);
+
+  useEffect(() => {
+    console.log("Forecasting data updated:", forecastingData);
+  }, [forecastingData]);
 
   return (
     <ForecastPageStyled>
