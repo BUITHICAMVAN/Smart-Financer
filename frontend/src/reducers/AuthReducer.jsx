@@ -72,6 +72,9 @@ export const signUpAsync = (fullname, email, password) => async (dispatch) => {
 };
 
 export const signOutAsync = () => (dispatch) => {
-    localStorage.removeItem('token');
-    dispatch(logout());
+    return new Promise((resolve) => {
+        localStorage.removeItem('token');
+        dispatch(logout());
+        resolve();
+    });
 };
