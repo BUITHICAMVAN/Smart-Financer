@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { NavLink, useLocation } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { signOutAsync } from "../../reducers/AuthReducer";
 import {
     budgeting,
@@ -14,11 +14,14 @@ import {
     signout,
 } from "../../utils/icons/Icons";
 import BoxSx from "../box/BoxSx";
+import { setUserIdsAsync } from "../../reducers/UserReducer";
 
 const Navigation = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const location = useLocation();
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const userId = useSelector(state => state.userReducer.userId);
     const isDashboardActive = location.pathname === "/" || location.pathname === "/dashboard-page";
 
     const toggleSidebar = () => {
@@ -26,8 +29,21 @@ const Navigation = () => {
     };
 
     const handleSignOut = () => {
-        dispatch(signOutAsync());
+        dispatch(signOutAsync()).then(() => {
+            navigate('/signin-page');
+        });
     };
+
+    useEffect(() => {
+        if (!userId) {
+            dispatch(setUserIdsAsync());
+        }
+    }, [dispatch, userId]);
+
+    // Only render the navigation if authenticated
+    if (!userId) {
+        return null;
+    }
 
     return (
         <NavWrapper>
