@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { NavLink, useLocation } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { signOutAsync } from "../../reducers/AuthReducer";
 import {
     budgeting,
     customize,
@@ -16,10 +18,15 @@ import BoxSx from "../box/BoxSx";
 const Navigation = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const location = useLocation();
+    const dispatch = useDispatch();
     const isDashboardActive = location.pathname === "/" || location.pathname === "/dashboard-page";
 
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
+    };
+
+    const handleSignOut = () => {
+        dispatch(signOutAsync());
     };
 
     return (
@@ -92,7 +99,7 @@ const Navigation = () => {
                     </li> */}
                 </ul>
                 <div className="bottom-nav">
-                    <li>{signout} Sign Out</li>
+                    <li onClick={handleSignOut}>{signout} Sign Out</li>
                 </div>
             </NavStyled>
             {isSidebarOpen && <Overlay onClick={toggleSidebar} />}
@@ -205,6 +212,30 @@ const NavStyled = styled.nav`
     }
     .bottom-nav {
         flex: 1;
+    }
+    .bottom-nav li {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        margin: 0.5rem 2rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+        transition: all 0.4s ease-in-out;
+        color: var(--color-grey);
+        i {
+            color: var(--color-grey);
+            font-size: 1rem;
+            transition: all 0.4s ease-in-out;
+        }
+    }
+    .bottom-nav li:hover {
+        span {
+            color: var(--color-yellow);
+            font-weight: 600;
+        }
+        i {
+            color: var(--color-yellow) !important;
+        }
     }
     @media screen and (max-width: 1280px) {
         width: 250px;

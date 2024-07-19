@@ -17,13 +17,13 @@ exports.refreshToken = (req, res) => {
 };
 
 exports.signup = async (req, res) => {
-    const { user_fullname, user_email, user_password_hash, user_image, user_currency_unit } = req.body;
+    const { user_fullname, user_email, user_password, user_image, user_currency_unit } = req.body;
     try {
-        const hashPassword = bcrypt.hashSync(user_password_hash, 15);
+        const hashPassword = bcrypt.hashSync(user_password, 15);
         const newUser = await User.create({
             user_fullname,
             user_email,
-            user_password_hash: hashPassword, // Ensure this is hashed
+            user_password_hash: hashPassword,
             user_image,
             user_currency_unit
         });
@@ -48,14 +48,10 @@ exports.signin = async (req, res) => {
 
         const token = jwt.sign({ user_id: validUser.user_id }, process.env.SECRET_KEY);
 
-        // res.cookie('access_token', token, { httpOnly: true }).status(200).json({
-        //     validUser,
-        //     cookie: token,
-        // });
         res.cookie('access_token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
 
         res.status(200).json({
-            message: 'Signin succesful',
+            message: 'Signin successful',
             user: validUser,
             accessToken: token // return access token for client side 
         })
@@ -96,7 +92,7 @@ exports.resetpassword = async (req, res) => {
 
         // Verify the token first
         jwt.verify(token, process.env.SECRET_KEY, async (err, decoded) => {
-            if (err) {
+            if (err) { 
                 return res.status(403).json({ message: "Invalid or expired token." });
             }
 

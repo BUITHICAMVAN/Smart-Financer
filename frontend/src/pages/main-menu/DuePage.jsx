@@ -11,8 +11,7 @@ import {
   editDueActionAsync,
   getDuesActionAsync,
   selectTotalPayableAmount,
-  selectTotalReceivableAmount,
-  markDueAsPaidActionAsync,
+  selectTotalReceivableAmount
 } from "../../reducers/DueReducer";
 import DueModal from "../../components/modals/DueModal";
 import { getCurrencySymbol } from "../../utils/format/CurrencySymbol";

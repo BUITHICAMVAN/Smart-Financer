@@ -8,7 +8,7 @@ const ForecastTable = ({ data }) => {
 
   useEffect(() => {
     if (data) {
-      setDataSource(formatForecastData(data));
+      setDataSource(data);
     }
   }, [data]);
 
@@ -49,7 +49,6 @@ const ForecastTable = ({ data }) => {
     </ForecastTableStyled>
   );
 };
-
 
 const ForecastTableStyled = styled.div`
   .editable-row .editable-cell-value-wrap {

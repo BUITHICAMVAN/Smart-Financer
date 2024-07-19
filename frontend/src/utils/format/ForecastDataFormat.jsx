@@ -1,7 +1,6 @@
-export const formatForecastData = (forecast) => {
-  // Check if the forecast data is present and has the expected structure
+export const formatForecastData = (forecast, incomeTypes, expenseTypes, savingTypes) => {
   if (!forecast || !Array.isArray(forecast.incomes) || !Array.isArray(forecast.expenses) || !Array.isArray(forecast.savings)) {
-    console.error('Invalid forecast data:', forecast);
+    console.log('Formatting data in data format function:', forecast);
     return [];
   }
 
@@ -9,7 +8,6 @@ export const formatForecastData = (forecast) => {
   const aggregatedExpenses = {};
   const aggregatedSavings = {};
 
-  // Aggregate the incomes, expenses, and savings data
   forecast.incomes.forEach(item => {
     aggregatedIncomes[item.income_type_id] = item.forecast;
   });
@@ -30,12 +28,26 @@ export const formatForecastData = (forecast) => {
     months.push(new Date(0, i).toLocaleString('default', { month: 'long' }).toLowerCase());
   }
 
-  // Prepare categories
+  const getIncomeTypeName = (incomeTypeId) => {
+    const incomeType = incomeTypes.find(type => type.income_type_id === incomeTypeId);
+    return incomeType ? incomeType.income_type_name : 'others';
+  };
+
+  const getExpenseTypeName = (expenseTypeId) => {
+    const expenseType = expenseTypes.find(type => type.expense_type_id === expenseTypeId);
+    return expenseType ? expenseType.expense_type_name : 'others';
+  };
+
+  const getSavingTypeName = (savingTypeId) => {
+    const savingType = savingTypes.find(type => type.saving_type_id === savingTypeId);
+    return savingType ? savingType.saving_type_name : 'others';
+  };
+
   const incomeCategory = {
     key: 'income',
     category: 'Income',
     children: Object.keys(aggregatedIncomes).map(typeId => {
-      const data = { key: typeId, category: `Income Type ${typeId}` };
+      const data = { key: typeId, category: getIncomeTypeName(parseInt(typeId)) };
       months.forEach(month => data[month] = aggregatedIncomes[typeId] || 0);
       return data;
     }),
@@ -45,7 +57,7 @@ export const formatForecastData = (forecast) => {
     key: 'expenses',
     category: 'Expenses',
     children: Object.keys(aggregatedExpenses).map(typeId => {
-      const data = { key: typeId, category: `Expense Type ${typeId}` };
+      const data = { key: typeId, category: getExpenseTypeName(parseInt(typeId)) };
       months.forEach(month => data[month] = aggregatedExpenses[typeId] || 0);
       return data;
     }),
@@ -55,7 +67,7 @@ export const formatForecastData = (forecast) => {
     key: 'savings',
     category: 'Savings',
     children: Object.keys(aggregatedSavings).map(typeId => {
-      const data = { key: typeId, category: `Saving Type ${typeId}` };
+      const data = { key: typeId, category: getSavingTypeName(parseInt(typeId)) };
       months.forEach(month => data[month] = aggregatedSavings[typeId] || 0);
       return data;
     }),
